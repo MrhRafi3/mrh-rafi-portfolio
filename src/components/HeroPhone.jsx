@@ -1,10 +1,12 @@
 import { Component, lazy, Suspense, useCallback, useState } from 'react'
 import PhoneFallback from './PhoneFallback'
 
-// The 3D scene (three.js + the 24 MB model) loads in its own chunk,
-// so it never blocks the first paint of the page.
 const IPhone3D = lazy(() => import('../IPhone3D'))
 
+/**
+ * Utility to verify WebGL support on the client before attempting to mount the 3D canvas.
+ * @returns {boolean} True if WebGL is supported.
+ */
 function supportsWebGL() {
   try {
     const canvas = document.createElement('canvas')
@@ -17,8 +19,10 @@ function supportsWebGL() {
   }
 }
 
-// If anything inside the 3D scene throws (model missing, shader error...),
-// we drop back to the static phone instead of leaving the hero blank.
+/**
+ * Error boundary component for the 3D scene.
+ * Catches WebGL or Three.js related errors to safely fallback to a 2D rendering.
+ */
 class SceneBoundary extends Component {
   state = { failed: false }
 
@@ -36,6 +40,10 @@ class SceneBoundary extends Component {
   }
 }
 
+/**
+ * Component that manages the hero's phone visualization.
+ * Handles lazy loading of the 3D scene and graceful degradation to a 2D fallback.
+ */
 export default function HeroPhone({ reducedMotion, scrollProgress }) {
   const [webglOk, setWebglOk] = useState(() => supportsWebGL())
   const [sceneReady, setSceneReady] = useState(false)
@@ -51,7 +59,6 @@ export default function HeroPhone({ reducedMotion, scrollProgress }) {
     )
   }
 
-  // The static phone sits underneath and fades out once the 3D model is ready.
   return (
     <div className={`hero-phone${sceneReady ? ' is-ready' : ''}`}>
       <PhoneFallback />

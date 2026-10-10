@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 
-// Tells us which section is crossing the middle of the screen.
-// `ids` must be a stable array (define it outside the component).
+/**
+ * A custom hook that tracks which given section ID is currently active based on viewport intersection.
+ *
+ * @param {string[]} ids - An array of element IDs to track. Must be a stable array.
+ * @returns {string|null} The ID of the currently active section, or null if none are active.
+ */
 export default function useActiveSection(ids) {
   const [active, setActive] = useState(null)
 
@@ -13,7 +17,6 @@ export default function useActiveSection(ids) {
       .filter(Boolean)
     if (elements.length === 0) return undefined
 
-    // A thin band in the middle of the viewport decides the active section.
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

@@ -5,6 +5,11 @@ const SEEN_KEY = 'mrh-intro-seen'
 const easeOut = [0.22, 1, 0.36, 1]
 const easeInOut = [0.76, 0, 0.24, 1]
 
+/**
+ * Checks if the user has already seen the intro animation in this session.
+ *
+ * @returns {boolean} True if the intro has been seen, otherwise false.
+ */
 function hasSeenIntro() {
   try {
     return sessionStorage.getItem(SEEN_KEY) === '1'
@@ -13,19 +18,27 @@ function hasSeenIntro() {
   }
 }
 
+/**
+ * Marks the intro animation as seen in the current session.
+ */
 function markIntroSeen() {
   try {
     sessionStorage.setItem(SEEN_KEY, '1')
   } catch {
-    // Storage can be blocked (private mode). The intro just plays again.
+    // Ignore storage errors
   }
 }
 
-// Short (about 1.1s) intro. It plays once per browser tab session, and never
-// for people who prefer reduced motion. `onDone` tells the page to start
-// the hero animations.
+/**
+ * Renders the introductory animation sequence for the portfolio.
+ * Plays only once per session and respects reduced motion preferences.
+ *
+ * @param {Object} props - The component props.
+ * @param {boolean} props.reducedMotion - Whether to skip the animation for accessibility.
+ * @param {Function} props.onDone - Callback triggered when the intro finishes or is skipped.
+ * @returns {JSX.Element} The rendered intro component.
+ */
 export default function Intro({ reducedMotion, onDone }) {
-  // Decided once, so it cannot flip while the intro is playing.
   const [skipIntro] = useState(() => Boolean(reducedMotion) || hasSeenIntro())
   const [visible, setVisible] = useState(!skipIntro)
 
@@ -35,7 +48,6 @@ export default function Intro({ reducedMotion, onDone }) {
       return undefined
     }
 
-    // The hero starts revealing just as the curtain begins to lift.
     const doneTimer = window.setTimeout(() => {
       markIntroSeen()
       onDone()

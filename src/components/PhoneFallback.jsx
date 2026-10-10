@@ -1,6 +1,9 @@
-// Static CSS phone. It is shown while the 3D model downloads, and stays as
-// the permanent picture if WebGL is missing or the 3D scene fails.
-// The TaskFlow screen is a DEMO UI, not a published app.
+/**
+ * Renders a static CSS fallback for the 3D phone model.
+ * Displays while the 3D scene loads or when WebGL is unavailable.
+ *
+ * @returns {JSX.Element} The rendered phone fallback component.
+ */
 export default function PhoneFallback() {
   return (
     <div className="phone-fallback" aria-hidden="true">
@@ -15,58 +18,58 @@ export default function PhoneFallback() {
             </div>
 
             <div className="screen-brand">
-              Task<span>Flow</span>
+              mrh<span>.rafi</span>
             </div>
 
-            <p className="screen-greeting">Good morning,</p>
+            <p className="screen-greeting">Flutter App Developer</p>
             <h2>Rafi 👋</h2>
-            <p className="screen-subtitle">Let’s make today productive!</p>
+            <p className="screen-subtitle">Building thoughtful mobile apps.</p>
 
-            <div className="screen-search">⌕ &nbsp; Search tasks...</div>
+            <div className="screen-search">⌕ &nbsp; Flutter · Dart · C++ · DSA</div>
 
             <div className="screen-filters">
-              <span className="active">All</span>
-              <span>Today</span>
-              <span>Upcoming</span>
+              <span className="active">Projects</span>
+              <span>Flutter</span>
+              <span>DSA</span>
             </div>
 
             <div className="task-card">
-              <div className="task-icon green">✓</div>
+              <div className="task-icon green">◷</div>
               <div>
-                <strong>Design home screen</strong>
-                <small>Design · 10:00 AM</small>
+                <strong>Clocky Mobile App</strong>
+                <small>Clock · Alarm · Stopwatch</small>
+              </div>
+            </div>
+
+            <div className="task-card">
+              <div className="task-icon yellow">◈</div>
+              <div>
+                <strong>Expify Beta</strong>
+                <small>Flutter · Expense Tracker</small>
               </div>
             </div>
 
             <div className="task-card">
               <div className="task-icon blue">⌘</div>
               <div>
-                <strong>Develop API integration</strong>
-                <small>Development · 2:00 PM</small>
+                <strong>Flutter &amp; Dart UI</strong>
+                <small>Clean Mobile Architecture</small>
               </div>
             </div>
 
             <div className="task-card">
               <div className="task-icon pink">✳</div>
               <div>
-                <strong>Test and fix bugs</strong>
-                <small>Testing · 4:00 PM</small>
-              </div>
-            </div>
-
-            <div className="task-card">
-              <div className="task-icon yellow">▤</div>
-              <div>
-                <strong>Prepare presentation</strong>
-                <small>Work · 6:00 PM</small>
+                <strong>C++ &amp; DSA Foundations</strong>
+                <small>Problem Solving &amp; Logic</small>
               </div>
             </div>
 
             <div className="screen-bottom">
               <span>⌂<small>Home</small></span>
-              <span>▦<small>Calendar</small></span>
-              <span>▥<small>Stats</small></span>
-              <span>⚙<small>Settings</small></span>
+              <span>▦<small>Apps</small></span>
+              <span>▥<small>Skills</small></span>
+              <span>⚙<small>Contact</small></span>
             </div>
           </div>
         </div>
