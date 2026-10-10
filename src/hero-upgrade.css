@@ -1,0 +1,299 @@
+/*
+  Hero upgrade (milestone 1).
+  Loaded AFTER index.css. To undo everything in this file, remove the line
+  `import './hero-upgrade.css'` from App.jsx.
+*/
+
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Intro curtain ---------- */
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: var(--bg);
+}
+
+.intro-mark {
+  font-family: var(--heading-font);
+  font-size: clamp(30px, 6vw, 40px);
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  color: #171719;
+}
+
+.intro-mark span {
+  color: var(--accent);
+}
+
+.intro-bar {
+  width: 120px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(23, 23, 25, 0.1);
+}
+
+.intro-bar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+}
+
+/* ---------- Navigation ---------- */
+
+.nav-link {
+  position: relative;
+  padding: 8px 0;
+}
+
+.nav-link.is-active {
+  color: #171719;
+}
+
+.nav-indicator {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* Arrows nudge in the direction they point. */
+.nav-contact span[aria-hidden='true'],
+.button-primary span[aria-hidden='true'],
+.button-secondary span[aria-hidden='true'] {
+  display: inline-block;
+  transition: transform 260ms var(--ease-out);
+}
+
+.nav-contact:hover span[aria-hidden='true'],
+.button-primary:hover span[aria-hidden='true'] {
+  transform: translate(3px, -3px);
+}
+
+.button-secondary:hover span[aria-hidden='true'] {
+  transform: translateX(4px);
+}
+
+/* ---------- Headline: line-by-line reveal ---------- */
+
+/* Extra padding keeps descenders (p, g, y) and the tight letter-spacing from
+   being clipped by overflow: hidden. Negative margins keep the layout the same. */
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0.08em 0.16em 0;
+  margin: -0.04em -0.08em -0.16em 0;
+}
+
+.line-inner {
+  display: block;
+  will-change: transform;
+}
+
+/* ---------- Pointer parallax (values are set from JavaScript) ---------- */
+
+.visual-stage {
+  --mx: 0;
+  --my: 0;
+}
+
+.floating-label,
+.orbit {
+  transition: translate 700ms var(--ease-out);
+}
+
+.label-top {
+  translate: calc(var(--mx) * -16px) calc(var(--my) * -10px);
+}
+
+.label-bottom {
+  translate: calc(var(--mx) * 22px) calc(var(--my) * 12px);
+}
+
+.orbit-one {
+  translate: calc(var(--mx) * 12px) calc(var(--my) * 8px);
+}
+
+.orbit-two {
+  translate: calc(var(--mx) * -10px) calc(var(--my) * -6px);
+}
+
+/* ---------- Scroll indicator ---------- */
+
+.index-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.index-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateX(-100%);
+  animation: index-sweep 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes index-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  55%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- Hero phone: 3D scene + static fallback ---------- */
+
+.hero-phone {
+  position: relative;
+  width: clamp(280px, 34vw, 440px);
+  height: 560px;
+}
+
+/* The 3D canvas fills the box; the static phone sits underneath it. */
+.hero-phone .iphone-3d-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-phone .phone-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition:
+    opacity 700ms ease,
+    visibility 0s linear 700ms;
+}
+
+.hero-phone.is-ready .phone-fallback {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.rotation-hint {
+  transition: opacity 600ms ease 400ms;
+}
+
+.hero-phone:not(.is-ready) .rotation-hint {
+  opacity: 0;
+}
+
+.phone-fallback-frame {
+  width: 238px;
+  height: 465px;
+  padding: 9px;
+  border-radius: 44px;
+  background: linear-gradient(
+    145deg,
+    #e6e3dd 0%,
+    #a6a39d 38%,
+    #eeebe5 58%,
+    #8f8c87 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 30px 60px rgba(34, 28, 25, 0.26);
+  animation: fallback-float 6s ease-in-out infinite;
+}
+
+.phone-fallback-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 36px;
+  background: #0b0d0c;
+}
+
+.phone-fallback-island {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  z-index: 2;
+  width: 64px;
+  height: 18px;
+  border-radius: 10px;
+  background: #000;
+  translate: -50% 0;
+}
+
+/* The demo screen is designed at 300 x 610 and scaled to the 220px frame. */
+.phone-fallback-screen .project-screen {
+  transform: scale(0.7333);
+  transform-origin: top left;
+}
+
+@keyframes fallback-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-phone {
+    width: clamp(240px, 38vw, 360px);
+    height: 480px;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-phone {
+    width: min(78vw, 330px);
+    height: 440px;
+  }
+
+  .phone-fallback-frame {
+    transform: scale(0.88);
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-label,
+  .orbit,
+  .hero-phone .phone-fallback,
+  .rotation-hint {
+    transition: none;
+  }
+
+  .label-top,
+  .label-bottom,
+  .orbit-one,
+  .orbit-two {
+    translate: none;
+  }
+
+  .index-line::after,
+  .phone-fallback-frame {
+    animation: none;
+  }
+
+  .index-line::after {
+    opacity: 0;
+  }
+}

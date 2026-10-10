@@ -1,0 +1,251 @@
+import { Suspense, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import {
+  ContactShadows,
+  Environment,
+  Float,
+  Html,
+  useGLTF,
+} from '@react-three/drei'
+import * as THREE from 'three'
+
+function ProjectScreen() {
+  return (
+    <div className="project-screen">
+      <div className="screen-status">
+        <span>9:41</span>
+        <span>● ● ▰</span>
+      </div>
+
+      <div className="screen-brand">
+        Task<span>Flow</span>
+      </div>
+
+      <p className="screen-greeting">Good morning,</p>
+      <h2>Rafi 👋</h2>
+      <p className="screen-subtitle">Let’s make today productive!</p>
+
+      <div className="screen-search">⌕ &nbsp; Search tasks...</div>
+
+      <div className="screen-filters">
+        <span className="active">All</span>
+        <span>Today</span>
+        <span>Upcoming</span>
+      </div>
+
+      <div className="task-card">
+        <div className="task-icon green">✓</div>
+        <div>
+          <strong>Design home screen</strong>
+          <small>Design · 10:00 AM</small>
+        </div>
+      </div>
+
+      <div className="task-card">
+        <div className="task-icon blue">⌘</div>
+        <div>
+          <strong>Develop API integration</strong>
+          <small>Development · 2:00 PM</small>
+        </div>
+      </div>
+
+      <div className="task-card">
+        <div className="task-icon pink">✳</div>
+        <div>
+          <strong>Test and fix bugs</strong>
+          <small>Testing · 4:00 PM</small>
+        </div>
+      </div>
+
+      <div className="task-card">
+        <div className="task-icon yellow">▤</div>
+        <div>
+          <strong>Prepare presentation</strong>
+          <small>Work · 6:00 PM</small>
+        </div>
+      </div>
+
+      <div className="screen-bottom">
+        <span>⌂<small>Home</small></span>
+        <span>▦<small>Calendar</small></span>
+        <span>▥<small>Stats</small></span>
+        <span>⚙<small>Settings</small></span>
+      </div>
+    </div>
+  )
+}
+
+function PhoneModel({ reducedMotion, rotation, setRotation }) {
+  const group = useRef(null)
+  const dragging = useRef(false)
+  const lastX = useRef(0)
+  const { scene } = useGLTF('/models/iphone.glb')
+
+  const fitted = useMemo(() => {
+    const model = scene.clone(true)
+    const bounds = new THREE.Box3().setFromObject(model)
+    const size = bounds.getSize(new THREE.Vector3())
+    const center = bounds.getCenter(new THREE.Vector3())
+    const maxDimension = Math.max(size.x, size.y, size.z) || 1
+    const scale = 3.7 / maxDimension
+
+    model.traverse((object) => {
+      if (object.isMesh) {
+        object.castShadow = true
+        object.receiveShadow = true
+      }
+    })
+
+    return {
+      model,
+      scale,
+      position: [
+        -center.x * scale,
+        -center.y * scale,
+        -center.z * scale,
+      ],
+    }
+  }, [scene])
+
+  useFrame((state, delta) => {
+    if (!group.current) return
+
+    if (!dragging.current && !reducedMotion) {
+      setRotation((previous) => previous + delta * 0.35)
+    }
+
+    group.current.rotation.y = Math.PI + rotation
+    group.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.35) * 0.025
+  })
+
+  const handlePointerDown = (event) => {
+    event.stopPropagation()
+    dragging.current = true
+    lastX.current = event.clientX
+    event.target.setPointerCapture?.(event.pointerId)
+  }
+
+  const handlePointerMove = (event) => {
+    if (!dragging.current) return
+    const difference = event.clientX - lastX.current
+    lastX.current = event.clientX
+    setRotation((previous) => previous + difference * 0.01)
+  }
+
+  const handlePointerUp = () => {
+    dragging.current = false
+  }
+
+  return (
+    <group
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerUp}
+    >
+      <Float
+        speed={reducedMotion ? 0 : 1.2}
+        floatIntensity={reducedMotion ? 0 : 0.12}
+        rotationIntensity={0}
+      >
+        <group ref={group}>
+          <primitive
+            object={fitted.model}
+            scale={fitted.scale}
+            position={fitted.position}
+          />
+
+          {/* Screen overlay: adjust position/rotation to match your GLB screen */}
+          
+<Html
+  transform
+  position={[0, 0, 0.5]}
+  rotation={[0, 0, 0]}
+  scale={0.25}
+  distanceFactor={4.5}
+  zIndexRange={[100, 0]}
+  style={{
+    width: '300px',
+    height: '610px',
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    borderRadius: '34px',
+    background: '#0b0d0c',
+  }}
+>
+  <ProjectScreen />
+</Html>
+
+        </group>
+      </Float>
+    </group>
+  )
+}
+
+function LoadingPhone() {
+  return (
+    <mesh>
+      <boxGeometry args={[1.1, 2.2, 0.12]} />
+      <meshStandardMaterial
+        color="#e9e6e1"
+        metalness={0.65}
+        roughness={0.25}
+      />
+    </mesh>
+  )
+}
+
+export default function IPhone3D({ reducedMotion = false }) {
+  const [rotation, setRotation] = useState(0)
+
+  return (
+    <div className="iphone-3d-wrap">
+      <Canvas
+        dpr={[1, 1.5]}
+        camera={{ position: [0, 0, 6.5], fov: 34 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance',
+        }}
+        onCreated={({ gl }) => {
+          gl.outputColorSpace = THREE.SRGBColorSpace
+          gl.toneMapping = THREE.ACESFilmicToneMapping
+        }}
+      >
+        <ambientLight intensity={1.2} />
+        <hemisphereLight args={['#ffffff', '#b8b1a7', 1.5]} />
+        <directionalLight
+          position={[4, 5, 5]}
+          intensity={2.4}
+          color="#fff8ef"
+        />
+        <directionalLight
+          position={[-4, 1, -3]}
+          intensity={1.8}
+          color="#dce5ff"
+        />
+
+        <Suspense fallback={<LoadingPhone />}>
+          <PhoneModel
+            reducedMotion={reducedMotion}
+            rotation={rotation}
+            setRotation={setRotation}
+          />
+          <ContactShadows
+            position={[0, -2.15, 0]}
+            opacity={0.28}
+            scale={4.5}
+            blur={2.8}
+            far={4}
+          />
+          <Environment preset="studio" />
+        </Suspense>
+      </Canvas>
+
+      <div className="rotation-hint">↔ &nbsp; 360° ROTATION</div>
+    </div>
+  )
+}
+
+useGLTF.preload('/models/iphone.glb')

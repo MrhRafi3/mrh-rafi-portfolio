@@ -1,0 +1,796 @@
+
+import { useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  AlarmClock,
+  Clock3,
+  Code2,
+  Github,
+  Layers3,
+  Linkedin,
+  Menu,
+  Palette,
+  Smartphone,
+  Timer,
+  X,
+} from 'lucide-react'
+import './index.css'
+
+const easeOut = [0.22, 1, 0.36, 1]
+
+const socialLinks = [
+  {
+    label: 'GitHub',
+    href: 'https://github.com/mrirafi',
+    icon: Github,
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://bd.linkedin.com/in/mrhrafi',
+    icon: Linkedin,
+  },
+]
+
+const clockFeatures = [
+  {
+    number: '01',
+    name: 'Clock',
+    detail: 'Time at a glance',
+    icon: Clock3,
+  },
+  {
+    number: '02',
+    name: 'Alarm',
+    detail: 'Start your day',
+    icon: AlarmClock,
+  },
+  {
+    number: '03',
+    name: 'Stopwatch',
+    detail: 'Every second counts',
+    icon: Timer,
+  },
+]
+
+const skills = [
+  {
+    number: '01',
+    title: 'Flutter',
+    description: 'Building cross-platform mobile experiences.',
+    icon: Smartphone,
+  },
+  {
+    number: '02',
+    title: 'Dart',
+    description: 'Writing structured, maintainable app code.',
+    icon: Code2,
+  },
+  {
+    number: '03',
+    title: 'UI & UX',
+    description: 'Keeping interfaces clear and considered.',
+    icon: Palette,
+  },
+  {
+    number: '04',
+    title: 'Product thinking',
+    description: 'Focusing on useful details and real needs.',
+    icon: Layers3,
+  },
+]
+
+function App() {
+  const shouldReduceMotion = useReducedMotion()
+  const [activeClockTab, setActiveClockTab] = useState('Clock')
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const reveal = (delay = 0, distance = 24) => ({
+    initial: shouldReduceMotion
+      ? false
+      : { opacity: 0, y: distance },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: shouldReduceMotion ? 0 : 0.75,
+      delay: shouldReduceMotion ? 0 : delay,
+      ease: easeOut,
+    },
+  })
+
+  const scrollReveal = (distance = 30) => ({
+    initial: shouldReduceMotion
+      ? false
+      : { opacity: 0, y: distance },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.16 },
+    transition: {
+      duration: shouldReduceMotion ? 0 : 0.7,
+      ease: easeOut,
+    },
+  })
+
+  const hoverLift = shouldReduceMotion
+    ? undefined
+    : { y: -4, transition: { duration: 0.2 } }
+
+  const closeMenu = () => setMenuOpen(false)
+
+  return (
+    <main className="portfolio">
+      <motion.nav
+        className="navbar"
+        aria-label="Main navigation"
+        {...reveal(0.05, -12)}
+      >
+        <a className="wordmark" href="#home" aria-label="Mrh Rafi home">
+          Mrh<span> </span>Rafi
+        </a>
+
+        <div className={`nav-links ${menuOpen ? 'nav-links-open' : ''}`}>
+          {[
+            { label: 'Work', href: '#work' },
+            { label: 'About', href: '#about' },
+            { label: 'Skills', href: '#skills' },
+          ].map((link) => (
+            <a key={link.label} href={link.href} onClick={closeMenu}>
+              {link.label}
+            </a>
+          ))}
+        </div>
+
+        <div className="nav-actions">
+          <a className="nav-contact" href="#contact">
+            Let&apos;s talk <ArrowUpRight size={15} />
+          </a>
+
+          <button
+            className="menu-toggle"
+            type="button"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </motion.nav>
+
+      <section className="hero-section" id="home">
+        <div className="hero-copy">
+          <motion.div className="availability" {...reveal(0.12)}>
+            <span className="status-dot" />
+            FLUTTER DEVELOPER
+          </motion.div>
+
+          <motion.p className="eyebrow hero-eyebrow" {...reveal(0.2)}>
+            INDEPENDENT DEVELOPER · BANGLADESH
+          </motion.p>
+
+          <motion.h1 {...reveal(0.3, 34)}>
+            I build apps
+            <br />
+            that feel
+            <br />
+            <span className="accent-text">effortless.</span>
+          </motion.h1>
+
+          <motion.p className="hero-description" {...reveal(0.45)}>
+            Thoughtful mobile experiences, crafted with clean code
+            and a passion for purposeful design.
+          </motion.p>
+
+          <motion.div className="hero-actions" {...reveal(0.58)}>
+            <motion.a
+              className="button-primary"
+              href="#work"
+              whileHover={
+                shouldReduceMotion ? undefined : { y: -3, scale: 1.02 }
+              }
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+            >
+              Explore my work <ArrowUpRight size={16} />
+            </motion.a>
+
+            <motion.a
+              className="button-secondary"
+              href="#contact"
+              whileHover={hoverLift}
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+            >
+              Get in touch <ArrowDownRight size={16} />
+            </motion.a>
+          </motion.div>
+
+          <motion.div className="hero-location" {...reveal(0.7, 10)}>
+            <span aria-hidden="true">↳</span>
+            Based in Bangladesh
+          </motion.div>
+        </div>
+
+        <motion.div
+          className="visual-stage"
+          aria-label="Decorative Clocky-inspired phone illustration"
+          initial={
+            shouldReduceMotion
+              ? false
+              : { opacity: 0, scale: 0.94, y: 24 }
+          }
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.9,
+            delay: shouldReduceMotion ? 0 : 0.2,
+            ease: easeOut,
+          }}
+        >
+          <motion.div
+            className="orbit orbit-one"
+            animate={shouldReduceMotion ? undefined : { rotate: 360 }}
+            transition={{
+              duration: 80,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+          />
+          <div className="orbit orbit-two" />
+
+          <motion.div
+            className="floating-label label-top"
+            animate={shouldReduceMotion ? undefined : { y: [0, -7, 0] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <span className="label-icon">✳</span>
+            Crafted with purpose
+          </motion.div>
+
+          <motion.div
+            className="hero-phone"
+            animate={
+              shouldReduceMotion
+                ? undefined
+                : { y: [0, -9, 0], rotate: [-4, -2, -4] }
+            }
+            transition={{
+              duration: 6,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <div className="hero-phone-screen">
+              <div className="phone-status">
+                <span>9:41</span>
+                <span>● ▰</span>
+              </div>
+
+              <div className="phone-greeting">YOUR TIME, YOUR WAY</div>
+              <div className="hero-clock-time">
+                09<span>:</span>41
+              </div>
+              <div className="hero-clock-date">A MOMENT FOR YOURSELF</div>
+
+              <div className="phone-divider" />
+
+              <div className="hero-phone-card">
+                <span className="hero-mini-icon">
+                  <AlarmClock size={17} />
+                </span>
+                <span>
+                  <strong>Morning alarm</strong>
+                  <small>Ready for a new day</small>
+                </span>
+                <span className="mini-toggle" />
+              </div>
+
+              <div className="hero-phone-card">
+                <span className="hero-mini-icon">
+                  <Timer size={17} />
+                </span>
+                <span>
+                  <strong>Focus session</strong>
+                  <small>Make time count</small>
+                </span>
+                <ArrowUpRight className="phone-card-arrow" size={15} />
+              </div>
+
+              <div className="hero-phone-bottom">
+                <Clock3 size={16} />
+                <AlarmClock size={16} />
+                <Timer size={16} />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="floating-label label-bottom"
+            animate={shouldReduceMotion ? undefined : { y: [0, 6, 0] }}
+            transition={{
+              duration: 4.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            <span className="label-dot" />
+            Built with Flutter
+          </motion.div>
+
+          <div className="tech-label">DART / FLUTTER</div>
+        </motion.div>
+
+        <motion.a
+          className="hero-index"
+          href="#work"
+          {...reveal(0.8, 8)}
+        >
+          <span>01</span>
+          <span className="index-line" />
+          <span>SCROLL TO EXPLORE</span>
+          <ArrowDownRight size={15} />
+        </motion.a>
+      </section>
+
+      <motion.section
+        className="intro-strip"
+        aria-label="Development philosophy"
+        {...scrollReveal(18)}
+      >
+        <p>MOBILE ENGINEERING</p>
+        <span aria-hidden="true">✳</span>
+        <p>THOUGHTFUL DESIGN</p>
+        <span aria-hidden="true">✳</span>
+        <p>REAL-WORLD SOLUTIONS</p>
+      </motion.section>
+
+      <motion.section
+        className="work-section section-shell"
+        id="work"
+        {...scrollReveal(28)}
+      >
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">01 / SELECTED PROJECT</p>
+            <h2>
+              Made with <span>purpose.</span>
+            </h2>
+          </div>
+          <p className="section-side-note">
+            A closer look at a project built around everyday utility.
+          </p>
+        </div>
+
+        <motion.article
+          className="clocky-showcase"
+          aria-label="Clocky mobile application concept preview"
+          initial={
+            shouldReduceMotion ? false : { opacity: 0, y: 34, scale: 0.99 }
+          }
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, amount: 0.12 }}
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.8,
+            ease: easeOut,
+          }}
+        >
+          <div className="clocky-copy">
+            <div className="project-meta">
+              <span className="project-pill">PERSONAL PROJECT</span>
+              <span className="project-category">MOBILE APP</span>
+            </div>
+
+            <p className="clocky-kicker">YOUR TIME, YOUR WAY</p>
+            <h3>
+              Clocky<span>.</span>
+            </h3>
+
+            <p className="clocky-description">
+              Timekeeping essentials, brought together in one clean mobile
+              experience. Designed around clarity, simplicity and everyday use.
+            </p>
+
+            <div className="feature-grid">
+              {clockFeatures.map((feature, index) => {
+                const FeatureIcon = feature.icon
+
+                return (
+                  <motion.div
+                    className="feature-card"
+                    key={feature.name}
+                    initial={
+                      shouldReduceMotion ? false : { opacity: 0, y: 14 }
+                    }
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      duration: shouldReduceMotion ? 0 : 0.45,
+                      delay: shouldReduceMotion ? 0 : index * 0.1,
+                      ease: easeOut,
+                    }}
+                    whileHover={shouldReduceMotion ? undefined : { y: -4 }}
+                  >
+                    <span className="feature-icon">
+                      <FeatureIcon size={19} strokeWidth={1.7} />
+                    </span>
+                    <span className="feature-number">{feature.number}</span>
+                    <strong>{feature.name}</strong>
+                    <small>{feature.detail}</small>
+                  </motion.div>
+                )
+              })}
+            </div>
+
+            <div className="project-actions">
+              {socialLinks.map((link) => {
+                const SocialIcon = link.icon
+
+                return (
+                  <motion.a
+                    className="project-link"
+                    key={link.label}
+                    href={link.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    whileHover={hoverLift}
+                    whileTap={
+                      shouldReduceMotion ? undefined : { scale: 0.97 }
+                    }
+                  >
+                    <SocialIcon size={15} />
+                    {link.label}
+                    <ArrowUpRight size={14} />
+                  </motion.a>
+                )
+              })}
+            </div>
+
+            <p className="project-note">
+              Preview shown here is a portfolio concept, not a screenshot of
+              the published app.
+            </p>
+          </div>
+
+          <div className="clocky-visual">
+            <motion.div
+              className="clocky-orbit clocky-orbit-one"
+              aria-hidden="true"
+              animate={shouldReduceMotion ? undefined : { rotate: -360 }}
+              transition={{
+                duration: 70,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+            <div className="clocky-orbit clocky-orbit-two" />
+
+            <motion.div
+              className="clocky-phone"
+              animate={
+                shouldReduceMotion
+                  ? undefined
+                  : { y: [0, -8, 0], rotate: [2, 1, 2] }
+              }
+              transition={{
+                duration: 5.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
+              <div className="clocky-phone-screen">
+                <div className="clocky-status">
+                  <span>9:41</span>
+                  <span>● ▰</span>
+                </div>
+
+                <div className="clocky-app-header">
+                  <div>
+                    <span className="clocky-app-eyebrow">YOUR TIME</span>
+                    <strong>Clocky<span>.</span></strong>
+                  </div>
+                  <span className="clocky-app-avatar">
+                    <Clock3 size={17} />
+                  </span>
+                </div>
+
+                <div className="clocky-tab-list" role="tablist" aria-label="Clocky preview screens">
+                  {clockFeatures.map((feature) => (
+                    <button
+                      className={
+                        activeClockTab === feature.name ? 'active' : ''
+                      }
+                      key={feature.name}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeClockTab === feature.name}
+                      onClick={() => setActiveClockTab(feature.name)}
+                    >
+                      {feature.name}
+                    </button>
+                  ))}
+                </div>
+
+                {activeClockTab === 'Clock' && (
+                  <motion.div
+                    className="clocky-tab-content"
+                    key="clock"
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    role="tabpanel"
+                  >
+                    <span className="clocky-content-label">CURRENT TIME</span>
+                    <div className="clocky-large-time">
+                      09<span>:</span>41
+                    </div>
+                    <div className="clocky-date">MONDAY · OCTOBER 09</div>
+                    <div className="clocky-info-card">
+                      <span className="clocky-info-icon">
+                        <AlarmClock size={17} />
+                      </span>
+                      <span>
+                        <strong>Morning alarm</strong>
+                        <small>Next · 06:30 AM</small>
+                      </span>
+                      <span className="clocky-toggle" />
+                    </div>
+                    <div className="clocky-info-card">
+                      <span className="clocky-info-icon">
+                        <Timer size={17} />
+                      </span>
+                      <span>
+                        <strong>Stopwatch</strong>
+                        <small>Ready when you are</small>
+                      </span>
+                      <ArrowUpRight size={15} />
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeClockTab === 'Alarm' && (
+                  <motion.div
+                    className="clocky-tab-content"
+                    key="alarm"
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    role="tabpanel"
+                  >
+                    <span className="clocky-content-label">NEXT ALARM</span>
+                    <div className="clocky-large-time">
+                      06<span>:</span>30
+                    </div>
+                    <div className="clocky-date">AM · EVERY WEEKDAY</div>
+                    <div className="clocky-info-card">
+                      <span className="clocky-info-icon">
+                        <AlarmClock size={17} />
+                      </span>
+                      <span>
+                        <strong>Morning routine</strong>
+                        <small>Monday – Friday</small>
+                      </span>
+                      <span className="clocky-toggle" />
+                    </div>
+                    <div className="clocky-preview-caption">
+                      Start tomorrow with a little more intention.
+                    </div>
+                  </motion.div>
+                )}
+
+                {activeClockTab === 'Stopwatch' && (
+                  <motion.div
+                    className="clocky-tab-content"
+                    key="stopwatch"
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    role="tabpanel"
+                  >
+                    <span className="clocky-content-label">STOPWATCH</span>
+                    <div className="clocky-stopwatch-face">
+                      <Timer size={28} strokeWidth={1.4} />
+                      <strong>00:00<span>.00</span></strong>
+                      <small>READY TO START</small>
+                    </div>
+                    <div className="clocky-stopwatch-actions">
+                      <span>Reset</span>
+                      <span>Start</span>
+                    </div>
+                    <div className="clocky-preview-caption">
+                      Every second counts. Make yours matter.
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="clocky-bottom-nav">
+                  <span className={activeClockTab === 'Clock' ? 'selected' : ''}>
+                    <Clock3 size={16} />
+                  </span>
+                  <span className={activeClockTab === 'Alarm' ? 'selected' : ''}>
+                    <AlarmClock size={16} />
+                  </span>
+                  <span className={activeClockTab === 'Stopwatch' ? 'selected' : ''}>
+                    <Timer size={16} />
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="visual-note visual-note-top"
+              animate={shouldReduceMotion ? undefined : { y: [0, -5, 0] }}
+              transition={{
+                duration: 3.8,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
+              <span>✳</span> Simple by design
+            </motion.div>
+
+            <motion.div
+              className="visual-note visual-note-bottom"
+              animate={shouldReduceMotion ? undefined : { y: [0, 5, 0] }}
+              transition={{
+                duration: 4.2,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+            >
+              CLOCK · ALARM · STOPWATCH
+            </motion.div>
+          </div>
+        </motion.article>
+
+        <motion.div className="more-work-note" {...scrollReveal(16)}>
+          <span className="more-work-dot" />
+          <p>
+            More work is on the way. I&apos;m always building and learning.
+          </p>
+        </motion.div>
+      </motion.section>
+
+      <motion.section
+        className="about-section section-shell"
+        id="about"
+        {...scrollReveal(28)}
+      >
+        <div className="section-number">02 / ABOUT</div>
+        <div className="about-content">
+          <h2>
+            Curious by nature.
+            <br />
+            <span>Intentional by design.</span>
+          </h2>
+          <div className="about-copy">
+            <p>
+              I&apos;m an independent Flutter developer from Bangladesh who
+              enjoys turning ideas into thoughtful mobile experiences.
+            </p>
+            <p>
+              I care about the details people feel: a clear interface,
+              predictable interactions and code that is easy to maintain.
+            </p>
+          </div>
+        </div>
+        <div className="about-bottom-line">
+          <span>BUILD WITH CARE</span>
+          <span>LEARN EVERY DAY</span>
+          <span>KEEP IT USEFUL</span>
+        </div>
+      </motion.section>
+
+      <motion.section
+        className="skills-section section-shell"
+        id="skills"
+        {...scrollReveal(28)}
+      >
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">03 / SKILLS & APPROACH</p>
+            <h2>
+              The tools behind
+              <br />
+              <span>the experience.</span>
+            </h2>
+          </div>
+          <p className="section-side-note">
+            A practical toolkit for building considered digital products.
+          </p>
+        </div>
+
+        <div className="skills-grid">
+          {skills.map((skill, index) => {
+            const SkillIcon = skill.icon
+
+            return (
+              <motion.article
+                className="skill-card"
+                key={skill.number}
+                initial={
+                  shouldReduceMotion ? false : { opacity: 0, y: 22 }
+                }
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{
+                  duration: shouldReduceMotion ? 0 : 0.55,
+                  delay: shouldReduceMotion ? 0 : index * 0.08,
+                  ease: easeOut,
+                }}
+                whileHover={shouldReduceMotion ? undefined : { y: -5 }}
+              >
+                <div className="skill-card-top">
+                  <span>{skill.number}</span>
+                  <SkillIcon size={21} strokeWidth={1.6} />
+                </div>
+                <h3>{skill.title}</h3>
+                <p>{skill.description}</p>
+                <ArrowUpRight className="skill-arrow" size={17} />
+              </motion.article>
+            )
+          })}
+        </div>
+      </motion.section>
+
+      <motion.footer
+        className="footer section-shell"
+        id="contact"
+        {...scrollReveal(28)}
+      >
+        <div className="footer-top">
+          <div>
+            <p className="eyebrow">HAVE AN IDEA?</p>
+            <h2>
+              Let&apos;s build something
+              <br />
+              <span>meaningful.</span>
+            </h2>
+          </div>
+
+          <motion.a
+            className="button-primary footer-cta"
+            href="https://bd.linkedin.com/in/mrhrafi"
+            target="_blank"
+            rel="noreferrer"
+            whileHover={hoverLift}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+          >
+            Let&apos;s connect <ArrowUpRight size={17} />
+          </motion.a>
+        </div>
+
+        <div className="footer-bottom">
+          <a className="wordmark footer-wordmark" href="#home">
+            mrh<span>.</span>rafi
+          </a>
+
+          <p>Designed with care. Built with intention.</p>
+
+          <div className="footer-socials">
+            {socialLinks.map((link) => {
+              const SocialIcon = link.icon
+
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={link.label}
+                >
+                  <SocialIcon size={17} />
+                </a>
+              )
+            })}
+          </div>
+
+          <p className="footer-note">
+            © 2026 Mrh Rafi · Made with intention.
+          </p>
+        </div>
+      </motion.footer>
+    </main>
+  )
+}
+
+export default App
