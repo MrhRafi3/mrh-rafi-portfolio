@@ -1,7 +1,9 @@
 import { Component, lazy, Suspense, useCallback, useState } from 'react'
 import PhoneFallback from './PhoneFallback'
 
-const IPhone3D = lazy(() => import('../IPhone3D'))
+// Start downloading the 3D chunk and preloading the GLB/screenshots immediately behind the intro curtain.
+const iphone3DPromise = import('../IPhone3D')
+const IPhone3D = lazy(() => iphone3DPromise)
 
 /**
  * Utility to verify WebGL support on the client before attempting to mount the 3D canvas.
@@ -42,9 +44,14 @@ class SceneBoundary extends Component {
 
 /**
  * Component that manages the hero's phone visualization.
- * Handles lazy loading of the 3D scene and graceful degradation to a 2D fallback.
+ * Handles lazy loading of the 3D scene, live screenshot texture updates, and graceful degradation to a 2D fallback.
  */
-export default function HeroPhone({ reducedMotion, scrollProgress }) {
+export default function HeroPhone({
+  reducedMotion,
+  scrollProgress,
+  screenImageSrc = '/images/expify/screen-1.png',
+  pageReady = true,
+}) {
   const [webglOk, setWebglOk] = useState(() => supportsWebGL())
   const [sceneReady, setSceneReady] = useState(false)
 
@@ -54,20 +61,22 @@ export default function HeroPhone({ reducedMotion, scrollProgress }) {
   if (!webglOk) {
     return (
       <div className="hero-phone">
-        <PhoneFallback />
+        <PhoneFallback screenImageSrc={screenImageSrc} />
       </div>
     )
   }
 
   return (
     <div className={`hero-phone${sceneReady ? ' is-ready' : ''}`}>
-      <PhoneFallback />
+      <PhoneFallback screenImageSrc={screenImageSrc} />
 
       <SceneBoundary onError={handleFail}>
         <Suspense fallback={null}>
           <IPhone3D
             reducedMotion={reducedMotion}
             scrollProgress={scrollProgress}
+            screenImageSrc={screenImageSrc}
+            pageReady={pageReady}
             onReady={handleReady}
             onFail={handleFail}
           />

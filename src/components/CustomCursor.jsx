@@ -10,7 +10,11 @@ import { motion, useMotionValue, useSpring } from 'motion/react'
  */
 export default function CustomCursor({ shouldReduceMotion }) {
   const [isVisible, setIsVisible] = useState(false)
-  const [isFinePointer, setIsFinePointer] = useState(false)
+  const [isFinePointer, setIsFinePointer] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      Boolean(window.matchMedia?.('(hover: hover) and (pointer: fine)').matches),
+  )
 
   const cursorX = useMotionValue(-100)
   const cursorY = useMotionValue(-100)
@@ -23,8 +27,12 @@ export default function CustomCursor({ shouldReduceMotion }) {
     if (shouldReduceMotion || typeof window === 'undefined') return undefined
 
     const mediaQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
-    setIsFinePointer(mediaQuery.matches)
-    if (!mediaQuery.matches) return undefined
+    const handlePointerChange = (event) => setIsFinePointer(event.matches)
+    mediaQuery.addEventListener?.('change', handlePointerChange)
+
+    if (!mediaQuery.matches) {
+      return () => mediaQuery.removeEventListener?.('change', handlePointerChange)
+    }
 
     const moveCursor = (event) => {
       cursorX.set(event.clientX - 14)
@@ -40,6 +48,7 @@ export default function CustomCursor({ shouldReduceMotion }) {
     document.documentElement.addEventListener('mouseleave', handleMouseLeave)
 
     return () => {
+      mediaQuery.removeEventListener?.('change', handlePointerChange)
       window.removeEventListener('mousemove', moveCursor)
       document.documentElement.removeEventListener('mouseenter', handleMouseEnter)
       document.documentElement.removeEventListener('mouseleave', handleMouseLeave)

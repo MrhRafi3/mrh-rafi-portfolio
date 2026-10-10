@@ -172,6 +172,12 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  opacity: 0;
+  transition: opacity 550ms var(--ease-out);
+}
+
+.hero-phone.is-ready .iphone-3d-wrap {
+  opacity: 1;
 }
 
 .hero-phone .phone-fallback {
@@ -180,8 +186,8 @@
   display: grid;
   place-items: center;
   transition:
-    opacity 700ms ease,
-    visibility 0s linear 700ms;
+    opacity 650ms ease,
+    visibility 0s linear 650ms;
 }
 
 .hero-phone.is-ready .phone-fallback {
@@ -223,6 +229,16 @@
   overflow: hidden;
   border-radius: 36px;
   background: #0b0d0c;
+}
+
+.phone-fallback-screenshot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .phone-fallback-island {

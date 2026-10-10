@@ -1,9 +1,7 @@
 import {
   AnimatePresence,
   motion,
-  useMotionValue,
   useReducedMotion,
-  useSpring,
   useScroll,
   useTransform,
 } from 'motion/react'
@@ -73,8 +71,9 @@ const easeOut = [0.22, 1, 0.36, 1]
 const CURRENT_YEAR = 2026
 
 /**
- * Central configuration for Mrh Rafi's personal profile and assets.
- * Update `portraitSrc`, `email`, `resumeUrl`, or project `repoUrl` here as assets become available.
+ * Central configuration for Mrh Rafi's personal profile and Hero 3D iPhone screen.
+ * - Change `heroPhoneScreenSrc` anytime to swap the default screenshot displayed on the 3D iPhone.
+ * - Update `email`, `resumeUrl`, or project `links` as they become available.
  */
 const PROFILE_CONFIG = {
   name: 'Mrh Rafi',
@@ -82,11 +81,29 @@ const PROFILE_CONFIG = {
   secondaryFocus: 'C++ & Data Structures and Algorithms (DSA)',
   location: 'Bangladesh',
   portraitSrc: '/images/rafi-portrait.jpg',
+  heroPhoneScreenSrc: '/images/expify/screen-1.png',
   email: null,
   resumeUrl: null,
   githubUrl: 'https://github.com/mrirafi',
   linkedinUrl: 'https://bd.linkedin.com/in/mrhrafi',
 }
+
+/**
+ * Presets for the Hero 3D iPhone display switcher.
+ * Add or replace entries here to preview any app screenshot on the 3D iPhone.
+ */
+const HERO_SCREEN_OPTIONS = [
+  {
+    id: 'expify',
+    label: 'Expify Beta',
+    src: '/images/expify/screen-1.png',
+  },
+  {
+    id: 'clocky',
+    label: 'Clocky',
+    src: '/images/clocky/screen-1.png',
+  },
+]
 
 const headlineLines = [
   { text: 'I build apps', accent: false },
@@ -106,18 +123,25 @@ const projectsData = [
     accent: '.',
     screenshotSrc: '/images/clocky/screen-1.png',
     description:
-      'Timekeeping essentials brought together in one clean mobile experience. Designed around clarity, readable typography, and smooth everyday utility.',
-    techStack: ['Flutter', 'Dart', 'Custom Mobile UI'],
+      'A dark-mode Flutter timekeeping application combining a glowing analog and digital World Clock with quick timezone management, alarms, and a precision stopwatch.',
+    techStack: ['Flutter', 'Dart', 'Custom Canvas / Analog Clock UI'],
     role: 'Flutter App Developer — UI Design & Mobile Implementation',
     highlights: [
-      'Unified clock, alarm, and stopwatch workflows inside a single cohesive dark-mode mobile interface.',
-      'Focused on high-contrast typography and distraction-free controls for quick daily interactions.',
-      'Structured with modular Flutter widgets for consistent spacing, smooth transitions, and maintainability.',
+      'Designed a high-contrast World Clock home screen pairing a glowing analog dial with a live digital readout and active city indicator (Dhaka).',
+      'Integrated quick timezone addition and bottom-bar navigation across World Clock, Alarm, and Stopwatch views.',
+      'Structured with modular Flutter widgets for smooth state updates, crisp dark-theme contrast, and distraction-free utility.',
     ],
     features: [
-      { name: 'Clock', detail: 'Time at a glance', icon: '◷' },
+      { name: 'World Clock', detail: 'Analog & digital time', icon: '◷' },
       { name: 'Alarm', detail: 'Start your day', icon: '◉' },
       { name: 'Stopwatch', detail: 'Every second counts', icon: '◎' },
+    ],
+    screenshots: [
+      {
+        src: '/images/clocky/screen-1.png',
+        label: 'Clocky World Clock Screen',
+        alt: 'Clocky World Clock screen showing 09:30:15 PM digital readout, glowing analog clock face, Dhaka timezone pill, and bottom navigation',
+      },
     ],
     links: [
       { label: 'GitHub Profile', href: 'https://github.com/mrirafi', symbol: '↗' },
@@ -437,14 +461,20 @@ function ProjectDetailsModal({ project, onClose }) {
 
             {project.screenshots?.length > 0 && (
               <div className="project-modal-section">
-                <h4>Application Screenshots Setup</h4>
-                <p className="project-modal-note">
-                  Place your real Expify Beta screenshots in{' '}
-                  <code>public/images/expify/</code> (e.g.,{' '}
-                  <code>screen-1.png</code>, <code>screen-2.png</code>,{' '}
-                  <code>screen-3.png</code>) and they will automatically render in
-                  the interactive preview frame.
-                </p>
+                <h4>Application Screen Preview</h4>
+                <div className="project-modal-screens-grid">
+                  {project.screenshots.map((shot) => (
+                    <figure key={shot.src} className="project-modal-shot">
+                      <img
+                        src={shot.src}
+                        alt={shot.alt || shot.label}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {shot.label && <figcaption>{shot.label}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -473,8 +503,11 @@ function App() {
   const shouldReduceMotion = useReducedMotion()
   const [ready, setReady] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
+  const [activeHeroScreen, setActiveHeroScreen] = useState(
+    PROFILE_CONFIG.heroPhoneScreenSrc,
+  )
 
-  /** Mark initial intro animation as complete to mount heavy components. */
+  /** Mark initial intro animation as complete to trigger hero entrance choreography. */
   const handleIntroDone = useCallback(() => setReady(true), [])
 
   const stageRef = useRef(null)
@@ -489,31 +522,9 @@ function App() {
     target: heroRef,
     offset: ['start start', 'end start'],
   })
-  const heroScale = useTransform(heroProgress, [0, 1], [1, 0.9])
-  const heroCopyOpacity = useTransform(heroProgress, [0, 0.65], [1, 0])
-  const heroCopyY = useTransform(heroProgress, [0, 1], [0, -44])
-  const phoneScrollY = useTransform(heroProgress, [0, 1], [0, 56])
-
-  const phoneRotateXValue = useMotionValue(0)
-  const phoneRotateYValue = useMotionValue(0)
-  const phoneRotateX = useSpring(phoneRotateXValue, { stiffness: 180, damping: 22 })
-  const phoneRotateY = useSpring(phoneRotateYValue, { stiffness: 180, damping: 22 })
-
-  /** Rotates the 3D phone model based on mouse position within the hero container. */
-  const handlePhoneMouseMove = (event) => {
-    if (shouldReduceMotion) return
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const x = (event.clientX - bounds.left) / bounds.width
-    const y = (event.clientY - bounds.top) / bounds.height
-    phoneRotateXValue.set((0.5 - y) * 12)
-    phoneRotateYValue.set((x - 0.5) * 14)
-  }
-
-  /** Resets phone rotation when mouse leaves the hero container. */
-  const handlePhoneMouseLeave = () => {
-    phoneRotateXValue.set(0)
-    phoneRotateYValue.set(0)
-  }
+  const heroCopyOpacity = useTransform(heroProgress, [0, 0.72], [1, 0])
+  const heroCopyY = useTransform(heroProgress, [0, 1], [0, -36])
+  const phoneScrollY = useTransform(heroProgress, [0, 1], [0, 42])
 
   /** Creates a parallax effect on the background elements based on cursor movement. */
   const handleStagePointerMove = (event) => {
@@ -602,14 +613,10 @@ function App() {
       <Intro reducedMotion={shouldReduceMotion} onDone={handleIntroDone} />
       <Navbar reveal={reveal} linkHover={linkHover} reducedMotion={shouldReduceMotion} />
 
-      <motion.section
+      <section
         className="hero-section"
         id="home"
         ref={heroRef}
-        style={{
-          scale: shouldReduceMotion ? 1 : heroScale,
-          transformOrigin: 'center top',
-        }}
       >
         <motion.div
           className="hero-copy"
@@ -742,17 +749,14 @@ function App() {
           <motion.div
             className="phone-tilt"
             style={{
-              rotateX: phoneRotateX,
-              rotateY: phoneRotateY,
               y: shouldReduceMotion ? 0 : phoneScrollY,
-              transformPerspective: 1000,
             }}
-            onMouseMove={handlePhoneMouseMove}
-            onMouseLeave={handlePhoneMouseLeave}
           >
             <HeroPhone
               reducedMotion={shouldReduceMotion}
               scrollProgress={heroProgress}
+              screenImageSrc={activeHeroScreen}
+              pageReady={ready}
             />
           </motion.div>
           <motion.div
@@ -761,6 +765,30 @@ function App() {
           >
             <span className="label-dot" /> Built with Flutter
           </motion.div>
+
+          <motion.div
+            className="hero-screen-switcher"
+            role="group"
+            aria-label="Switch 3D iPhone app screen"
+            {...reveal(0.9, 10)}
+          >
+            <span className="switcher-caption">3D DISPLAY:</span>
+            {HERO_SCREEN_OPTIONS.map((option) => {
+              const isActive = activeHeroScreen === option.src
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={`switcher-pill${isActive ? ' is-active' : ''}`}
+                  aria-pressed={isActive}
+                  onClick={() => setActiveHeroScreen(option.src)}
+                >
+                  {option.label}
+                </button>
+              )
+            })}
+          </motion.div>
+
           <motion.div className="tech-label" {...reveal(0.95, 8)}>
             FLUTTER · DART · C++ · DSA
           </motion.div>
@@ -771,7 +799,7 @@ function App() {
           <span className="index-line" />
           <span>SCROLL TO EXPLORE</span>
         </motion.div>
-      </motion.section>
+      </section>
 
       <motion.section
         className="intro-strip"

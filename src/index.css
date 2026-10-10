@@ -1433,6 +1433,11 @@ a:focus-visible {
   width: 100%;
   height: 560px;
   min-width: 0;
+  cursor: grab;
+}
+
+.iphone-3d-wrap:active {
+  cursor: grabbing;
 }
 
 .iphone-3d-wrap canvas {
@@ -2257,19 +2262,95 @@ a:focus-visible {
   font-weight: 600;
 }
 
-.project-modal-note {
+.project-modal-screens-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 210px));
+  gap: 16px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.project-modal-shot {
   margin: 0;
-  font-size: 12.5px;
-  line-height: 1.65;
+  padding: 10px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(23, 23, 25, 0.08);
+  box-shadow: 0 12px 28px rgba(23, 23, 25, 0.06);
+  text-align: center;
+}
+
+.project-modal-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 340px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: #0d0f12;
+}
+
+.project-modal-shot figcaption {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 600;
   color: #52525b;
 }
 
-.project-modal-note code {
-  padding: 2px 6px;
-  border-radius: 5px;
-  background: rgba(241, 100, 54, 0.1);
-  color: #c24119;
-  font-size: 11.5px;
+/* ---------- Hero 3D Display Switcher Pill ---------- */
+
+.hero-screen-switcher {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(23, 23, 25, 0.1);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 26px rgba(23, 23, 25, 0.07);
+  white-space: nowrap;
+}
+
+.switcher-caption {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: #6b7280;
+  margin-right: 2px;
+}
+
+.switcher-pill {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #3f3f46;
+  font-family: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.switcher-pill:hover {
+  color: #171719;
+  background: rgba(241, 100, 54, 0.08);
+}
+
+.switcher-pill.is-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff8a61 0%, #f16436 100%);
+  box-shadow: 0 4px 12px rgba(241, 100, 54, 0.28);
 }
 
 .project-modal-footer {
@@ -2344,6 +2425,20 @@ a:focus-visible {
   .hero-portrait-frame {
     width: 56px;
     height: 56px;
+  }
+
+  .hero-screen-switcher {
+    top: 4px;
+    padding: 4px 6px 4px 10px;
+  }
+
+  .switcher-caption {
+    font-size: 8px;
+  }
+
+  .switcher-pill {
+    padding: 4px 9px;
+    font-size: 10px;
   }
 
   .about-section-upgraded,

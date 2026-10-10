@@ -1,26 +1,71 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ContactShadows, Environment, Float, useGLTF } from '@react-three/drei'
+import { ContactShadows, Environment, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
-const SCREEN_MODE = 'taskflow'
-const SCREEN_FLIP_X = true
-const SCREEN_FLIP_Y = false
-const GLASS_OPACITY = 0.12
+/**
+ * Default screenshot displayed on the Hero 3D iPhone screen.
+ * You can change this path anytime (or pass `screenImageSrc` from `App.jsx`).
+ */
+export const DEFAULT_HERO_SCREEN_IMAGE = '/images/expify/screen-1.png'
+
+const GLASS_OPACITY = 0.08
 const SCREEN_BRIGHTNESS = 1
-const MAX_DPR = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches ? 1.25 : 1.5
-const INTRO_SECONDS = 1.8
-const SCREEN_Z_OFFSET = 0.0001
-const SCREEN_W = 640
-const SCREEN_H = 1388
+const MAX_DPR =
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(pointer: coarse)').matches
+    ? 1.25
+    : 1.75
+const INTRO_SECONDS = 1.65
+const SCREEN_Z_OFFSET = 0.00012
+
+// Matches the exact 0.0668 x 0.1449 aspect ratio (0.461) of the GLB's OLED mesh at 1080p crispness.
+const SCREEN_W = 1080
+const SCREEN_H = 2342
 const DESIGN_W = 300
 const DESIGN_SCALE = SCREEN_W / DESIGN_W
 const DESIGN_H = SCREEN_H / DESIGN_SCALE
 const FONT = '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif'
 
+// In-memory image cache so switching or mounting screenshots is instantaneous.
+const imageCache = new Map()
+
 /**
- * Draws a rectangle with rounded corners on a canvas context.
- * Provides broad browser compatibility without relying on ctx.roundRect.
+ * Loads an image from a URL and caches the decoded HTMLImageElement.
+ *
+ * @param {string} src - Image URL path.
+ * @returns {Promise<HTMLImageElement>} Decoded image element.
+ */
+function loadImageCached(src) {
+  if (!src) return Promise.reject(new Error('No image source provided'))
+  if (imageCache.has(src)) {
+    return imageCache.get(src)
+  }
+
+  const promise = new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.decoding = 'async'
+    img.onload = () => resolve(img)
+    img.onerror = (err) => {
+      imageCache.delete(src)
+      reject(err)
+    }
+    img.src = src
+  })
+
+  imageCache.set(src, promise)
+  return promise
+}
+
+// Preload both real app screenshots immediately when the module is imported.
+if (typeof window !== 'undefined') {
+  loadImageCached('/images/expify/screen-1.png').catch(() => {})
+  loadImageCached('/images/clocky/screen-1.png').catch(() => {})
+}
+
+/**
+ * Draws a rectangle with rounded corners on a 2D canvas context.
  */
 function roundedRect(ctx, x, y, w, h, r) {
   ctx.beginPath()
@@ -33,64 +78,39 @@ function roundedRect(ctx, x, y, w, h, r) {
 }
 
 /**
- * Renders a test card to the canvas to help debug texture orientation and mapping.
+ * Draws an image onto the canvas using aspect-ratio-preserving cover math,
+ * ensuring the screenshot fills the 3D OLED screen cleanly without stretching.
  */
-function drawTestCard(ctx, W, H) {
-  ctx.fillStyle = '#1b1f1c'
-  ctx.fillRect(0, 0, W, H)
+function drawImageCover(ctx, img, targetW, targetH) {
+  const imgW = img.naturalWidth || img.width || targetW
+  const imgH = img.naturalHeight || img.height || targetH
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)'
-  ctx.lineWidth = 1
-  for (let x = 0; x <= W; x += 25) {
-    ctx.beginPath()
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, H)
-    ctx.stroke()
-  }
-  for (let y = 0; y <= H; y += 25) {
-    ctx.beginPath()
-    ctx.moveTo(0, y)
-    ctx.lineTo(W, y)
-    ctx.stroke()
-  }
+  const scale = Math.max(targetW / imgW, targetH / imgH)
+  const drawW = imgW * scale
+  const drawH = imgH * scale
+  const offsetX = (targetW - drawW) * 0.5
+  const offsetY = (targetH - drawH) * 0.5
 
-  const size = 46
-  ctx.fillStyle = '#ff4d4d'
-  ctx.fillRect(0, 0, size, size)
-  ctx.fillStyle = '#4dff88'
-  ctx.fillRect(W - size, 0, size, size)
-  ctx.fillStyle = '#4d9bff'
-  ctx.fillRect(0, H - size, size, size)
-  ctx.fillStyle = '#ffe14d'
-  ctx.fillRect(W - size, H - size, size, size)
+  ctx.save()
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+  ctx.drawImage(img, offsetX, offsetY, drawW, drawH)
 
-  ctx.fillStyle = '#ffffff'
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-
-  ctx.font = `800 22px ${FONT}`
-  ctx.fillText('TOP', W / 2, 60)
-  ctx.fillText('BOTTOM', W / 2, H - 36)
-
-  ctx.textAlign = 'left'
-  ctx.fillText('L', 12, H / 2)
-  ctx.textAlign = 'right'
-  ctx.fillText('R', W - 12, H / 2)
-
-  ctx.textAlign = 'center'
-  ctx.font = `800 190px ${FONT}`
-  ctx.fillStyle = '#b7e66c'
-  ctx.fillText('F', W / 2, H / 2)
-
-  ctx.font = `600 13px ${FONT}`
-  ctx.fillStyle = '#a8afa9'
-  ctx.fillText('SCREEN TEST CARD', W / 2, H / 2 + 120)
+  // Subtle Dynamic Island pill aligned with the GLB's top cutout for realism
+  const islandW = targetW * 0.25
+  const islandH = targetH * 0.031
+  const islandX = (targetW - islandW) * 0.5
+  const islandY = targetH * 0.017
+  roundedRect(ctx, islandX, islandY, islandW, islandH, islandH * 0.5)
+  ctx.fillStyle = '#050506'
+  ctx.fill()
+  ctx.restore()
 }
 
 /**
- * Draws the Flutter developer portfolio showcase UI onto the 3D phone canvas context.
+ * Fallback procedural UI drawn only if no screenshot image is available.
  */
-function drawTaskFlow(ctx, W, H) {
+function drawFallbackPortfolioUI(ctx, W, H) {
   const PAD = 16
 
   const bg = ctx.createLinearGradient(0, 0, W * 0.4, H)
@@ -135,21 +155,6 @@ function drawTaskFlow(ctx, W, H) {
   ctx.fillStyle = '#b5aba2'
   ctx.fillText('⌕   Flutter · Dart · C++ · DSA', PAD + 14, 216)
 
-  let pillX = PAD
-  ;['Projects', 'Flutter', 'DSA'].forEach((label, index) => {
-    const active = index === 0
-    ctx.font = `${active ? 800 : 500} 10.5px ${FONT}`
-    const pillWidth = ctx.measureText(label).width + 22
-    roundedRect(ctx, pillX, 252, pillWidth, 26, 13)
-    ctx.fillStyle = active ? '#f16436' : '#241e1b'
-    ctx.fill()
-    ctx.fillStyle = active ? '#ffffff' : '#cfc7be'
-    ctx.textAlign = 'center'
-    ctx.fillText(label, pillX + pillWidth / 2, 265.5)
-    ctx.textAlign = 'left'
-    pillX += pillWidth + 7
-  })
-
   const items = [
     { icon: '◷', bg: '#38221a', fg: '#ff8a61', title: 'Clocky Mobile App', meta: 'Clock · Alarm · Stopwatch' },
     { icon: '◈', bg: '#2f2419', fg: '#f6ad55', title: 'Expify Beta', meta: 'Flutter · Expense Tracker' },
@@ -158,7 +163,7 @@ function drawTaskFlow(ctx, W, H) {
   ]
 
   items.forEach((item, index) => {
-    const top = 296 + index * 68
+    const top = 264 + index * 68
 
     roundedRect(ctx, PAD, top, W - PAD * 2, 58, 14)
     ctx.fillStyle = '#1d1816'
@@ -182,61 +187,37 @@ function drawTaskFlow(ctx, W, H) {
     ctx.fillStyle = '#a89f96'
     ctx.fillText(item.meta, PAD + 54, top + 40)
   })
-
-  ctx.strokeStyle = '#2e2622'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(PAD, 578)
-  ctx.lineTo(W - PAD, 578)
-  ctx.stroke()
-
-  const nav = [
-    { icon: '⌂', label: 'Home' },
-    { icon: '▦', label: 'Apps' },
-    { icon: '▥', label: 'Skills' },
-    { icon: '⚙\uFE0E', label: 'Contact' },
-  ]
-  const slot = (W - PAD * 2) / nav.length
-  ctx.textAlign = 'center'
-  nav.forEach((item, index) => {
-    const x = PAD + slot * (index + 0.5)
-    ctx.fillStyle = index === 0 ? '#f16436' : '#8f867d'
-    ctx.font = `400 20px ${FONT}`
-    ctx.fillText(item.icon, x, 600)
-    ctx.font = `500 9px ${FONT}`
-    ctx.fillText(item.label, x, 622)
-  })
-
-  roundedRect(ctx, W / 2 - 48, 638, 96, 4, 2)
-  ctx.fillStyle = 'rgba(246,248,245,0.55)'
-  ctx.fill()
 }
 
 /**
- * Creates and returns an off-screen canvas element populated with the screen texture.
+ * Creates an off-screen canvas populated with either the loaded screenshot image
+ * or the fallback portfolio UI.
+ *
+ * @param {HTMLImageElement|null} loadedImage - Optional loaded screenshot image.
+ * @returns {HTMLCanvasElement} Populated canvas ready for THREE.CanvasTexture.
  */
-function createScreenCanvas() {
+function createScreenCanvas(loadedImage = null) {
   const canvas = document.createElement('canvas')
   canvas.width = SCREEN_W
   canvas.height = SCREEN_H
   const ctx = canvas.getContext('2d')
 
-  ctx.scale(DESIGN_SCALE, DESIGN_SCALE)
-
-  ctx.translate(DESIGN_W, 0)
-  ctx.scale(-1, 1)
-
-  if (SCREEN_MODE === 'taskflow') {
-    drawTaskFlow(ctx, DESIGN_W, DESIGN_H)
+  if (loadedImage) {
+    drawImageCover(ctx, loadedImage, SCREEN_W, SCREEN_H)
   } else {
-    drawTestCard(ctx, DESIGN_W, DESIGN_H)
+    ctx.save()
+    ctx.scale(DESIGN_SCALE, DESIGN_SCALE)
+    drawFallbackPortfolioUI(ctx, DESIGN_W, DESIGN_H)
+    ctx.restore()
   }
+
   return canvas
 }
 
 /**
- * Generates custom geometry for the screen overlay.
- * Uses the original OLED mesh vertices but creates new UV maps.
+ * Generates custom geometry for the screen overlay from the GLB's OLED mesh.
+ * Maps model-space vertices directly to normalized (0..1) UVs so the screen
+ * stays 100% locked to the phone body at every rotation angle.
  */
 function buildScreenGeometry(mesh) {
   const source = mesh.geometry
@@ -261,11 +242,14 @@ function buildScreenGeometry(mesh) {
   const height = max.y - min.y || 1
   const uvs = new Float32Array(count * 2)
 
+  // When the model rotates 180deg around Y to face the camera:
+  // +X in model space is the left edge of the screen (u = 0)
+  // -X in model space is the right edge of the screen (u = 1)
+  // +Y in model space is the top edge of the screen (v = 0 with flipY = false)
+  // -Y in model space is the bottom edge of the screen (v = 1 with flipY = false)
   for (let i = 0; i < count; i += 1) {
-    let u = (max.x - points[i * 3]) / width
-    let v = (max.y - points[i * 3 + 1]) / height
-    if (SCREEN_FLIP_X) u = 1 - u
-    if (SCREEN_FLIP_Y) v = 1 - v
+    const u = (max.x - points[i * 3]) / width
+    const v = (max.y - points[i * 3 + 1]) / height
     uvs[i * 2] = u
     uvs[i * 2 + 1] = v
 
@@ -276,20 +260,37 @@ function buildScreenGeometry(mesh) {
   geometry.setAttribute('position', new THREE.BufferAttribute(points, 3))
   geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
   if (source.index) geometry.setIndex(source.index.clone())
+  geometry.computeVertexNormals()
 
   return geometry
 }
 
 /**
  * 3D Phone component that handles loading, positioning, and animating the iPhone model.
- * Maps the 2D canvas texture to the 3D phone screen geometry.
+ * Synchronizes the screenshot texture on the OLED mesh and executes frame-rate-independent
+ * damped rotations from initial load through scroll and pointer drag.
  */
-function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
+function PhoneModel({
+  reducedMotion,
+  scrollProgress,
+  screenImageSrc,
+  pageReady,
+  containerRef,
+  onReady,
+}) {
   const group = useRef(null)
   const dragging = useRef(false)
   const lastX = useRef(0)
-  const angle = useRef(0)
+  const targetAngle = useRef(0)
+  const currentAngle = useRef(0)
+  const currentScrollTurn = useRef(0)
+  const hoverTiltX = useRef(0)
+  const hoverTiltY = useRef(0)
+  const currentHoverX = useRef(0)
+  const currentHoverY = useRef(0)
   const introStart = useRef(null)
+  const readySignaled = useRef(false)
+  const [textureLoaded, setTextureLoaded] = useState(false)
 
   const gl = useThree((state) => state.gl)
   const { scene } = useGLTF('/models/iphone.glb')
@@ -302,7 +303,7 @@ function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
     const size = bounds.getSize(new THREE.Vector3())
     const center = bounds.getCenter(new THREE.Vector3())
     const maxDimension = Math.max(size.x, size.y, size.z) || 1
-    const scale = 3.3 / maxDimension
+    const scale = 3.35 / maxDimension
 
     let screenMesh = null
 
@@ -326,7 +327,7 @@ function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
       overlay = new THREE.Mesh(
         buildScreenGeometry(screenMesh),
         new THREE.MeshBasicMaterial({
-          color: '#000000',
+          color: '#ffffff',
           side: THREE.DoubleSide,
           toneMapped: false,
           polygonOffset: true,
@@ -334,6 +335,7 @@ function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
           polygonOffsetUnits: -4,
         }),
       )
+      overlay.frustumCulled = false
       screenMesh.visible = false
       model.add(overlay)
     }
@@ -348,38 +350,59 @@ function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
 
   useEffect(() => {
     const { overlay } = fitted
+    if (!overlay) return undefined
 
-    if (!overlay) {
-      console.warn('[IPhone3D] No mesh with material "OLED" found.')
-      return undefined
+    let cancelled = false
+    let activeTexture = null
+
+    const applyCanvasToMaterial = (canvas) => {
+      if (cancelled) return
+      const nextTexture = new THREE.CanvasTexture(canvas)
+      nextTexture.colorSpace = THREE.SRGBColorSpace
+      nextTexture.flipY = false
+      nextTexture.generateMipmaps = true
+      nextTexture.minFilter = THREE.LinearMipmapLinearFilter
+      nextTexture.magFilter = THREE.LinearFilter
+      nextTexture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
+      nextTexture.needsUpdate = true
+
+      // Pre-upload texture to GPU immediately to avoid first-frame stutter
+      gl.initTexture?.(nextTexture)
+
+      const material = overlay.material
+      const previousMap = material.map
+      material.map = nextTexture
+      material.color.setScalar(SCREEN_BRIGHTNESS)
+      material.needsUpdate = true
+
+      if (previousMap && previousMap !== nextTexture) {
+        previousMap.dispose()
+      }
+      activeTexture = nextTexture
+      setTextureLoaded(true)
+
+      if (!readySignaled.current) {
+        readySignaled.current = true
+        onReady?.()
+      }
     }
 
-    if (import.meta.env.DEV) {
-      overlay.geometry.computeBoundingBox()
-      console.log(
-        '[IPhone3D] screen overlay bounds (model units):',
-        overlay.geometry.boundingBox.min.toArray(),
-        overlay.geometry.boundingBox.max.toArray(),
-      )
-    }
-
-    const material = overlay.material
-    const texture = new THREE.CanvasTexture(createScreenCanvas())
-    texture.colorSpace = THREE.SRGBColorSpace
-    texture.flipY = false
-    texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
-    texture.needsUpdate = true
-
-    material.map = texture
-    material.color.setScalar(SCREEN_BRIGHTNESS)
-    material.needsUpdate = true
+    const srcToLoad = screenImageSrc || DEFAULT_HERO_SCREEN_IMAGE
+    loadImageCached(srcToLoad)
+      .then((img) => {
+        applyCanvasToMaterial(createScreenCanvas(img))
+      })
+      .catch(() => {
+        applyCanvasToMaterial(createScreenCanvas(null))
+      })
 
     return () => {
-      material.map = null
-      material.needsUpdate = true
-      texture.dispose()
+      cancelled = true
+      if (activeTexture) {
+        activeTexture.dispose()
+      }
     }
-  }, [fitted, gl])
+  }, [fitted, gl, screenImageSrc, onReady])
 
   useEffect(() => {
     return () => {
@@ -389,91 +412,146 @@ function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
   }, [fitted])
 
   useEffect(() => {
-    onReady?.()
-  }, [onReady])
-
-  useEffect(() => {
-    const element = gl.domElement
-    element.style.cursor = 'grab'
+    const element = containerRef?.current
+    if (!element) return undefined
 
     const handleDown = (event) => {
       dragging.current = true
       lastX.current = event.clientX
-      element.style.cursor = 'grabbing'
       try {
         element.setPointerCapture(event.pointerId)
       } catch {
+        // Ignore pointer capture errors
       }
     }
 
     const handleMove = (event) => {
-      if (!dragging.current) return
-      angle.current += (event.clientX - lastX.current) * 0.01
-      lastX.current = event.clientX
+      if (dragging.current) {
+        targetAngle.current += (event.clientX - lastX.current) * 0.011
+        lastX.current = event.clientX
+        return
+      }
+
+      if (!reducedMotion && event.pointerType === 'mouse') {
+        const bounds = element.getBoundingClientRect()
+        if (bounds.width > 0 && bounds.height > 0) {
+          const nx = (event.clientX - bounds.left) / bounds.width - 0.5
+          const ny = (event.clientY - bounds.top) / bounds.height - 0.5
+          hoverTiltX.current = ny * 0.14
+          hoverTiltY.current = nx * 0.22
+        }
+      }
     }
 
     const handleUp = (event) => {
       dragging.current = false
-      element.style.cursor = 'grab'
       try {
         element.releasePointerCapture(event.pointerId)
       } catch {
+        // Ignore pointer release errors
       }
+    }
+
+    const handleLeave = () => {
+      hoverTiltX.current = 0
+      hoverTiltY.current = 0
     }
 
     element.addEventListener('pointerdown', handleDown)
     element.addEventListener('pointermove', handleMove)
     element.addEventListener('pointerup', handleUp)
     element.addEventListener('pointercancel', handleUp)
+    element.addEventListener('pointerleave', handleLeave)
 
     return () => {
       element.removeEventListener('pointerdown', handleDown)
       element.removeEventListener('pointermove', handleMove)
       element.removeEventListener('pointerup', handleUp)
       element.removeEventListener('pointercancel', handleUp)
-      element.style.cursor = ''
+      element.removeEventListener('pointerleave', handleLeave)
     }
-  }, [gl])
+  }, [containerRef, reducedMotion])
 
   useFrame((state, delta) => {
-    if (!group.current) return
+    if (!group.current || !textureLoaded) return
 
-    if (introStart.current === null) {
+    // Clamp delta so tab switches or initial shader compiles never cause rotation jumps
+    const dt = Math.min(delta, 0.05)
+
+    // Start the entrance spin only once the page intro curtain has finished lifting
+    if (introStart.current === null && pageReady) {
       introStart.current = state.clock.elapsedTime
     }
+
+    const elapsedSinceIntro =
+      introStart.current !== null
+        ? state.clock.elapsedTime - introStart.current
+        : 0
+
     const t = reducedMotion
       ? 1
-      : Math.min((state.clock.elapsedTime - introStart.current) / INTRO_SECONDS, 1)
-    const eased = 1 - (1 - t) ** 3
+      : introStart.current === null
+        ? 0
+        : Math.min(elapsedSinceIntro / INTRO_SECONDS, 1)
 
-    if (!dragging.current && !reducedMotion) {
-      angle.current += delta * 0.35
+    // Smooth quartic ease-out for the entrance spin and scale reveal
+    const eased = 1 - (1 - t) ** 4
+
+    if (!dragging.current && !reducedMotion && introStart.current !== null) {
+      targetAngle.current += dt * 0.32
     }
 
-    const scrollTurn = scrollProgress ? scrollProgress.get() * 0.9 : 0
+    currentAngle.current = THREE.MathUtils.damp(
+      currentAngle.current,
+      targetAngle.current,
+      dragging.current ? 18 : 8,
+      dt,
+    )
 
+    const rawScrollTurn = scrollProgress ? scrollProgress.get() * 0.85 : 0
+    currentScrollTurn.current = THREE.MathUtils.damp(
+      currentScrollTurn.current,
+      rawScrollTurn,
+      8,
+      dt,
+    )
+
+    currentHoverX.current = THREE.MathUtils.damp(
+      currentHoverX.current,
+      hoverTiltX.current,
+      6,
+      dt,
+    )
+    currentHoverY.current = THREE.MathUtils.damp(
+      currentHoverY.current,
+      hoverTiltY.current,
+      6,
+      dt,
+    )
+
+    const floatTime = state.clock.elapsedTime
+    const floatY = reducedMotion ? 0 : Math.sin(floatTime * 1.15) * 0.055
+    const floatPitch = reducedMotion ? 0 : Math.sin(floatTime * 0.65) * 0.022
+
+    group.current.position.y = floatY
     group.current.rotation.y =
-      Math.PI + angle.current - (1 - eased) * 1.1 + scrollTurn
-    group.current.rotation.x = reducedMotion
-      ? 0
-      : Math.sin(state.clock.elapsedTime * 0.35) * 0.025
-    group.current.scale.setScalar(0.9 + 0.1 * eased)
+      Math.PI +
+      currentAngle.current +
+      currentHoverY.current -
+      (1 - eased) * 1.15 +
+      currentScrollTurn.current
+    group.current.rotation.x = floatPitch + currentHoverX.current
+    group.current.scale.setScalar(0.88 + 0.12 * eased)
   })
 
   return (
-    <Float
-      speed={reducedMotion ? 0 : 1.2}
-      floatIntensity={reducedMotion ? 0 : 0.12}
-      rotationIntensity={0}
-    >
-      <group ref={group}>
-        <primitive
-          object={fitted.model}
-          scale={fitted.scale}
-          position={fitted.position}
-        />
-      </group>
-    </Float>
+    <group ref={group}>
+      <primitive
+        object={fitted.model}
+        scale={fitted.scale}
+        position={fitted.position}
+      />
+    </group>
   )
 }
 
@@ -484,6 +562,8 @@ function PhoneModel({ reducedMotion, scrollProgress, onReady }) {
 export default function IPhone3D({
   reducedMotion = false,
   scrollProgress,
+  screenImageSrc = DEFAULT_HERO_SCREEN_IMAGE,
+  pageReady = true,
   onReady,
   onFail,
 }) {
@@ -496,7 +576,7 @@ export default function IPhone3D({
 
     const observer = new IntersectionObserver(
       ([entry]) => setInView(entry.isIntersecting),
-      { rootMargin: '120px' },
+      { rootMargin: '160px' },
     )
     observer.observe(element)
     return () => observer.disconnect()
@@ -523,7 +603,7 @@ export default function IPhone3D({
           })
         }}
       >
-        <ambientLight intensity={1.2} />
+        <ambientLight intensity={1.25} />
         <hemisphereLight args={['#ffffff', '#b8b1a7', 1.5]} />
         <directionalLight position={[4, 5, 5]} intensity={2.4} color="#fff8ef" />
         <directionalLight position={[-4, 1, -3]} intensity={1.8} color="#dce5ff" />
@@ -532,20 +612,24 @@ export default function IPhone3D({
           <PhoneModel
             reducedMotion={reducedMotion}
             scrollProgress={scrollProgress}
+            screenImageSrc={screenImageSrc}
+            pageReady={pageReady}
+            containerRef={wrapRef}
             onReady={onReady}
           />
           <ContactShadows
             position={[0, -1.95, 0]}
-            opacity={0.28}
+            opacity={0.26}
             scale={4.5}
             blur={2.8}
             far={4}
+            frames={1}
           />
           <Environment preset="studio" />
         </Suspense>
       </Canvas>
 
-      <div className="rotation-hint">↔ &nbsp; 360° ROTATION</div>
+      <div className="rotation-hint">↔ &nbsp; DRAG TO ROTATE 360°</div>
     </div>
   )
 }
