@@ -116,8 +116,7 @@ export default function ExpifyMockup({
               onError={() => handleImageError(currentShot.src)}
               style={{
                 width: '100%',
-                height: '360px',
-                objectFit: 'cover',
+                height: 'auto',
                 display: 'block',
               }}
             />

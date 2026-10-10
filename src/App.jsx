@@ -104,6 +104,7 @@ const projectsData = [
     tagline: 'YOUR TIME, YOUR WAY',
     title: 'Clocky',
     accent: '.',
+    screenshotSrc: '/images/clocky/screen-1.png',
     description:
       'Timekeeping essentials brought together in one clean mobile experience. Designed around clarity, readable typography, and smooth everyday utility.',
     techStack: ['Flutter', 'Dart', 'Custom Mobile UI'],
@@ -135,34 +136,24 @@ const projectsData = [
     title: 'Expify',
     accent: ' Beta',
     description:
-      'An expense tracker mobile application built with Flutter to help users log daily transactions, organize spending categories, and keep personal finances clear.',
+      'An expense tracker mobile application built with Flutter that gives users an instant overview of their total balance, income versus expenses, and recent transactions.',
     techStack: ['Flutter', 'Dart', 'Mobile UI', 'Expense Tracking'],
     role: 'Flutter App Developer — Architecture & UI Implementation',
     highlights: [
-      'Designed a clean, mobile-first expense logging flow focused on speed and clarity.',
-      'Structured transaction and category views in Flutter so daily spending remains easy to review.',
-      'Currently in Beta and being prepared for public release on GitHub.',
+      'Built a clean home dashboard featuring a prominent Total Balance card with live Income and Expense summaries.',
+      'Designed clear visual indicators for positive income and outgoing expenses alongside a chronological Recent Transactions feed.',
+      'Structured bottom navigation across Home, Projects, Reports, and Settings with a quick-add floating action button.',
     ],
     features: [
-      { name: 'Expenses', detail: 'Log daily spending', icon: '◈' },
-      { name: 'Categories', detail: 'Organize transactions', icon: '▤' },
-      { name: 'Clarity', detail: 'Focused mobile UI', icon: '✓' },
+      { name: 'Balance', detail: 'Income & expense overview', icon: '◈' },
+      { name: 'Transactions', detail: 'Dated activity feed', icon: '▤' },
+      { name: 'Reports', detail: 'Projects & insights tabs', icon: '✓' },
     ],
     screenshots: [
       {
         src: '/images/expify/screen-1.png',
-        label: 'Expify Beta Screen 1',
-        alt: 'Expify Beta expense overview screen',
-      },
-      {
-        src: '/images/expify/screen-2.png',
-        label: 'Expify Beta Screen 2',
-        alt: 'Expify Beta transaction logging screen',
-      },
-      {
-        src: '/images/expify/screen-3.png',
-        label: 'Expify Beta Screen 3',
-        alt: 'Expify Beta category breakdown screen',
+        label: 'Expify Beta Home Screen',
+        alt: 'Expify Beta home screen showing total balance, income and expense summary cards, and recent transactions',
       },
     ],
     links: [
@@ -841,7 +832,10 @@ function App() {
             onOpenDetails={setSelectedProject}
           >
             {project.id === 'clocky' ? (
-              <ClockyMockup shouldReduceMotion={shouldReduceMotion} />
+              <ClockyMockup
+                shouldReduceMotion={shouldReduceMotion}
+                screenshotSrc={project.screenshotSrc}
+              />
             ) : (
               <ExpifyMockup
                 shouldReduceMotion={shouldReduceMotion}
