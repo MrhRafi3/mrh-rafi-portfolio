@@ -1764,23 +1764,28 @@ svg {
 .section-header-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.section-lead {
-  max-width: 480px;
+.section-header-row .eyebrow {
   margin: 0;
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.8;
 }
 
 /* ==========================================================================
    9. PROJECT SHOWCASE CARDS & DEVICE MOCKUPS (Clocky & Expify Beta)
    ========================================================================== */
+
+.project-card-stage {
+  position: relative;
+  margin-top: 0;
+}
+
+.project-card-stage + .project-card-stage {
+  margin-top: 48px;
+}
 
 .project-card-ambient-glow {
   position: absolute;
@@ -1802,19 +1807,16 @@ svg {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1.16fr) minmax(260px, 0.84fr);
-  gap: clamp(28px, 4.5vw, 56px);
-  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
   overflow: hidden;
-  padding: clamp(24px, 3.8vw, 44px);
+  padding: clamp(28px, 5vw, 56px);
   border-radius: var(--radius-xl);
 }
 
 .project-card-copy {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
 }
 
 .project-card:hover {
@@ -1827,7 +1829,7 @@ svg {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 22px;
 }
 
 .project-category-pill {
@@ -1882,9 +1884,9 @@ svg {
   margin: 0;
   color: var(--text);
   font-family: var(--heading-font);
-  font-size: clamp(38px, 5.2vw, 66px);
+  font-size: clamp(42px, 6.2vw, 74px);
   font-weight: 600;
-  letter-spacing: -3px;
+  letter-spacing: -3.5px;
   line-height: 1.02;
 }
 
@@ -1893,18 +1895,18 @@ svg {
 }
 
 .project-description {
-  max-width: 62ch;
-  margin: 16px 0 18px;
+  max-width: 480px;
+  margin: 20px 0;
   color: var(--text-secondary);
   font-size: 15px;
-  line-height: 1.82;
+  line-height: 1.85;
 }
 
 .project-tech-stack {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 0 0 20px;
+  margin: 0 0 22px;
 }
 
 .project-tech-pill {
@@ -1930,13 +1932,13 @@ svg {
 
 .project-features-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   gap: 10px;
-  margin: 4px 0 22px;
+  margin: 24px 0;
 }
 
 .project-feature-card {
-  padding: 15px 14px;
+  padding: 15px 13px;
   border-radius: 18px;
   transition:
     border-color var(--motion-normal) var(--ease-standard),
@@ -1950,8 +1952,8 @@ svg {
 
 .project-feature-icon {
   display: block;
-  margin-bottom: 8px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 19px;
   color: var(--accent);
 }
 
@@ -1973,7 +1975,7 @@ svg {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 4px;
+  margin-top: 26px;
 }
 
 .project-overview-btn,
@@ -2041,7 +2043,7 @@ svg {
 }
 
 .project-repo-note {
-  margin-top: 14px;
+  margin-top: 16px;
   color: var(--muted);
   font-size: 11.5px;
   line-height: 1.65;
@@ -2055,7 +2057,7 @@ svg {
   place-items: center;
   align-self: center;
   min-height: 420px;
-  padding: 12px 0;
+  padding: 20px 0;
   perspective: 1100px;
 }
 
@@ -2467,9 +2469,9 @@ svg {
   display: grid;
   grid-template-columns: 1.35fr 0.65fr;
   gap: clamp(24px, 4vw, 48px);
-  align-items: start;
-  margin-top: 32px;
-  padding: clamp(24px, 3.6vw, 38px);
+  align-items: center;
+  margin-top: 0;
+  padding: clamp(28px, 4vw, 44px);
   border-radius: var(--radius-lg);
 }
 
@@ -2565,7 +2567,7 @@ svg {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 20px;
-  margin-top: 42px;
+  margin-top: 0;
 }
 
 .skill-category-card {

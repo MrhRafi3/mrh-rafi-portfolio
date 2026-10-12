@@ -349,49 +349,12 @@ const skillCategories = [
 ]
 
 /**
- * Renders a section heading with staggered word reveal animations and optional accented suffix.
+ * Renders a section heading with optional accented suffix.
  */
-function StaggeredHeading({ text, accentText, shouldReduceMotion }) {
-  if (shouldReduceMotion) {
-    return (
-      <h2>
-        {text} {accentText && <span>{accentText}</span>}
-      </h2>
-    )
-  }
-
-  const words = text.split(' ')
+function StaggeredHeading({ text, accentText }) {
   return (
-    <h2
-      aria-label={accentText ? `${text} ${accentText}` : text}
-      style={{ display: 'flex', flexWrap: 'wrap', gap: '0.24em' }}
-    >
-      {words.map((word, index) => (
-        <span key={`${word}-${index}`} style={{ overflow: 'hidden', display: 'inline-block' }}>
-          <motion.span
-            initial={{ y: '100%' }}
-            whileInView={{ y: '0%' }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, delay: index * 0.07, ease: easeOut }}
-            style={{ display: 'inline-block' }}
-          >
-            {word}
-          </motion.span>
-        </span>
-      ))}
-      {accentText && (
-        <span style={{ overflow: 'hidden', display: 'inline-block' }}>
-          <motion.span
-            initial={{ y: '100%' }}
-            whileInView={{ y: '0%' }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.6, delay: words.length * 0.07, ease: easeOut }}
-            style={{ display: 'inline-block' }}
-          >
-            <span>{accentText}</span>
-          </motion.span>
-        </span>
-      )}
+    <h2>
+      {text} {accentText && <span>{accentText}</span>}
     </h2>
   )
 }
@@ -720,6 +683,14 @@ function App() {
           </motion.div>
 
           <motion.div
+            className="floating-label label-top glass-surface"
+            data-depth="20"
+            {...reveal(0.75, 12)}
+          >
+            <span className="label-dot" /> Built with Flutter
+          </motion.div>
+
+          <motion.div
             className="hero-screen-switcher glass-surface"
             role="group"
             aria-label="Switch 3D iPhone app screen"
@@ -740,6 +711,18 @@ function App() {
                 </button>
               )
             })}
+          </motion.div>
+
+          <motion.div
+            className="floating-label label-bottom glass-surface"
+            data-depth="24"
+            {...reveal(0.88, 12)}
+          >
+            <span className="label-icon" aria-hidden="true">✦</span> Dart &amp; Flutter UI
+          </motion.div>
+
+          <motion.div className="tech-label" {...reveal(0.95, 8)}>
+            FLUTTER · DART · C++ · DSA
           </motion.div>
         </motion.div>
 
@@ -786,18 +769,7 @@ function App() {
         {...scrollReveal(26)}
       >
         <div className="section-header-row">
-          <div>
-            <p className="eyebrow">01 / SELECTED PROJECTS</p>
-            <StaggeredHeading
-              text="Featured"
-              accentText="Works."
-              shouldReduceMotion={shouldReduceMotion}
-            />
-          </div>
-          <motion.p className="section-lead" {...scrollReveal(16, 0.1)}>
-            Real mobile applications built with Flutter—focused on everyday
-            utility, clean interfaces, and thoughtful user flows.
-          </motion.p>
+          <p className="eyebrow">01 / SELECTED PROJECTS</p>
         </div>
 
         {projectsData.map((project) => (
@@ -832,18 +804,7 @@ function App() {
         {...scrollReveal(26)}
       >
         <div className="section-header-row">
-          <div>
-            <p className="eyebrow">02 / ABOUT ME</p>
-            <StaggeredHeading
-              text="Curious by nature. Intentional by"
-              accentText="design."
-              shouldReduceMotion={shouldReduceMotion}
-            />
-          </div>
-          <motion.p className="section-lead" {...scrollReveal(16, 0.1)}>
-            Flutter App Developer based in Bangladesh, dedicated to building
-            mobile software that feels calm, fast, and genuinely useful.
-          </motion.p>
+          <p className="eyebrow">02 / ABOUT ME</p>
         </div>
 
         <motion.div
@@ -927,18 +888,7 @@ function App() {
         {...scrollReveal(26)}
       >
         <div className="section-header-row">
-          <div>
-            <p className="eyebrow">03 / TECHNICAL SKILLS</p>
-            <StaggeredHeading
-              text="Tools for thoughtful"
-              accentText="products."
-              shouldReduceMotion={shouldReduceMotion}
-            />
-          </div>
-          <motion.p className="section-lead" {...scrollReveal(16, 0.1)}>
-            A focused, truthful technical toolkit centered on Flutter mobile
-            engineering and strong algorithmic problem-solving.
-          </motion.p>
+          <p className="eyebrow">03 / TECHNICAL SKILLS</p>
         </div>
 
         <div className="skills-category-grid">
@@ -985,6 +935,9 @@ function App() {
                           <Sparkles size={13} className="skill-sparkle-icon" />
                           <strong>{item.name}</strong>
                         </div>
+                        {item.focusLabel && (
+                          <span className="skill-focus-badge">{item.focusLabel}</span>
+                        )}
                       </div>
                       <p>{item.detail}</p>
                     </div>
