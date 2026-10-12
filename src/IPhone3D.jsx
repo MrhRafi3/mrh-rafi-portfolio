@@ -133,7 +133,7 @@ function drawFallbackPortfolioUI(ctx, W, H) {
   ctx.fillStyle = '#f6f8f5'
   ctx.fillText('mrh', PAD + 2, 84)
   const brandWidth = ctx.measureText('mrh').width
-  ctx.fillStyle = '#f16436'
+  ctx.fillStyle = '#E3C27C'
   ctx.fillText('.rafi', PAD + 2 + brandWidth, 84)
 
   ctx.font = `500 12.5px ${FONT}`
@@ -619,8 +619,8 @@ export default function IPhone3D({
           />
           <ContactShadows
             position={[0, -1.95, 0]}
-            opacity={0.26}
-            scale={4.5}
+            opacity={0.34}
+            scale={4.6}
             blur={2.8}
             far={4}
             frames={1}

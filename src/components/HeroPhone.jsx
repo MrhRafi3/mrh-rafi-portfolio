@@ -43,8 +43,10 @@ class SceneBoundary extends Component {
 }
 
 /**
- * Component that manages the hero's phone visualization.
- * Handles lazy loading of the 3D scene, live screenshot texture updates, and graceful degradation to a 2D fallback.
+ * Component that manages the hero's 3D iPhone visualization.
+ * Handles lazy loading of the 3D scene, live screenshot texture updates,
+ * and graceful degradation to a 2D fallback. Marked with `data-liquid-ignore`
+ * so `liquid-gl` never attempts to rasterize the Three.js WebGL canvas.
  */
 export default function HeroPhone({
   reducedMotion,
@@ -60,14 +62,17 @@ export default function HeroPhone({
 
   if (!webglOk) {
     return (
-      <div className="hero-phone">
+      <div className="hero-phone" data-liquid-ignore="">
         <PhoneFallback screenImageSrc={screenImageSrc} />
       </div>
     )
   }
 
   return (
-    <div className={`hero-phone${sceneReady ? ' is-ready' : ''}`}>
+    <div
+      className={`hero-phone${sceneReady ? ' is-ready' : ''}`}
+      data-liquid-ignore=""
+    >
       <PhoneFallback screenImageSrc={screenImageSrc} />
 
       <SceneBoundary onError={handleFail}>

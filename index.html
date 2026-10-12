@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#fcf7f1" />
+    <meta name="theme-color" content="#F7F0D8" id="theme-color-meta" />
     <meta
       name="description"
       content="Portfolio of Mrh Rafi, a Flutter App Developer from Bangladesh building thoughtful, user-focused mobile applications with clean UI and strong algorithmic foundations in C++ and DSA."
@@ -16,6 +16,26 @@
     />
     <meta property="og:type" content="website" />
     <title>Mrh Rafi — Flutter App Developer</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('mrh-theme');
+          var theme = saved === 'dark' || saved === 'light' ? saved : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.style.colorScheme = theme;
+          var meta = document.getElementById('theme-color-meta');
+          if (meta) {
+            meta.setAttribute(
+              'content',
+              theme === 'light' ? '#F7F0D8' : '#171310'
+            );
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.style.colorScheme = 'light';
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

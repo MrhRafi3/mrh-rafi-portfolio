@@ -1,27 +1,46 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'motion/react'
 
+const INTERACTIVE_SELECTOR =
+  'a, button, [role="button"], .card-phone-mockup, .liquid-btn, .switcher-pill'
+const CARD_SELECTOR =
+  '.project-card, .about-pillar-card, .skill-category-card, .about-narrative-card'
+const TEXT_INPUT_SELECTOR =
+  'input, textarea, select, [contenteditable="true"]'
+
 /**
- * Renders a subtle custom cursor ring that trails the mouse on desktop devices.
- * Automatically disabled on touch devices and when reduced motion is preferred.
+ * Renders a refined dual-layer custom cursor (precision dot + trailing liquid-glass ring)
+ * on fine-pointer desktop devices.
+ *
+ * Uses Motion values and refs so pointer movement updates GPU transforms directly
+ * without causing React re-renders on every mousemove frame.
  *
  * @param {Object} props - The component props.
  * @param {boolean} props.shouldReduceMotion - Whether to disable the custom cursor for accessibility.
  */
 export default function CustomCursor({ shouldReduceMotion }) {
   const [isVisible, setIsVisible] = useState(false)
+  const [cursorMode, setCursorMode] = useState('default')
+  const [isPressed, setIsPressed] = useState(false)
   const [isFinePointer, setIsFinePointer] = useState(
     () =>
       typeof window !== 'undefined' &&
       Boolean(window.matchMedia?.('(hover: hover) and (pointer: fine)').matches),
   )
 
-  const cursorX = useMotionValue(-100)
-  const cursorY = useMotionValue(-100)
+  const visibleRef = useRef(false)
+  const modeRef = useRef('default')
 
-  const springConfig = { stiffness: 460, damping: 30, mass: 0.45 }
-  const cursorXSpring = useSpring(cursorX, springConfig)
-  const cursorYSpring = useSpring(cursorY, springConfig)
+  const pointerX = useMotionValue(-100)
+  const pointerY = useMotionValue(-100)
+
+  // Precision inner dot follows pointer with near-instant responsiveness
+  const dotX = useSpring(pointerX, { stiffness: 820, damping: 42, mass: 0.16 })
+  const dotY = useSpring(pointerY, { stiffness: 820, damping: 42, mass: 0.16 })
+
+  // Outer liquid-glass ring trails with a smooth, restrained fluid spring
+  const ringX = useSpring(pointerX, { stiffness: 380, damping: 30, mass: 0.4 })
+  const ringY = useSpring(pointerY, { stiffness: 380, damping: 30, mass: 0.4 })
 
   useEffect(() => {
     if (shouldReduceMotion || typeof window === 'undefined') return undefined
@@ -31,53 +50,122 @@ export default function CustomCursor({ shouldReduceMotion }) {
     mediaQuery.addEventListener?.('change', handlePointerChange)
 
     if (!mediaQuery.matches) {
-      return () => mediaQuery.removeEventListener?.('change', handlePointerChange)
+      return () =>
+        mediaQuery.removeEventListener?.('change', handlePointerChange)
     }
 
-    const moveCursor = (event) => {
-      cursorX.set(event.clientX - 14)
-      cursorY.set(event.clientY - 14)
-      setIsVisible(true)
+    const updateMode = (nextMode) => {
+      if (modeRef.current !== nextMode) {
+        modeRef.current = nextMode
+        setCursorMode(nextMode)
+      }
     }
 
-    const handleMouseEnter = () => setIsVisible(true)
-    const handleMouseLeave = () => setIsVisible(false)
+    const handlePointerMove = (event) => {
+      if (event.pointerType && event.pointerType !== 'mouse') return
+      pointerX.set(event.clientX)
+      pointerY.set(event.clientY)
 
-    window.addEventListener('mousemove', moveCursor, { passive: true })
+      if (!visibleRef.current) {
+        visibleRef.current = true
+        setIsVisible(true)
+      }
+    }
+
+    const handlePointerOver = (event) => {
+      const target = event.target
+      if (!target || typeof target.closest !== 'function') return
+
+      if (target.closest(TEXT_INPUT_SELECTOR)) {
+        updateMode('hidden')
+      } else if (target.closest(INTERACTIVE_SELECTOR)) {
+        updateMode('interactive')
+      } else if (target.closest(CARD_SELECTOR)) {
+        updateMode('card')
+      } else {
+        updateMode('default')
+      }
+    }
+
+    const handlePointerDown = (event) => {
+      if (event.pointerType && event.pointerType !== 'mouse') return
+      setIsPressed(true)
+    }
+
+    const handlePointerUp = () => {
+      setIsPressed(false)
+    }
+
+    const handleMouseEnter = () => {
+      if (!visibleRef.current) {
+        visibleRef.current = true
+        setIsVisible(true)
+      }
+    }
+
+    const handleMouseLeave = () => {
+      if (visibleRef.current) {
+        visibleRef.current = false
+        setIsVisible(false)
+      }
+      setIsPressed(false)
+    }
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    window.addEventListener('pointerover', handlePointerOver, { passive: true })
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true })
+    window.addEventListener('pointerup', handlePointerUp, { passive: true })
     document.documentElement.addEventListener('mouseenter', handleMouseEnter)
     document.documentElement.addEventListener('mouseleave', handleMouseLeave)
 
     return () => {
       mediaQuery.removeEventListener?.('change', handlePointerChange)
-      window.removeEventListener('mousemove', moveCursor)
-      document.documentElement.removeEventListener('mouseenter', handleMouseEnter)
-      document.documentElement.removeEventListener('mouseleave', handleMouseLeave)
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerover', handlePointerOver)
+      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('pointerup', handlePointerUp)
+      document.documentElement.removeEventListener(
+        'mouseenter',
+        handleMouseEnter,
+      )
+      document.documentElement.removeEventListener(
+        'mouseleave',
+        handleMouseLeave,
+      )
     }
-  }, [cursorX, cursorY, shouldReduceMotion])
+  }, [pointerX, pointerY, shouldReduceMotion])
 
   if (shouldReduceMotion || !isFinePointer) return null
 
+  const showCursor = isVisible && cursorMode !== 'hidden'
+  const stateClasses = [
+    cursorMode === 'interactive' ? 'is-interactive' : '',
+    cursorMode === 'card' ? 'is-card' : '',
+    isPressed ? 'is-pressed' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <motion.div
+    <div
+      className={`custom-cursor-layer ${showCursor ? 'is-visible' : ''} ${stateClasses}`.trim()}
       aria-hidden="true"
-      style={{
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        width: '28px',
-        height: '28px',
-        borderRadius: '50%',
-        border: '1px solid rgba(241, 100, 54, 0.35)',
-        backgroundColor: 'rgba(241, 100, 54, 0.06)',
-        boxShadow: '0 0 16px rgba(241, 100, 54, 0.14)',
-        pointerEvents: 'none',
-        zIndex: 9999,
-        x: cursorXSpring,
-        y: cursorYSpring,
-        opacity: isVisible ? 1 : 0,
-      }}
-      transition={{ opacity: { duration: 0.2 } }}
-    />
+      data-liquid-ignore=""
+    >
+      <motion.div
+        className="custom-cursor-ring"
+        style={{
+          x: ringX,
+          y: ringY,
+        }}
+      />
+      <motion.div
+        className="custom-cursor-dot"
+        style={{
+          x: dotX,
+          y: dotY,
+        }}
+      />
+    </div>
   )
 }
-

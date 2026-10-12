@@ -1,7 +1,6 @@
 /*
-  Hero upgrade (milestone 1).
-  Loaded AFTER index.css. To undo everything in this file, remove the line
-  `import './hero-upgrade.css'` from App.jsx.
+  Hero & Motion Choreography Styles (Dual-Theme Liquid Glass System).
+  Loaded after index.css.
 */
 
 :root {
@@ -27,7 +26,7 @@
   font-size: clamp(30px, 6vw, 40px);
   font-weight: 700;
   letter-spacing: -1.5px;
-  color: #171719;
+  color: var(--text);
 }
 
 .intro-mark span {
@@ -39,7 +38,7 @@
   height: 2px;
   overflow: hidden;
   border-radius: 2px;
-  background: rgba(23, 23, 25, 0.1);
+  background: var(--border);
 }
 
 .intro-bar-fill {
@@ -58,7 +57,7 @@
 }
 
 .nav-link.is-active {
-  color: #171719;
+  color: var(--text);
 }
 
 .nav-indicator {
@@ -69,6 +68,7 @@
   height: 2px;
   border-radius: 2px;
   background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-text-glow);
 }
 
 /* Arrows nudge in the direction they point. */
@@ -209,16 +209,10 @@
   height: 465px;
   padding: 9px;
   border-radius: 44px;
-  background: linear-gradient(
-    145deg,
-    #e6e3dd 0%,
-    #a6a39d 38%,
-    #eeebe5 58%,
-    #8f8c87 100%
-  );
+  background: var(--phone-frame-bg);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 30px 60px rgba(34, 28, 25, 0.26);
+    inset 0 0 0 1px var(--phone-frame-border),
+    var(--phone-frame-shadow);
   animation: fallback-float 6s ease-in-out infinite;
 }
 
@@ -228,7 +222,7 @@
   height: 100%;
   overflow: hidden;
   border-radius: 36px;
-  background: #0b0d0c;
+  background: #14100d;
 }
 
 .phone-fallback-screenshot {

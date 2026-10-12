@@ -65,6 +65,7 @@ export default function Intro({ reducedMotion, onDone }) {
       {visible && (
         <motion.div
           className="intro-screen"
+          data-liquid-ignore=""
           aria-hidden="true"
           initial={{ y: 0 }}
           exit={{ y: '-100%' }}

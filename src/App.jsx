@@ -1,11 +1,10 @@
 import {
-  AnimatePresence,
   motion,
   useReducedMotion,
   useScroll,
   useTransform,
 } from 'motion/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import {
   ArrowUpRight,
   Code2,
@@ -15,7 +14,6 @@ import {
   Smartphone,
   Sparkles,
   User,
-  X,
 } from 'lucide-react'
 
 function GitHubIcon({ size = 20 }) {
@@ -66,6 +64,13 @@ import ClockyMockup from './components/ClockyMockup'
 import ExpifyMockup from './components/ExpifyMockup'
 import MagneticButton from './components/MagneticButton'
 import CustomCursor from './components/CustomCursor'
+import ProjectShowcase from './components/ProjectShowcase'
+import useLiquidGL from './hooks/useLiquidGL'
+import useTheme from './hooks/useTheme'
+import {
+  handleLiquidPointerLeave,
+  handleLiquidPointerMove,
+} from './utils/liquidInteractions'
 
 const easeOut = [0.22, 1, 0.36, 1]
 const CURRENT_YEAR = 2026
@@ -82,7 +87,7 @@ const PROFILE_CONFIG = {
   location: 'Bangladesh',
   portraitSrc: '/images/rafi-portrait.jpg',
   heroPhoneScreenSrc: '/images/expify/screen-1.png',
-  email: null,
+  email: 'mrhrafi99@gmail.com',
   resumeUrl: null,
   githubUrl: 'https://github.com/mrirafi',
   linkedinUrl: 'https://bd.linkedin.com/in/mrhrafi',
@@ -114,8 +119,6 @@ const headlineLines = [
 const projectsData = [
   {
     id: 'clocky',
-    themeColor: '#d6603a',
-    themeDarkColor: '#c24119',
     category: 'PERSONAL PROJECT',
     type: 'FLUTTER MOBILE APP',
     tagline: 'YOUR TIME, YOUR WAY',
@@ -139,20 +142,37 @@ const projectsData = [
     screenshots: [
       {
         src: '/images/clocky/screen-1.png',
-        label: 'Clocky World Clock Screen',
+        label: 'World Clock',
         alt: 'Clocky World Clock screen showing 09:30:15 PM digital readout, glowing analog clock face, Dhaka timezone pill, and bottom navigation',
+      },
+      {
+        src: '/images/clocky/screen-2.png',
+        label: 'Alarm',
+        alt: 'Clocky Alarm screen with scheduled alarms list and add button',
+      },
+      {
+        src: '/images/clocky/screen-3.png',
+        label: 'Stopwatch',
+        alt: 'Clocky Stopwatch screen with start, stop, and lap controls',
+      },
+      {
+        src: '/images/clocky/screen-4.png',
+        label: 'Timer',
+        alt: 'Clocky Timer screen showing countdown interface',
+      },
+      {
+        src: '/images/clocky/screen-5.png',
+        label: 'Settings',
+        alt: 'Clocky Settings screen with app preferences',
       },
     ],
     links: [
-      { label: 'GitHub Profile', href: 'https://github.com/mrirafi', symbol: '↗' },
-      { label: 'LinkedIn Profile', href: 'https://bd.linkedin.com/in/mrhrafi', symbol: '↗' },
+      { label: 'GitHub Repo · Coming Soon', href: null, symbol: '⏳' },
     ],
     repoNote: 'Clocky’s dedicated public repository is not available yet.',
   },
   {
     id: 'expify-beta',
-    themeColor: '#e0582b',
-    themeDarkColor: '#9e3311',
     category: 'PERSONAL PROJECT',
     type: 'FLUTTER MOBILE APP',
     badge: 'BETA',
@@ -176,13 +196,47 @@ const projectsData = [
     screenshots: [
       {
         src: '/images/expify/screen-1.png',
-        label: 'Expify Beta Home Screen',
+        label: 'Home Dashboard',
         alt: 'Expify Beta home screen showing total balance, income and expense summary cards, and recent transactions',
+      },
+      {
+        src: '/images/expify/screen-2.png',
+        label: 'Transactions',
+        alt: 'Expify Beta transactions list with date-grouped expense entries',
+      },
+      {
+        src: '/images/expify/screen-3.png',
+        label: 'Add Expense',
+        alt: 'Expify Beta add expense screen with category picker and amount input',
+      },
+      {
+        src: '/images/expify/screen-4.png',
+        label: 'Reports',
+        alt: 'Expify Beta reports screen with spending insights and charts',
+      },
+      {
+        src: '/images/expify/screen-5.png',
+        label: 'Projects Tab',
+        alt: 'Expify Beta projects tab showing budget allocations per project',
+      },
+      {
+        src: '/images/expify/screen-6.png',
+        label: 'Categories',
+        alt: 'Expify Beta categories breakdown with icon and colour coding',
+      },
+      {
+        src: '/images/expify/screen-7.png',
+        label: 'Settings',
+        alt: 'Expify Beta settings screen with currency and theme preferences',
+      },
+      {
+        src: '/images/expify/screen-8.png',
+        label: 'Income Entry',
+        alt: 'Expify Beta income entry screen with source and amount fields',
       },
     ],
     links: [
       { label: 'GitHub Repo · Coming Soon', href: null, symbol: '⏳' },
-      { label: 'GitHub Profile', href: 'https://github.com/mrirafi', symbol: '↗' },
     ],
     repoNote:
       'Expify Beta repository is being prepared and will be linked here once pushed to GitHub.',
@@ -222,14 +276,17 @@ const skillCategories = [
     items: [
       {
         name: 'Flutter',
+        focusLabel: 'Primary Framework',
         detail: 'Cross-platform app development, custom widgets, and responsive mobile UI',
       },
       {
         name: 'Dart',
+        focusLabel: 'Core Language',
         detail: 'Structured application logic, asynchronous flows, and clean object-oriented code',
       },
       {
         name: 'Mobile UI / UX',
+        focusLabel: 'Interface Craft',
         detail: 'Layout composition, typography, theme systems, and purposeful motion',
       },
     ],
@@ -246,14 +303,17 @@ const skillCategories = [
     items: [
       {
         name: 'C++',
+        focusLabel: 'Core Foundation',
         detail: 'Core programming fundamentals, structured syntax, and performance awareness',
       },
       {
         name: 'Data Structures & Algorithms (DSA)',
+        focusLabel: 'Algorithmic Logic',
         detail: 'Problem decomposition, data organization, and step-by-step algorithmic logic',
       },
       {
         name: 'Analytical Debugging',
+        focusLabel: 'Code Reliability',
         detail: 'Tracing edge cases and writing predictable, maintainable solutions',
       },
     ],
@@ -270,14 +330,17 @@ const skillCategories = [
     items: [
       {
         name: 'Git & GitHub',
+        focusLabel: 'Source Control',
         detail: 'Source control, repository management, and iterative development',
       },
       {
         name: 'Modular Architecture',
+        focusLabel: 'Widget Structure',
         detail: 'Reusable UI components and clear separation of presentation and logic',
       },
       {
         name: 'VS Code & Flutter DevTools',
+        focusLabel: 'Inspection & Debug',
         detail: 'Widget inspection, layout debugging, and iterative refinement',
       },
     ],
@@ -338,17 +401,26 @@ function StaggeredHeading({ text, accentText, shouldReduceMotion }) {
  * Automatically displays `public/images/rafi-portrait.jpg` when present, or a clean,
  * non-fabricated architectural frame until the real photograph is added.
  */
-function HeroIdentityCard({ reveal }) {
+function HeroIdentityCard({ reveal, shouldReduceMotion }) {
   const [photoAvailable, setPhotoAvailable] = useState(true)
 
   return (
-    <motion.div className="hero-identity-card" {...reveal(0.2, 16)}>
+    <motion.div
+      className="hero-identity-card glass-card liquid-glass-card"
+      data-liquid-intensity="subtle"
+      onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+      onPointerLeave={handleLiquidPointerLeave}
+      {...reveal(0.2, 16)}
+    >
       <div className="hero-portrait-frame">
         {photoAvailable ? (
           <img
             src={PROFILE_CONFIG.portraitSrc}
             alt={`${PROFILE_CONFIG.name} — ${PROFILE_CONFIG.title}`}
             className="hero-portrait-img"
+            decoding="sync"
+            fetchPriority="high"
+            draggable={false}
             onError={() => setPhotoAvailable(false)}
           />
         ) : (
@@ -383,124 +455,14 @@ function HeroIdentityCard({ reveal }) {
 }
 
 /**
- * Accessible modal displaying detailed project information, architecture notes, and screenshot status.
- */
-function ProjectDetailsModal({ project, onClose }) {
-  useEffect(() => {
-    if (!project) return undefined
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [project, onClose])
-
-  return (
-    <AnimatePresence>
-      {project && (
-        <motion.div
-          className="project-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-project-title"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-        >
-          <motion.div
-            className="project-modal-card"
-            initial={{ opacity: 0, y: 24, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.97 }}
-            transition={{ duration: 0.28, ease: easeOut }}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="project-modal-header">
-              <div>
-                <span className="project-modal-pill">{project.category}</span>
-                <h3 id="modal-project-title">
-                  {project.title}
-                  <span style={{ color: project.themeColor }}>{project.accent}</span>
-                </h3>
-              </div>
-              <button
-                type="button"
-                className="project-modal-close"
-                aria-label="Close project details"
-                onClick={onClose}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <p className="project-modal-role">
-              <strong>Role:</strong> {project.role}
-            </p>
-            <p className="project-modal-desc">{project.description}</p>
-
-            <div className="project-modal-section">
-              <h4>Key Implementation Highlights</h4>
-              <ul>
-                {project.highlights?.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="project-modal-section">
-              <h4>Technologies Used</h4>
-              <div className="project-modal-tags">
-                {project.techStack?.map((tech) => (
-                  <span key={tech} className="project-modal-tag">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {project.screenshots?.length > 0 && (
-              <div className="project-modal-section">
-                <h4>Application Screen Preview</h4>
-                <div className="project-modal-screens-grid">
-                  {project.screenshots.map((shot) => (
-                    <figure key={shot.src} className="project-modal-shot">
-                      <img
-                        src={shot.src}
-                        alt={shot.alt || shot.label}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {shot.label && <figcaption>{shot.label}</figcaption>}
-                    </figure>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="project-modal-footer">
-              <span className="project-modal-repo-note">{project.repoNote}</span>
-              <button
-                type="button"
-                className="button-primary"
-                onClick={onClose}
-              >
-                Done
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  )
-}
-
-/**
  * Main application component.
- * Orchestrates layout, scroll-linked animations, and 3D interactions.
+ * Orchestrates layout, dual-theme state (Clay & Butter × Midnight Espresso),
+ * scroll-linked animations, `liquid-gl` optical refraction, layered glass
+ * interactions, and 3D presentation.
  */
 function App() {
   const shouldReduceMotion = useReducedMotion()
+  const { theme, toggleTheme } = useTheme()
   const [ready, setReady] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
   const [activeHeroScreen, setActiveHeroScreen] = useState(
@@ -509,6 +471,14 @@ function App() {
 
   /** Mark initial intro animation as complete to trigger hero entrance choreography. */
   const handleIntroDone = useCallback(() => setReady(true), [])
+
+  // Initialize Layer A authentic liquid-gl optical lens refraction once the intro completes
+  useLiquidGL({
+    enabled: ready,
+    reducedMotion: Boolean(shouldReduceMotion),
+    theme,
+    target: '.liquid-gl-target',
+  })
 
   const stageRef = useRef(null)
   const heroRef = useRef(null)
@@ -558,18 +528,22 @@ function App() {
   })
 
   /** Generates animation variants for elements that reveal as they scroll into view. */
-  const scrollReveal = (distance = 28) => ({
+  const scrollReveal = (distance = 26, delay = 0) => ({
     initial: shouldReduceMotion ? false : { opacity: 0, y: distance },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.15 },
-    transition: { duration: shouldReduceMotion ? 0 : 0.72, ease: easeOut },
+    viewport: { once: true, amount: 0.12 },
+    transition: {
+      duration: shouldReduceMotion ? 0 : 0.72,
+      delay: shouldReduceMotion ? 0 : delay,
+      ease: easeOut,
+    },
   })
 
   const linkHover = shouldReduceMotion ? undefined : { y: -3, transition: { duration: 0.2 } }
 
   const { scrollYProgress: pageScroll } = useScroll()
-  const blob1Y = useTransform(pageScroll, [0, 1], ['0%', '35%'])
-  const blob2Y = useTransform(pageScroll, [0, 1], ['0%', '-35%'])
+  const blob1Y = useTransform(pageScroll, [0, 1], ['0%', '30%'])
+  const blob2Y = useTransform(pageScroll, [0, 1], ['0%', '-30%'])
 
   return (
     <main className="portfolio">
@@ -577,41 +551,26 @@ function App() {
 
       <motion.div
         aria-hidden="true"
-        style={{
-          position: 'fixed',
-          top: '-12%',
-          left: '-10%',
-          width: '46vw',
-          height: '46vw',
-          background:
-            'radial-gradient(circle, rgba(241, 100, 54, 0.045) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)',
-          zIndex: 0,
-          pointerEvents: 'none',
-          y: blob1Y,
-        }}
+        data-liquid-ignore=""
+        className="ambient-blob ambient-blob-top"
+        style={{ y: blob1Y }}
       />
       <motion.div
         aria-hidden="true"
-        style={{
-          position: 'fixed',
-          bottom: '-12%',
-          right: '-10%',
-          width: '52vw',
-          height: '52vw',
-          background:
-            'radial-gradient(circle, rgba(194, 65, 25, 0.035) 0%, transparent 70%)',
-          borderRadius: '50%',
-          filter: 'blur(80px)',
-          zIndex: 0,
-          pointerEvents: 'none',
-          y: blob2Y,
-        }}
+        data-liquid-ignore=""
+        className="ambient-blob ambient-blob-bottom"
+        style={{ y: blob2Y }}
       />
 
       <Intro reducedMotion={shouldReduceMotion} onDone={handleIntroDone} />
-      <Navbar reveal={reveal} linkHover={linkHover} reducedMotion={shouldReduceMotion} />
+      <Navbar
+        reveal={reveal}
+        linkHover={linkHover}
+        reducedMotion={shouldReduceMotion}
+        scrollProgress={pageScroll}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <section
         className="hero-section"
@@ -625,11 +584,14 @@ function App() {
             y: shouldReduceMotion ? 0 : heroCopyY,
           }}
         >
-          <motion.div className="availability" {...reveal(0.12)}>
+          <motion.div className="availability glass-surface" {...reveal(0.12)}>
             <span className="status-dot" /> FLUTTER APP DEVELOPER
           </motion.div>
 
-          <HeroIdentityCard reveal={reveal} />
+          <HeroIdentityCard
+            reveal={reveal}
+            shouldReduceMotion={shouldReduceMotion}
+          />
 
           <motion.p className="eyebrow" {...reveal(0.26)}>
             INDEPENDENT MOBILE DEVELOPER · BANGLADESH
@@ -662,38 +624,38 @@ function App() {
           </motion.p>
 
           <motion.div className="hero-actions" {...reveal(0.68)}>
-            <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={15}>
+            <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
               <motion.a
-                className="button-primary"
+                className="button-primary glass-button liquid-btn"
                 href="#work"
                 whileHover={
-                  shouldReduceMotion ? undefined : { y: -4, scale: 1.02 }
+                  shouldReduceMotion ? undefined : { y: -3, scale: 1.015 }
                 }
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
               >
-                Explore My Projects <span aria-hidden="true">↗</span>
+                <span>Explore My Projects</span> <span aria-hidden="true">↗</span>
               </motion.a>
             </MagneticButton>
-            <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={15}>
+            <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
               <motion.a
-                className="button-secondary"
+                className="button-secondary glass-button liquid-btn"
                 href="#contact"
                 whileHover={linkHover}
                 whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
               >
-                Get in Touch <span aria-hidden="true">→</span>
+                <span>Get in Touch</span> <span aria-hidden="true">→</span>
               </motion.a>
             </MagneticButton>
             {PROFILE_CONFIG.resumeUrl && (
-              <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={15}>
+              <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
                 <motion.a
-                  className="button-secondary"
+                  className="button-secondary glass-button liquid-btn"
                   href={PROFILE_CONFIG.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={linkHover}
                 >
-                  Resume <span aria-hidden="true">↗</span>
+                  <span>Resume</span> <span aria-hidden="true">↗</span>
                 </motion.a>
               </MagneticButton>
             )}
@@ -743,9 +705,6 @@ function App() {
             }
             transition={{ duration: 1.2, delay: 0.6, ease: easeOut }}
           />
-          <motion.div className="floating-label label-top" {...reveal(0.7, 14)}>
-            <span className="label-icon">✳</span> Crafted with purpose
-          </motion.div>
           <motion.div
             className="phone-tilt"
             style={{
@@ -759,15 +718,9 @@ function App() {
               pageReady={ready}
             />
           </motion.div>
-          <motion.div
-            className="floating-label label-bottom"
-            {...reveal(0.85, -14)}
-          >
-            <span className="label-dot" /> Built with Flutter
-          </motion.div>
 
           <motion.div
-            className="hero-screen-switcher"
+            className="hero-screen-switcher glass-surface"
             role="group"
             aria-label="Switch 3D iPhone app screen"
             {...reveal(0.9, 10)}
@@ -779,18 +732,14 @@ function App() {
                 <button
                   key={option.id}
                   type="button"
-                  className={`switcher-pill${isActive ? ' is-active' : ''}`}
+                  className={`switcher-pill liquid-btn${isActive ? ' is-active' : ''}`}
                   aria-pressed={isActive}
                   onClick={() => setActiveHeroScreen(option.src)}
                 >
-                  {option.label}
+                  <span>{option.label}</span>
                 </button>
               )
             })}
-          </motion.div>
-
-          <motion.div className="tech-label" {...reveal(0.95, 8)}>
-            FLUTTER · DART · C++ · DSA
           </motion.div>
         </motion.div>
 
@@ -802,7 +751,7 @@ function App() {
       </section>
 
       <motion.section
-        className="intro-strip"
+        className="intro-strip glass-surface"
         ref={introRef}
         aria-label="Core engineering pillars"
         {...scrollReveal(18)}
@@ -834,7 +783,7 @@ function App() {
         className="next-section"
         id="work"
         ref={workRef}
-        {...scrollReveal(28)}
+        {...scrollReveal(26)}
       >
         <div className="section-header-row">
           <div>
@@ -845,10 +794,10 @@ function App() {
               shouldReduceMotion={shouldReduceMotion}
             />
           </div>
-          <p className="section-lead">
+          <motion.p className="section-lead" {...scrollReveal(16, 0.1)}>
             Real mobile applications built with Flutter—focused on everyday
             utility, clean interfaces, and thoughtful user flows.
-          </p>
+          </motion.p>
         </div>
 
         {projectsData.map((project) => (
@@ -863,6 +812,7 @@ function App() {
               <ClockyMockup
                 shouldReduceMotion={shouldReduceMotion}
                 screenshotSrc={project.screenshotSrc}
+                onOpenDetails={() => setSelectedProject(project)}
               />
             ) : (
               <ExpifyMockup
@@ -879,7 +829,7 @@ function App() {
         className="about-section-upgraded"
         id="about"
         ref={aboutRef}
-        {...scrollReveal(28)}
+        {...scrollReveal(26)}
       >
         <div className="section-header-row">
           <div>
@@ -890,14 +840,20 @@ function App() {
               shouldReduceMotion={shouldReduceMotion}
             />
           </div>
-          <p className="section-lead">
+          <motion.p className="section-lead" {...scrollReveal(16, 0.1)}>
             Flutter App Developer based in Bangladesh, dedicated to building
             mobile software that feels calm, fast, and genuinely useful.
-          </p>
+          </motion.p>
         </div>
 
-        <div className="about-narrative-card">
-          <div className="about-narrative-copy">
+        <motion.div
+          className="about-narrative-card glass-card liquid-glass-card"
+          data-liquid-intensity="medium"
+          onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+          onPointerLeave={handleLiquidPointerLeave}
+          {...scrollReveal(22, 0.08)}
+        >
+          <div className="about-narrative-copy" style={{ position: 'relative', zIndex: 2 }}>
             <p>
               Hi, I&apos;m <strong>Mrh Rafi</strong>. My primary focus is
               designing and building cross-platform mobile applications with{' '}
@@ -916,31 +872,34 @@ function App() {
             </p>
           </div>
 
-          <div className="about-quick-facts">
-            <div className="quick-fact-item">
+          <div className="about-quick-facts" style={{ position: 'relative', zIndex: 2 }}>
+            <div className="quick-fact-item glass-panel">
               <span className="quick-fact-label">PRIMARY ROLE</span>
               <strong>Flutter App Developer</strong>
             </div>
-            <div className="quick-fact-item">
+            <div className="quick-fact-item glass-panel">
               <span className="quick-fact-label">CORE STACK</span>
               <strong>Flutter &amp; Dart</strong>
             </div>
-            <div className="quick-fact-item">
+            <div className="quick-fact-item glass-panel">
               <span className="quick-fact-label">FOUNDATION</span>
               <strong>C++ &amp; DSA</strong>
             </div>
-            <div className="quick-fact-item">
+            <div className="quick-fact-item glass-panel">
               <span className="quick-fact-label">LOCATION</span>
               <strong>Bangladesh</strong>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="about-pillars-grid">
           {aboutPillars.map((pillar, index) => (
             <motion.article
               key={pillar.number}
-              className="about-pillar-card"
+              className="about-pillar-card glass-card liquid-glass-card"
+              data-liquid-intensity="subtle"
+              onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+              onPointerLeave={handleLiquidPointerLeave}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
@@ -951,9 +910,11 @@ function App() {
               }}
               whileHover={shouldReduceMotion ? undefined : { y: -4 }}
             >
-              <span className="pillar-number">{pillar.number}</span>
-              <h3>{pillar.title}</h3>
-              <p>{pillar.description}</p>
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <span className="pillar-number">{pillar.number}</span>
+                <h3>{pillar.title}</h3>
+                <p>{pillar.description}</p>
+              </div>
             </motion.article>
           ))}
         </div>
@@ -963,7 +924,7 @@ function App() {
         className="skills-section-upgraded"
         id="skills"
         ref={skillsRef}
-        {...scrollReveal(28)}
+        {...scrollReveal(26)}
       >
         <div className="section-header-row">
           <div>
@@ -974,10 +935,10 @@ function App() {
               shouldReduceMotion={shouldReduceMotion}
             />
           </div>
-          <p className="section-lead">
+          <motion.p className="section-lead" {...scrollReveal(16, 0.1)}>
             A focused, truthful technical toolkit centered on Flutter mobile
             engineering and strong algorithmic problem-solving.
-          </p>
+          </motion.p>
         </div>
 
         <div className="skills-category-grid">
@@ -986,7 +947,10 @@ function App() {
             return (
               <motion.article
                 key={group.id}
-                className="skill-category-card"
+                className="skill-category-card glass-card liquid-glass-card"
+                data-liquid-intensity="medium"
+                onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+                onPointerLeave={handleLiquidPointerLeave}
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
@@ -995,8 +959,11 @@ function App() {
                   delay: shouldReduceMotion ? 0 : index * 0.1,
                   ease: easeOut,
                 }}
+                whileHover={shouldReduceMotion ? undefined : { y: -4 }}
               >
-                <div className="skill-category-top">
+                <div className="skill-card-top-rim" aria-hidden="true" />
+
+                <div className="skill-category-top" style={{ position: 'relative', zIndex: 2 }}>
                   <span className="skill-category-tag">
                     {group.number} · {group.category}
                   </span>
@@ -1005,22 +972,26 @@ function App() {
                   </span>
                 </div>
 
-                <h3>{group.title}</h3>
-                <p className="skill-category-desc">{group.description}</p>
+                <h3 style={{ position: 'relative', zIndex: 2 }}>{group.title}</h3>
+                <p className="skill-category-desc" style={{ position: 'relative', zIndex: 2 }}>
+                  {group.description}
+                </p>
 
                 <div className="skill-items-list">
                   {group.items.map((item) => (
-                    <div key={item.name} className="skill-item-row">
-                      <div className="skill-item-name">
-                        <Sparkles size={13} color="#f16436" />
-                        <strong>{item.name}</strong>
+                    <div key={item.name} className="skill-item-row glass-panel">
+                      <div className="skill-item-header">
+                        <div className="skill-item-name">
+                          <Sparkles size={13} className="skill-sparkle-icon" />
+                          <strong>{item.name}</strong>
+                        </div>
                       </div>
                       <p>{item.detail}</p>
                     </div>
                   ))}
                 </div>
 
-                <div className="skill-category-footer">
+                <div className="skill-category-footer" style={{ position: 'relative', zIndex: 2 }}>
                   <Layers size={13} />
                   <span>{group.evidence}</span>
                 </div>
@@ -1034,7 +1005,7 @@ function App() {
         className="footer"
         id="contact"
         ref={contactRef}
-        {...scrollReveal(28)}
+        {...scrollReveal(26)}
       >
         <div className="contact-showcase">
           <div className="contact-copy">
@@ -1053,66 +1024,75 @@ function App() {
 
           <div className="contact-cards-grid">
             <motion.a
-              className="contact-channel-card"
+              className="contact-channel-card glass-card liquid-glass-card liquid-btn"
+              data-liquid-intensity="subtle"
               href={PROFILE_CONFIG.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+              onPointerLeave={handleLiquidPointerLeave}
               whileHover={linkHover}
             >
-              <span className="contact-channel-icon">
+              <span className="contact-channel-icon" style={{ position: 'relative', zIndex: 2 }}>
                 <LinkedInIcon size={20} />
               </span>
-              <div>
+              <div style={{ position: 'relative', zIndex: 2 }}>
                 <span className="contact-channel-label">LINKEDIN</span>
                 <strong>in/mrhrafi</strong>
                 <small>Connect professionally</small>
               </div>
-              <ArrowUpRight size={18} className="contact-channel-arrow" />
+              <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
             </motion.a>
 
             <motion.a
-              className="contact-channel-card"
+              className="contact-channel-card glass-card liquid-glass-card liquid-btn"
+              data-liquid-intensity="subtle"
               href={PROFILE_CONFIG.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+              onPointerLeave={handleLiquidPointerLeave}
               whileHover={linkHover}
             >
-              <span className="contact-channel-icon">
+              <span className="contact-channel-icon" style={{ position: 'relative', zIndex: 2 }}>
                 <GitHubIcon size={20} />
               </span>
-              <div>
+              <div style={{ position: 'relative', zIndex: 2 }}>
                 <span className="contact-channel-label">GITHUB</span>
                 <strong>@mrirafi</strong>
                 <small>Explore my repositories &amp; code</small>
               </div>
-              <ArrowUpRight size={18} className="contact-channel-arrow" />
+              <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
             </motion.a>
 
             {PROFILE_CONFIG.email ? (
               <motion.a
-                className="contact-channel-card"
+                className="contact-channel-card glass-card liquid-glass-card liquid-btn"
+                data-liquid-intensity="subtle"
                 href={`mailto:${PROFILE_CONFIG.email}`}
+                onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
+                onPointerLeave={handleLiquidPointerLeave}
                 whileHover={linkHover}
               >
-                <span className="contact-channel-icon">
+                <span className="contact-channel-icon" style={{ position: 'relative', zIndex: 2 }}>
                   <Mail size={20} />
                 </span>
-                <div>
+                <div style={{ position: 'relative', zIndex: 2 }}>
                   <span className="contact-channel-label">DIRECT EMAIL</span>
                   <strong>{PROFILE_CONFIG.email}</strong>
-                  <small>Send me a message</small>
+                  <small>You can mail me anytime</small>
                 </div>
-                <ArrowUpRight size={18} className="contact-channel-arrow" />
+                <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
               </motion.a>
             ) : (
-              <div className="contact-channel-card is-placeholder">
+              <div className="contact-channel-card glass-card liquid-glass-card is-placeholder">
                 <span className="contact-channel-icon">
                   <Mail size={20} />
                 </span>
                 <div>
                   <span className="contact-channel-label">DIRECT EMAIL</span>
-                  <strong>Email Slot Ready</strong>
-                  <small>Set PROFILE_CONFIG.email in src/App.jsx</small>
+                  <strong>mrhrafi99@gmail.com</strong>
+                  <small>You can mail me anytime</small>
                 </div>
               </div>
             )}
@@ -1142,9 +1122,12 @@ function App() {
         </div>
       </motion.footer>
 
-      <ProjectDetailsModal
+      <ProjectShowcase
+        key={selectedProject?.id}
         project={selectedProject}
         onClose={() => setSelectedProject(null)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
     </main>
   )
