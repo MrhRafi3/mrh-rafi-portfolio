@@ -12,12 +12,14 @@ import { Image as ImageIcon, Smartphone } from 'lucide-react'
  * @param {boolean} props.shouldReduceMotion - Whether to disable animations for accessibility.
  * @param {Array<{src: string, label: string, alt: string}>} props.screenshots - Configured screenshot paths.
  * @param {Function} props.onOpenDetails - Callback to open the project details modal.
+ * @param {string} [props.floatingBadge] - Optional floating badge label beside the phone.
  * @returns {JSX.Element} The rendered Expify Beta preview component.
  */
 export default function ExpifyMockup({
   shouldReduceMotion,
   screenshots = [],
   onOpenDetails,
+  floatingBadge,
 }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [failedImages, setFailedImages] = useState({})
@@ -173,6 +175,23 @@ export default function ExpifyMockup({
           </div>
         )}
       </div>
+
+      {floatingBadge && (
+        <motion.div
+          className="mockup-floating-badge"
+          aria-hidden="true"
+          initial={shouldReduceMotion ? false : { opacity: 0, x: 14, y: -6 }}
+          whileInView={{ opacity: 1, x: 0, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.68,
+            delay: shouldReduceMotion ? 0 : 0.55,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {floatingBadge}
+        </motion.div>
+      )}
     </motion.div>
   )
 }

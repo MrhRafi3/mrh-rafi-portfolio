@@ -225,6 +225,18 @@
   background: #14100d;
 }
 
+.phone-fallback-screen.is-poster {
+  background: linear-gradient(
+    180deg,
+    #f3f6fa 0%,
+    #f3f6fa 12%,
+    #182744 90%,
+    #0c1322 100%
+  );
+  padding-top: 26px;
+  padding-bottom: 18px;
+}
+
 .phone-fallback-screenshot {
   display: block;
   width: 100%;
@@ -233,6 +245,10 @@
   object-position: center top;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+.phone-fallback-screen.is-poster .phone-fallback-screenshot {
+  object-fit: fill;
 }
 
 .phone-fallback-island {

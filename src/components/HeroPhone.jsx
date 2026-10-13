@@ -51,7 +51,7 @@ class SceneBoundary extends Component {
 export default function HeroPhone({
   reducedMotion,
   scrollProgress,
-  screenImageSrc = '/images/expify/screen-1.png',
+  screenImageSrc = '/images/hero-1.png',
   pageReady = true,
 }) {
   const [webglOk, setWebglOk] = useState(() => supportsWebGL())

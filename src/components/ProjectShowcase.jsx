@@ -103,12 +103,13 @@ function PhoneFrame({
  */
 export default function ProjectShowcase({
   project,
+  initialIndex = 0,
   onClose,
   theme = 'light',
   onToggleTheme,
 }) {
   const shouldReduceMotion = useReducedMotion()
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(initialIndex)
   const closeButtonRef = useRef(null)
   const backdropRef = useRef(null)
 

@@ -12,12 +12,14 @@ const DEFAULT_CLOCKY_SCREENSHOT = '/images/clocky/screen-1.png'
  * @param {boolean} props.shouldReduceMotion - Whether to disable animations for accessibility.
  * @param {string} [props.screenshotSrc] - Optional custom path to the Clocky screenshot.
  * @param {Function} [props.onOpenDetails] - Optional callback to open the immersive showcase.
+ * @param {string} [props.floatingBadge] - Optional floating badge label beside the phone.
  * @returns {JSX.Element} The rendered Clocky mockup component.
  */
 export default function ClockyMockup({
   shouldReduceMotion,
   screenshotSrc = DEFAULT_CLOCKY_SCREENSHOT,
   onOpenDetails,
+  floatingBadge,
 }) {
   const [imageError, setImageError] = useState(false)
   const showRealScreenshot = Boolean(screenshotSrc) && !imageError
@@ -148,6 +150,23 @@ export default function ClockyMockup({
           </div>
         </div>
       </motion.div>
+
+      {floatingBadge && (
+        <motion.div
+          className="mockup-floating-badge"
+          aria-hidden="true"
+          initial={shouldReduceMotion ? false : { opacity: 0, x: 14, y: -6 }}
+          whileInView={{ opacity: 1, x: 0, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{
+            duration: shouldReduceMotion ? 0 : 0.68,
+            delay: shouldReduceMotion ? 0 : 0.55,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {floatingBadge}
+        </motion.div>
+      )}
     </motion.div>
   )
 }

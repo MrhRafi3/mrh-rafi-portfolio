@@ -7,7 +7,7 @@ import * as THREE from 'three'
  * Default screenshot displayed on the Hero 3D iPhone screen.
  * You can change this path anytime (or pass `screenImageSrc` from `App.jsx`).
  */
-export const DEFAULT_HERO_SCREEN_IMAGE = '/images/expify/screen-1.png'
+export const DEFAULT_HERO_SCREEN_IMAGE = '/images/hero-1.png'
 
 const GLASS_OPACITY = 0.08
 const SCREEN_BRIGHTNESS = 1
@@ -58,8 +58,9 @@ function loadImageCached(src) {
   return promise
 }
 
-// Preload both real app screenshots immediately when the module is imported.
+// Preload default hero poster and both real app screenshots immediately when the module is imported.
 if (typeof window !== 'undefined') {
+  loadImageCached('/images/hero-1.png').catch(() => {})
   loadImageCached('/images/expify/screen-1.png').catch(() => {})
   loadImageCached('/images/clocky/screen-1.png').catch(() => {})
 }
@@ -78,23 +79,128 @@ function roundedRect(ctx, x, y, w, h, r) {
 }
 
 /**
- * Draws an image onto the canvas using aspect-ratio-preserving cover math,
- * ensuring the screenshot fills the 3D OLED screen cleanly without stretching.
+ * Draws an image onto the canvas for the 3D OLED screen.
+ * - For native 19.5:9 mobile screenshots (Expify Beta, Clocky), uses standard aspect-ratio cover math.
+ * - For wider 9:16 portrait posters (like `hero-1.png`), preserves the full horizontal width so side
+ *   typography, floating badges, books, and signatures are never clipped, while seamlessly extending
+ *   the top studio sky behind the Dynamic Island and finishing the bottom edge with a native iOS bar.
  */
 function drawImageCover(ctx, img, targetW, targetH) {
   const imgW = img.naturalWidth || img.width || targetW
   const imgH = img.naturalHeight || img.height || targetH
-
-  const scale = Math.max(targetW / imgW, targetH / imgH)
-  const drawW = imgW * scale
-  const drawH = imgH * scale
-  const offsetX = (targetW - drawW) * 0.5
-  const offsetY = (targetH - drawH) * 0.5
+  const imgAspect = imgW / imgH
+  const screenAspect = targetW / targetH
 
   ctx.save()
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
-  ctx.drawImage(img, offsetX, offsetY, drawW, drawH)
+
+  if (imgAspect > screenAspect * 1.08) {
+    // 9:16 poster framing (e.g., /images/hero-1.png: 941x1672 -> 1080x2342 OLED)
+    const cropX = imgW * 0.0085
+    const srcW = imgW - cropX * 2
+    const topSkySrcH = Math.max(8, imgH * 0.024)
+    const bottomEdgeSrcY = imgH * 0.992
+    const bottomEdgeSrcH = Math.max(4, imgH - bottomEdgeSrcY)
+
+    const topBandH = Math.round(targetH * 0.062)
+    const bottomBandY = Math.round(targetH * 0.948)
+    const bottomBandH = targetH - bottomBandY
+
+    // 1. Extend bottom edge strip seamlessly to the bottom bezel
+    ctx.drawImage(
+      img,
+      cropX,
+      bottomEdgeSrcY,
+      srcW,
+      bottomEdgeSrcH,
+      0,
+      bottomBandY - 6,
+      targetW,
+      bottomBandH + 6,
+    )
+
+    // 2. Extend top studio sky seamlessly behind the status bar & Dynamic Island
+    ctx.drawImage(
+      img,
+      cropX,
+      0,
+      srcW,
+      topSkySrcH,
+      0,
+      0,
+      targetW,
+      topBandH + 6,
+    )
+
+    // 3. Draw main poster body edge-to-edge without clipping side text or badges
+    const mainSrcY = topSkySrcH * 0.85
+    const mainSrcH = bottomEdgeSrcY - mainSrcY
+    ctx.drawImage(
+      img,
+      cropX,
+      mainSrcY,
+      srcW,
+      mainSrcH,
+      0,
+      topBandH,
+      targetW,
+      bottomBandY - topBandH,
+    )
+
+    // 4. Native iOS status bar in the top studio sky zone flanking the Dynamic Island
+    ctx.fillStyle = '#1e293b'
+    ctx.font = `700 34px ${FONT}`
+    ctx.textBaseline = 'middle'
+    ctx.textAlign = 'left'
+    ctx.fillText('9:41', 88, 76)
+
+    const rightBaseX = targetW - 88
+    roundedRect(ctx, rightBaseX - 58, 61, 50, 28, 8)
+    ctx.lineWidth = 3
+    ctx.strokeStyle = 'rgba(30, 41, 59, 0.5)'
+    ctx.stroke()
+
+    roundedRect(ctx, rightBaseX - 5, 69, 4, 12, 2)
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.5)'
+    ctx.fill()
+
+    roundedRect(ctx, rightBaseX - 53, 66, 40, 18, 5)
+    ctx.fillStyle = '#1e293b'
+    ctx.fill()
+
+    const barHeights = [10, 15, 20, 25]
+    barHeights.forEach((bh, idx) => {
+      const bx = rightBaseX - 118 + idx * 11
+      const by = 86 - bh
+      roundedRect(ctx, bx, by, 7, bh, 2.5)
+      ctx.fillStyle = '#1e293b'
+      ctx.fill()
+    })
+
+    // 5. Smooth bottom vignette + iOS Home Indicator pill
+    const bottomGrad = ctx.createLinearGradient(0, bottomBandY - 28, 0, targetH)
+    bottomGrad.addColorStop(0, 'rgba(12, 18, 32, 0)')
+    bottomGrad.addColorStop(0.55, 'rgba(12, 18, 32, 0.42)')
+    bottomGrad.addColorStop(1, 'rgba(10, 15, 28, 0.78)')
+    ctx.fillStyle = bottomGrad
+    ctx.fillRect(0, bottomBandY - 28, targetW, targetH - (bottomBandY - 28))
+
+    const homeW = targetW * 0.34
+    const homeH = 11
+    const homeX = (targetW - homeW) * 0.5
+    const homeY = targetH - 36
+    roundedRect(ctx, homeX, homeY, homeW, homeH, homeH * 0.5)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.68)'
+    ctx.fill()
+  } else {
+    const scale = Math.max(targetW / imgW, targetH / imgH)
+    const drawW = imgW * scale
+    const drawH = imgH * scale
+    const offsetX = (targetW - drawW) * 0.5
+    const offsetY = (targetH - drawH) * 0.5
+    ctx.drawImage(img, offsetX, offsetY, drawW, drawH)
+  }
 
   // Subtle Dynamic Island pill aligned with the GLB's top cutout for realism
   const islandW = targetW * 0.25

@@ -239,6 +239,19 @@
     0 26px 58px rgba(53, 36, 29, 0.24),
     0 8px 20px rgba(53, 36, 29, 0.12);
   --iphone-side-btn-bg: linear-gradient(180deg, #635045 0%, #382c25 100%);
+
+  /* Cinematic Project Showcase Stage (Light Mode: Clay Brown + Soft Butter) */
+  --cinematic-stage-surface: linear-gradient(
+    145deg,
+    rgba(255, 252, 243, 0.88) 0%,
+    rgba(255, 248, 229, 0.74) 52%,
+    rgba(244, 228, 169, 0.42) 100%
+  );
+  --cinematic-grid-line: rgba(154, 98, 70, 0.1);
+  --cinematic-wireframe-stroke: rgba(154, 98, 70, 0.18);
+  --cinematic-watermark-color: rgba(154, 98, 70, 0.055);
+  --cinematic-clocky-glow: rgba(244, 212, 132, 0.52);
+  --cinematic-expify-glow: rgba(166, 111, 81, 0.26);
 }
 
 [data-theme='dark'] {
@@ -454,6 +467,19 @@
     0 28px 64px rgba(0, 0, 0, 0.48),
     0 6px 20px rgba(0, 0, 0, 0.28);
   --iphone-side-btn-bg: linear-gradient(180deg, #544338 0%, #2a211b 100%);
+
+  /* Cinematic Project Showcase Stage (Dark Mode: Midnight Espresso + Butter Gold) */
+  --cinematic-stage-surface: linear-gradient(
+    145deg,
+    rgba(46, 35, 27, 0.86) 0%,
+    rgba(28, 21, 16, 0.88) 54%,
+    rgba(19, 14, 11, 0.94) 100%
+  );
+  --cinematic-grid-line: rgba(255, 226, 183, 0.075);
+  --cinematic-wireframe-stroke: rgba(227, 194, 124, 0.14);
+  --cinematic-watermark-color: rgba(245, 235, 221, 0.036);
+  --cinematic-clocky-glow: rgba(227, 194, 124, 0.17);
+  --cinematic-expify-glow: rgba(181, 138, 107, 0.16);
 }
 
 /* ==========================================================================
@@ -1778,13 +1804,86 @@ svg {
    9. PROJECT SHOWCASE CARDS & DEVICE MOCKUPS (Clocky & Expify Beta)
    ========================================================================== */
 
+/* ── "Featured Works." Display Heading ───────────────────────────────────── */
+
+.works-heading-row {
+  margin: 8px 0 56px;
+}
+
+.works-display-heading {
+  margin: 0;
+  font-family: var(--heading-font);
+  font-size: clamp(42px, 6.5vw, 88px);
+  font-weight: 700;
+  letter-spacing: -3.5px;
+  line-height: 1.0;
+  color: var(--text);
+}
+
+.works-heading-accent {
+  color: var(--accent);
+}
+
+/* ── Per-Card Organic Blob Shapes ─────────────────────────────────────────── */
+
 .project-card-stage {
   position: relative;
   margin-top: 0;
+  isolation: isolate;
 }
 
 .project-card-stage + .project-card-stage {
-  margin-top: 48px;
+  margin-top: 64px;
+}
+
+/* Clocky card blob — warm butter / amber tones */
+.project-card-stage[data-project='clocky']::before {
+  content: '';
+  position: absolute;
+  inset: -12% -8%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 72% 62% at 72% 44%, rgba(244, 220, 150, 0.52) 0%, transparent 68%),
+    radial-gradient(ellipse 50% 44% at 20% 72%, rgba(183, 139, 66, 0.22) 0%, transparent 66%);
+  filter: blur(40px);
+  border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%;
+  animation: blob-drift-a 14s ease-in-out infinite alternate;
+  will-change: border-radius, transform;
+}
+
+/* Expify card blob — warm clay / terracotta tones */
+.project-card-stage[data-project='expify-beta']::before {
+  content: '';
+  position: absolute;
+  inset: -12% -8%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 68% 60% at 68% 48%, rgba(166, 111, 81, 0.38) 0%, transparent 68%),
+    radial-gradient(ellipse 52% 46% at 28% 68%, rgba(244, 228, 169, 0.30) 0%, transparent 66%);
+  filter: blur(40px);
+  border-radius: 45% 55% 40% 60% / 60% 40% 55% 45%;
+  animation: blob-drift-b 16s ease-in-out infinite alternate;
+  will-change: border-radius, transform;
+}
+
+@keyframes blob-drift-a {
+  0%   { border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; transform: scale(1) translateY(0); }
+  50%  { border-radius: 42% 58% 62% 38% / 54% 44% 58% 46%; transform: scale(1.04) translateY(-10px); }
+  100% { border-radius: 58% 42% 48% 52% / 40% 62% 36% 64%; transform: scale(0.97) translateY(6px); }
+}
+
+@keyframes blob-drift-b {
+  0%   { border-radius: 45% 55% 40% 60% / 60% 40% 55% 45%; transform: scale(1) translateY(0); }
+  50%  { border-radius: 60% 40% 56% 44% / 44% 58% 42% 56%; transform: scale(1.03) translateY(-8px); }
+  100% { border-radius: 38% 62% 52% 48% / 56% 42% 62% 38%; transform: scale(0.98) translateY(10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card-stage::before {
+    animation: none !important;
+  }
 }
 
 .project-card-ambient-glow {
@@ -2459,6 +2558,976 @@ svg {
 
 .card-phone-expify-cta {
   font-weight: 700;
+}
+
+/* ==========================================================================
+   9B. REFERENCE-DRIVEN CINEMATIC PROJECT SHOWCASE & ANCHORED DEVICE STAGE
+   ========================================================================== */
+
+.cinematic-showcase-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Top Editorial Bar & Project Selector Tabs */
+.cinematic-header-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.cinematic-title-group .works-display-heading {
+  margin-top: 8px;
+}
+
+.cinematic-selector-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.cinematic-selector-caption {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+
+.cinematic-project-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--card-border-color);
+  background: var(--nav-surface-bg);
+  box-shadow: var(--shadow-soft);
+}
+
+.cinematic-project-tab {
+  position: relative;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  font-family: var(--body-font);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cinematic-project-tab.is-active {
+  color: var(--btn-primary-text);
+}
+
+.cinematic-tab-active-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-pill);
+  background: var(--btn-primary-bg);
+  border: 1px solid var(--btn-primary-border);
+  box-shadow: var(--btn-primary-shadow);
+  z-index: 0;
+}
+
+.cinematic-tab-inner {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cinematic-tab-num {
+  font-family: var(--heading-font);
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.78;
+}
+
+.cinematic-tab-title {
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.cinematic-tab-count {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.14);
+  opacity: 0.88;
+}
+
+[data-theme='light'] .cinematic-project-tab:not(.is-active) .cinematic-tab-count {
+  background: rgba(154, 98, 70, 0.1);
+  color: var(--text-secondary);
+}
+
+/* Main Stage Shell */
+.cinematic-stage-shell {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(28px, 4.5vw, 56px);
+  border-radius: var(--radius-xl);
+  background: var(--cinematic-stage-surface);
+  border: 1px solid var(--card-border-color);
+  box-shadow: var(--card-shadow);
+}
+
+/* Razor-thin vertical architectural hairlines (Reference 7s & 9s) */
+.cinematic-grid-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 0 clamp(24px, 4vw, 52px);
+}
+
+.cinematic-grid-lines span {
+  border-left: 1px solid var(--cinematic-grid-line);
+  height: 100%;
+}
+
+.cinematic-grid-lines span:last-child {
+  border-right: 1px solid var(--cinematic-grid-line);
+}
+
+/* Project-reactive ambient stage lighting */
+.cinematic-stage-lighting {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: background 600ms var(--ease-standard);
+}
+
+.cinematic-stage-lighting[data-project='clocky'] {
+  background:
+    radial-gradient(
+      ellipse 56% 52% at 74% 38%,
+      var(--cinematic-clocky-glow) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 44% 40% at 18% 24%,
+      var(--ambient-card-glow) 0%,
+      transparent 64%
+    );
+}
+
+.cinematic-stage-lighting[data-project='expify-beta'] {
+  background:
+    radial-gradient(
+      ellipse 56% 52% at 74% 38%,
+      var(--cinematic-expify-glow) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 46% 42% at 22% 28%,
+      var(--cinematic-clocky-glow) 0%,
+      transparent 66%
+    );
+}
+
+/* Thin geometric SVG wireframe backdrop */
+.cinematic-wireframe-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  color: var(--cinematic-wireframe-stroke);
+}
+
+/* Oversized background watermark typography (Reference 1s & 14s) */
+.cinematic-watermark-layer {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.cinematic-watermark-text {
+  font-family: var(--heading-font);
+  font-size: clamp(84px, 16vw, 220px);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.86;
+  color: var(--cinematic-watermark-color);
+  white-space: nowrap;
+}
+
+/* Primary 2-Column Stage Layout */
+.cinematic-stage-main-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: clamp(32px, 5vw, 68px);
+  align-items: center;
+}
+
+.cinematic-narrative-col {
+  min-width: 0;
+}
+
+.cinematic-index-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  border-radius: var(--radius-pill);
+  font-family: var(--heading-font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: var(--text);
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--border-strong);
+}
+
+.cinematic-tagline-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cinematic-tagline-row .project-tagline {
+  margin: 0;
+}
+
+.cinematic-tagline-dash {
+  width: 38px;
+  height: 1.5px;
+  background: var(--accent);
+  opacity: 0.65;
+}
+
+.cinematic-tagline-sub {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+
+.cinematic-project-title {
+  font-size: clamp(46px, 6.4vw, 82px);
+  letter-spacing: -3.6px;
+}
+
+.cinematic-project-desc {
+  max-width: 540px;
+  margin: 18px 0 14px;
+}
+
+.cinematic-role-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  background: var(--btn-tertiary-bg);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.cinematic-role-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+}
+
+.cinematic-tech-stack {
+  margin-bottom: 22px;
+}
+
+.cinematic-tech-stack .project-tech-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cinematic-tech-stack .project-tech-pill svg {
+  color: var(--accent);
+}
+
+/* Interactive Screen Controller Strip */
+.cinematic-screen-controller {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin: 20px 0 24px;
+  border: 1px solid var(--border-strong);
+  background: var(--card-inner-bg);
+}
+
+.cinematic-screen-controller-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cinematic-screen-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cinematic-screen-counter {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: var(--accent);
+}
+
+.cinematic-screen-active-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cinematic-screen-step-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cinematic-step-btn,
+.cinematic-dock-arrow {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  background: var(--btn-secondary-bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.cinematic-step-btn:hover,
+.cinematic-dock-arrow:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.cinematic-screen-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.cinematic-screen-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--btn-secondary-bg);
+  color: var(--text-secondary);
+  font-family: var(--body-font);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+
+.cinematic-screen-pill:hover {
+  border-color: var(--accent-border);
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.cinematic-screen-pill.is-active {
+  background: var(--btn-primary-bg);
+  border-color: var(--btn-primary-border);
+  color: var(--btn-primary-text);
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.screen-pill-num {
+  font-family: var(--heading-font);
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.78;
+}
+
+/* Right Stage Column — Anchored iPhone Presentation */
+.cinematic-device-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cinematic-device-anchor {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 520px;
+  padding: 24px 0;
+  perspective: 1200px;
+}
+
+.cinematic-device-halo {
+  position: absolute;
+  width: min(76vw, 350px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--ambient-stage-glow) 0%,
+    transparent 70%
+  );
+  filter: blur(26px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cinematic-phone-perspective-wrap {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+
+.cinematic-phone-hardware {
+  width: clamp(226px, 23vw, 268px);
+  cursor: pointer;
+}
+
+.cinematic-screen-viewport {
+  position: relative;
+  background: #0d0a08;
+}
+
+.cinematic-screen-slide {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cinematic-phone-zoom-pill {
+  position: absolute;
+  bottom: 14px;
+  right: 12px;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(20, 15, 12, 0.76);
+  border: 1px solid rgba(255, 237, 205, 0.28);
+  color: #F5EBDD;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+  pointer-events: none;
+}
+
+.cinematic-phone-hardware:hover .cinematic-phone-zoom-pill,
+.cinematic-phone-hardware:focus-visible .cinematic-phone-zoom-pill {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Telemetry & Craft Floating Badges around the Anchored Device */
+.mockup-telemetry-badge {
+  position: absolute;
+  top: 18px;
+  left: 6%;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--card-border-color);
+  background: var(--nav-surface-bg);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  pointer-events: none;
+}
+
+.telemetry-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-text-glow);
+}
+
+.mockup-floating-badge {
+  position: absolute;
+  bottom: 34px;
+  right: 4%;
+  z-index: 4;
+  padding: 8px 15px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--card-border-color);
+  background: var(--tooltip-bg);
+  box-shadow: var(--tooltip-shadow);
+  color: var(--tooltip-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  pointer-events: none;
+}
+
+.cinematic-device-pedestal {
+  position: absolute;
+  bottom: 6px;
+  width: 62%;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.28) 0%,
+    transparent 72%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cinematic-device-dock {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cinematic-dots-row {
+  margin-top: 0;
+}
+
+/* Architectural Feature Pillars (Inspired by Reference Frames 7s & 9s) */
+.cinematic-architectural-pillars {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(32px, 4.5vw, 52px);
+  padding-top: clamp(26px, 3.5vw, 40px);
+  border-top: 1px solid var(--border);
+}
+
+.cinematic-subhead-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.cinematic-subhead-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.cinematic-subhead-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.cinematic-subhead-meta {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  color: var(--muted);
+}
+
+.cinematic-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.cinematic-pillar-cell {
+  padding: 22px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--card-inner-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition:
+    border-color var(--motion-normal) var(--ease-standard),
+    transform var(--motion-normal) var(--ease-standard);
+}
+
+.cinematic-pillar-cell:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-2px);
+}
+
+.cinematic-pillar-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cinematic-pillar-num {
+  font-family: var(--heading-font);
+  font-size: clamp(28px, 3vw, 38px);
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.cinematic-pillar-tag {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: right;
+}
+
+.cinematic-pillar-title {
+  margin: 4px 0 0;
+  font-family: var(--heading-font);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cinematic-pillar-desc {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* "INSIDE THE APP" Multi-Screen Mosaic (Inspired by Reference Frame 11s) */
+.cinematic-mosaic-section {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(28px, 4vw, 44px);
+  padding-top: clamp(24px, 3.5vw, 38px);
+  border-top: 1px solid var(--border);
+}
+
+.cinematic-mosaic-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.cinematic-mosaic-heading {
+  margin: 6px 0 0;
+  font-family: var(--heading-font);
+  font-size: clamp(24px, 3.2vw, 38px);
+  font-weight: 700;
+  letter-spacing: -1.4px;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.cinematic-mosaic-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--btn-secondary-border);
+  background: var(--btn-secondary-bg);
+  color: var(--text);
+  font-family: var(--body-font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cinematic-mosaic-expand-btn:hover {
+  border-color: var(--accent-border);
+  background: var(--btn-secondary-hover-bg);
+}
+
+.cinematic-mosaic-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 14px;
+}
+
+.cinematic-mosaic-card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: var(--card-inner-bg);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--body-font);
+  transition:
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.cinematic-mosaic-card:hover {
+  border-color: var(--accent-border);
+}
+
+.cinematic-mosaic-card.is-active {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 1px var(--accent),
+    var(--shadow-soft);
+}
+
+.cinematic-mosaic-thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 393 / 852;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0d0a08;
+  border: 1px solid var(--border);
+}
+
+.cinematic-mosaic-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.cinematic-mosaic-live-pill {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.cinematic-mosaic-caption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  min-width: 0;
+}
+
+.cinematic-mosaic-num {
+  font-family: var(--heading-font);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.cinematic-mosaic-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Bottom Stage Project Switcher Footer Bar */
+.cinematic-stage-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: clamp(28px, 4vw, 42px);
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+
+.cinematic-footer-status {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cinematic-footer-kicker {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  color: var(--muted);
+}
+
+.cinematic-footer-status strong {
+  font-family: var(--heading-font);
+  font-size: 16px;
+  color: var(--text);
+}
+
+.cinematic-next-project-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--accent-border);
+  background: var(--btn-secondary-bg);
+  color: var(--text);
+  font-family: var(--body-font);
+  cursor: pointer;
+}
+
+.cinematic-next-project-btn:hover {
+  background: var(--btn-primary-bg);
+  border-color: var(--btn-primary-border);
+  color: var(--btn-primary-text);
+}
+
+.next-project-kicker {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  opacity: 0.78;
+}
+
+.next-project-name {
+  font-family: var(--heading-font);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+/* Responsive Breakpoints for Cinematic Showcase */
+@media (max-width: 1024px) {
+  .cinematic-stage-main-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .cinematic-selector-cluster {
+    align-items: flex-start;
+  }
+
+  .cinematic-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cinematic-device-anchor {
+    min-height: 460px;
+  }
+}
+
+@media (max-width: 680px) {
+  .cinematic-header-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cinematic-project-tabs {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .cinematic-project-tab {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .cinematic-tab-count {
+    display: none;
+  }
+
+  .cinematic-stage-shell {
+    padding: 22px 18px;
+  }
+
+  .cinematic-grid-lines {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cinematic-grid-lines span:nth-child(n + 3) {
+    display: none;
+  }
+
+  .mockup-telemetry-badge {
+    position: static;
+    margin-bottom: 12px;
+  }
+
+  .mockup-floating-badge {
+    position: static;
+    margin-top: 12px;
+  }
+
+  .cinematic-device-anchor {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+    padding: 12px 0;
+  }
+
+  .cinematic-phone-hardware {
+    width: clamp(204px, 62vw, 244px);
+  }
+
+  .cinematic-mosaic-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cinematic-subhead-meta {
+    display: none;
+  }
 }
 
 /* ==========================================================================

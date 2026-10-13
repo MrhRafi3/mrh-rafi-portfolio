@@ -59,9 +59,7 @@ import './hero-upgrade.css'
 import Intro from './components/Intro'
 import Navbar from './components/Navbar'
 import HeroPhone from './components/HeroPhone'
-import ProjectCard from './components/ProjectCard'
-import ClockyMockup from './components/ClockyMockup'
-import ExpifyMockup from './components/ExpifyMockup'
+import CinematicProjectShowcase from './components/CinematicProjectShowcase'
 import MagneticButton from './components/MagneticButton'
 import CustomCursor from './components/CustomCursor'
 import ProjectShowcase from './components/ProjectShowcase'
@@ -86,10 +84,10 @@ const PROFILE_CONFIG = {
   secondaryFocus: 'C++ & Data Structures and Algorithms (DSA)',
   location: 'Bangladesh',
   portraitSrc: '/images/rafi-portrait.jpg',
-  heroPhoneScreenSrc: '/images/expify/screen-1.png',
+  heroPhoneScreenSrc: '/images/hero-1.png',
   email: 'mrhrafi99@gmail.com',
   resumeUrl: null,
-  githubUrl: 'https://github.com/mrirafi',
+  githubUrl: 'https://github.com/mrhrafi',
   linkedinUrl: 'https://bd.linkedin.com/in/mrhrafi',
 }
 
@@ -98,6 +96,11 @@ const PROFILE_CONFIG = {
  * Add or replace entries here to preview any app screenshot on the 3D iPhone.
  */
 const HERO_SCREEN_OPTIONS = [
+  {
+    id: 'hero-poster',
+    label: 'Mrh Rafi',
+    src: '/images/hero-1.png',
+  },
   {
     id: 'expify',
     label: 'Expify Beta',
@@ -122,22 +125,25 @@ const projectsData = [
     category: 'PERSONAL PROJECT',
     type: 'FLUTTER MOBILE APP',
     tagline: 'YOUR TIME, YOUR WAY',
+    subtitleNote: 'HOROLOGICAL UTILITY',
+    watermark: 'CLOCKY',
+    floatingBadge: '+ Made for everyday',
     title: 'Clocky',
     accent: '.',
     screenshotSrc: '/images/clocky/screen-1.png',
     description:
-      'A dark-mode Flutter timekeeping application combining a glowing analog and digital World Clock with quick timezone management, alarms, and a precision stopwatch.',
+      'A tactile Flutter timekeeping application combining a glowing analog and digital World Clock with quick multi-city timezone selection, customizable alarms, and a precision stopwatch.',
     techStack: ['Flutter', 'Dart', 'Custom Canvas / Analog Clock UI'],
     role: 'Flutter App Developer — UI Design & Mobile Implementation',
     highlights: [
       'Designed a high-contrast World Clock home screen pairing a glowing analog dial with a live digital readout and active city indicator (Dhaka).',
-      'Integrated quick timezone addition and bottom-bar navigation across World Clock, Alarm, and Stopwatch views.',
-      'Structured with modular Flutter widgets for smooth state updates, crisp dark-theme contrast, and distraction-free utility.',
+      'Integrated a searchable timezone bottom sheet (Dhaka, London, New York, Dubai, Tokyo, Singapore) and smooth alarm scheduling with repeat-day toggles.',
+      'Engineered a precision circular stopwatch with live lap tracking and modular Flutter widgets for responsive, distraction-free utility.',
     ],
     features: [
       { name: 'World Clock', detail: 'Analog & digital time', icon: '◷' },
-      { name: 'Alarm', detail: 'Start your day', icon: '◉' },
-      { name: 'Stopwatch', detail: 'Every second counts', icon: '◎' },
+      { name: 'Alarms & Zones', detail: 'Multi-city & repeat schedules', icon: '◉' },
+      { name: 'Stopwatch', detail: 'Circular progress & laps', icon: '◎' },
     ],
     screenshots: [
       {
@@ -147,27 +153,27 @@ const projectsData = [
       },
       {
         src: '/images/clocky/screen-2.png',
-        label: 'Alarm',
-        alt: 'Clocky Alarm screen with scheduled alarms list and add button',
+        label: 'Select Time Zone',
+        alt: 'Clocky Add / Select Time Zone bottom sheet with search input and UTC offsets for Dhaka, London, New York, Dubai, Tokyo, and Singapore',
       },
       {
         src: '/images/clocky/screen-3.png',
-        label: 'Stopwatch',
-        alt: 'Clocky Stopwatch screen with start, stop, and lap controls',
+        label: 'Alarms',
+        alt: 'Clocky Alarm screen with scheduled alarms list (06:00 AM, 11:02 AM, 10:30 PM), active toggle pills, and floating add button',
       },
       {
         src: '/images/clocky/screen-4.png',
-        label: 'Timer',
-        alt: 'Clocky Timer screen showing countdown interface',
+        label: 'Edit Alarm',
+        alt: 'Clocky Edit Alarm modal showing 12:30 PM time picker, repeat days selector (M T W T F S S), and Save action',
       },
       {
         src: '/images/clocky/screen-5.png',
-        label: 'Settings',
-        alt: 'Clocky Settings screen with app preferences',
+        label: 'Stopwatch',
+        alt: 'Clocky Stopwatch screen showing 02:34.01 running timer inside a circular progress ring with Lap and Stop controls',
       },
     ],
     links: [
-      { label: 'GitHub Repo · Coming Soon', href: null, symbol: '⏳' },
+      { label: 'GitHub Repo · Coming Soon', href: null },
     ],
     repoNote: 'Clocky’s dedicated public repository is not available yet.',
   },
@@ -177,66 +183,70 @@ const projectsData = [
     type: 'FLUTTER MOBILE APP',
     badge: 'BETA',
     tagline: 'SMART EXPENSE TRACKING',
+    subtitleNote: 'PERSONAL FINANCE FLOW',
+    watermark: 'EXPIFY',
+    floatingBadge: '+ Track every Taka (৳)',
     title: 'Expify',
     accent: ' Beta',
+    screenshotSrc: '/images/expify/screen-1.png',
     description:
-      'An expense tracker mobile application built with Flutter that gives users an instant overview of their total balance, income versus expenses, and recent transactions.',
-    techStack: ['Flutter', 'Dart', 'Mobile UI', 'Expense Tracking'],
+      'An expense tracker mobile application built with Flutter that gives users an instant overview of their total balance in BDT (৳), income versus expenses, dedicated project budgets, and visual financial reports.',
+    techStack: ['Flutter', 'Dart', 'Mobile UI', 'Expense & Budget Tracking'],
     role: 'Flutter App Developer — Architecture & UI Implementation',
     highlights: [
-      'Built a clean home dashboard featuring a prominent Total Balance card with live Income and Expense summaries.',
-      'Designed clear visual indicators for positive income and outgoing expenses alongside a chronological Recent Transactions feed.',
-      'Structured bottom navigation across Home, Projects, Reports, and Settings with a quick-add floating action button.',
+      'Built a clean home dashboard featuring a prominent Total Balance card (BDT ৳) with live Income and Expense summaries and recent transactions.',
+      'Added dedicated Project budget tracking with spent vs. remaining progress bars and an interactive Income vs. Expense donut chart in Reports.',
+      'Structured bottom navigation across Home, Projects, Reports, and Settings with category-based transaction entry and Google authentication flow.',
     ],
     features: [
-      { name: 'Balance', detail: 'Income & expense overview', icon: '◈' },
-      { name: 'Transactions', detail: 'Dated activity feed', icon: '▤' },
-      { name: 'Reports', detail: 'Projects & insights tabs', icon: '✓' },
+      { name: 'Balance & Feed', detail: 'Live BDT (৳) cashflow', icon: '◈' },
+      { name: 'Project Budgets', detail: 'Allocated spending goals', icon: '▤' },
+      { name: 'Visual Reports', detail: 'Savings rate & ratio ring', icon: '✓' },
     ],
     screenshots: [
       {
         src: '/images/expify/screen-1.png',
         label: 'Home Dashboard',
-        alt: 'Expify Beta home screen showing total balance, income and expense summary cards, and recent transactions',
+        alt: 'Expify Beta home screen showing Total Balance of ৳9,450.00, Income and Expense summary cards, and Recent Transactions',
       },
       {
         src: '/images/expify/screen-2.png',
-        label: 'Transactions',
-        alt: 'Expify Beta transactions list with date-grouped expense entries',
+        label: 'Projects & Budgets',
+        alt: 'Expify Beta Projects screen showing active projects count, total spent vs total budget, and Food project budget progress bar',
       },
       {
         src: '/images/expify/screen-3.png',
-        label: 'Add Expense',
-        alt: 'Expify Beta add expense screen with category picker and amount input',
+        label: 'Financial Reports',
+        alt: 'Expify Beta Reports screen with Current Net Balance, 95% savings rate badge, and Income vs Expense ratio donut chart',
       },
       {
         src: '/images/expify/screen-4.png',
-        label: 'Reports',
-        alt: 'Expify Beta reports screen with spending insights and charts',
+        label: 'Settings',
+        alt: 'Expify Beta Settings screen showing user profile card, language and dark mode preferences, data management, and app version',
       },
       {
         src: '/images/expify/screen-5.png',
-        label: 'Projects Tab',
-        alt: 'Expify Beta projects tab showing budget allocations per project',
+        label: 'Add Transaction',
+        alt: 'Expify Beta Add Transaction screen with Income/Expense selector, title and amount inputs, and category icon grid',
       },
       {
         src: '/images/expify/screen-6.png',
-        label: 'Categories',
-        alt: 'Expify Beta categories breakdown with icon and colour coding',
+        label: 'Project Detail',
+        alt: 'Expify Beta Food project detail view showing project budget breakdown, 37% usage progress bar, and project-specific transactions',
       },
       {
         src: '/images/expify/screen-7.png',
-        label: 'Settings',
-        alt: 'Expify Beta settings screen with currency and theme preferences',
+        label: 'Edit Profile',
+        alt: 'Expify Beta Edit Profile screen with circular avatar photo picker, display name field, and Save Profile action',
       },
       {
         src: '/images/expify/screen-8.png',
-        label: 'Income Entry',
-        alt: 'Expify Beta income entry screen with source and amount fields',
+        label: 'Welcome & Sign In',
+        alt: 'Expify Beta onboarding screen highlighting Smart Taka Dashboard, Project & Budget Tracking, and Continue with Google button',
       },
     ],
     links: [
-      { label: 'GitHub Repo · Coming Soon', href: null, symbol: '⏳' },
+      { label: 'GitHub Repo · Coming Soon', href: null },
     ],
     repoNote:
       'Expify Beta repository is being prepared and will be linked here once pushed to GitHub.',
@@ -428,9 +438,15 @@ function App() {
   const { theme, toggleTheme } = useTheme()
   const [ready, setReady] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
+  const [selectedScreenIndex, setSelectedScreenIndex] = useState(0)
   const [activeHeroScreen, setActiveHeroScreen] = useState(
     PROFILE_CONFIG.heroPhoneScreenSrc,
   )
+
+  const handleOpenProjectDetails = useCallback((project, screenIdx = 0) => {
+    setSelectedScreenIndex(screenIdx)
+    setSelectedProject(project)
+  }, [])
 
   /** Mark initial intro animation as complete to trigger hero entrance choreography. */
   const handleIntroDone = useCallback(() => setReady(true), [])
@@ -768,33 +784,12 @@ function App() {
         ref={workRef}
         {...scrollReveal(26)}
       >
-        <div className="section-header-row">
-          <p className="eyebrow">01 / SELECTED PROJECTS</p>
-        </div>
-
-        {projectsData.map((project) => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            shouldReduceMotion={shouldReduceMotion}
-            linkHover={linkHover}
-            onOpenDetails={setSelectedProject}
-          >
-            {project.id === 'clocky' ? (
-              <ClockyMockup
-                shouldReduceMotion={shouldReduceMotion}
-                screenshotSrc={project.screenshotSrc}
-                onOpenDetails={() => setSelectedProject(project)}
-              />
-            ) : (
-              <ExpifyMockup
-                shouldReduceMotion={shouldReduceMotion}
-                screenshots={project.screenshots}
-                onOpenDetails={() => setSelectedProject(project)}
-              />
-            )}
-          </ProjectCard>
-        ))}
+        <CinematicProjectShowcase
+          projects={projectsData}
+          shouldReduceMotion={Boolean(shouldReduceMotion)}
+          linkHover={linkHover}
+          onOpenDetails={handleOpenProjectDetails}
+        />
       </motion.section>
 
       <motion.section
@@ -1012,7 +1007,7 @@ function App() {
               </span>
               <div style={{ position: 'relative', zIndex: 2 }}>
                 <span className="contact-channel-label">GITHUB</span>
-                <strong>@mrirafi</strong>
+                <strong>@mrhrafi</strong>
                 <small>Explore my repositories &amp; code</small>
               </div>
               <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
@@ -1076,8 +1071,9 @@ function App() {
       </motion.footer>
 
       <ProjectShowcase
-        key={selectedProject?.id}
+        key={`${selectedProject?.id ?? 'closed'}-${selectedScreenIndex}`}
         project={selectedProject}
+        initialIndex={selectedScreenIndex}
         onClose={() => setSelectedProject(null)}
         theme={theme}
         onToggleTheme={toggleTheme}
