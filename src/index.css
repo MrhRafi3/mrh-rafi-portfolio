@@ -748,7 +748,7 @@ svg {
   min-width: 320px;
   overflow: clip;
   color: var(--text);
-  background: var(--page-ambient-gradient);
+  background: transparent;
 }
 
 /* Ambient Decorative Blobs */
@@ -762,19 +762,19 @@ svg {
 .ambient-blob-top {
   top: -14%;
   left: -10%;
-  width: 48vw;
-  height: 48vw;
-  background: radial-gradient(circle, var(--ambient-blob-1) 0%, transparent 70%);
-  filter: blur(72px);
+  width: 52vw;
+  height: 52vw;
+  background: radial-gradient(circle closest-side, var(--ambient-blob-1) 0%, rgba(255, 140, 60, 0.08) 40%, transparent 80%);
+  opacity: 0.85;
 }
 
 .ambient-blob-bottom {
   bottom: -14%;
   right: -10%;
-  width: 50vw;
-  height: 50vw;
-  background: radial-gradient(circle, var(--ambient-blob-2) 0%, transparent 70%);
-  filter: blur(84px);
+  width: 54vw;
+  height: 54vw;
+  background: radial-gradient(circle closest-side, var(--ambient-blob-2) 0%, rgba(99, 102, 241, 0.08) 40%, transparent 80%);
+  opacity: 0.85;
 }
 
 /* Custom Cursor Layer — Precision Dot + Trailing Liquid-Glass Ring */

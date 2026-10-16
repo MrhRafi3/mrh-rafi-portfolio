@@ -12,7 +12,17 @@ const NAV_LINKS = [
   { label: 'Contact', href: '#contact', id: 'contact' },
 ]
 
-const SECTION_IDS = ['home', 'work', 'about', 'skills', 'contact']
+const SECTION_IDS = [
+  'home',
+  'work',
+  'clocky',
+  'expify',
+  'expify-beta',
+  'nomnom',
+  'about',
+  'skills',
+  'contact',
+]
 
 /**
  * Main navigation bar component.
@@ -27,8 +37,13 @@ export default function Navbar({
   scrollProgress,
   theme,
   onToggleTheme,
+  activeSection,
+  onNavigate,
 }) {
-  const active = useActiveSection(SECTION_IDS)
+  const detectedActive = useActiveSection(SECTION_IDS)
+  const rawActive = activeSection || detectedActive
+  const isWorkActive = ['work', 'clocky', 'expify', 'expify-beta', 'nomnom'].includes(rawActive)
+  const active = isWorkActive ? 'work' : rawActive
   const [hovered, setHovered] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -43,6 +58,14 @@ export default function Navbar({
   const indicatorTarget = hovered ?? active
 
   const closeMobileMenu = () => setMobileMenuOpen(false)
+
+  const handleLinkClick = (e, targetId) => {
+    if (onNavigate) {
+      e.preventDefault()
+      onNavigate(targetId)
+    }
+    closeMobileMenu()
+  }
 
   return (
     <motion.header className="navbar-wrapper" {...reveal(0.05, -12)}>
@@ -67,7 +90,7 @@ export default function Navbar({
             className="wordmark"
             href="#home"
             aria-label="Mrh Rafi home"
-            onClick={closeMobileMenu}
+            onClick={(e) => handleLinkClick(e, 'home')}
           >
             mrh<span>.</span>rafi
           </a>
@@ -85,6 +108,7 @@ export default function Navbar({
                   onMouseEnter={() => setHovered(link.id)}
                   onFocus={() => setHovered(link.id)}
                   onBlur={() => setHovered(null)}
+                  onClick={(e) => handleLinkClick(e, link.id)}
                   {...reveal(0.12 + index * 0.08, -8)}
                 >
                   <span>{link.label}</span>
@@ -122,6 +146,7 @@ export default function Navbar({
                 {...reveal(0.35, -8)}
                 whileHover={linkHover}
                 whileTap={reducedMotion ? undefined : { scale: 0.97 }}
+                onClick={(e) => handleLinkClick(e, 'contact')}
               >
                 <span>Let&apos;s talk</span> <span aria-hidden="true">↗</span>
               </motion.a>
@@ -163,7 +188,7 @@ export default function Navbar({
                   key={link.id}
                   href={link.href}
                   className={`mobile-nav-link liquid-btn${isActive ? ' is-active' : ''}`}
-                  onClick={closeMobileMenu}
+                  onClick={(e) => handleLinkClick(e, link.id)}
                 >
                   <span>{link.label}</span>
                   <span aria-hidden="true">→</span>

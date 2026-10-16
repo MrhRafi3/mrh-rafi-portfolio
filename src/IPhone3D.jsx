@@ -581,6 +581,9 @@ function PhoneModel({
   useFrame((state, delta) => {
     if (!group.current || !textureLoaded) return
 
+    // Performance culling: pause 3D math and renders when Hero is scrolled beyond view
+    if (scrollProgress && scrollProgress.get() > 0.26) return
+
     // Clamp delta so tab switches or initial shader compiles never cause rotation jumps
     const dt = Math.min(delta, 0.05)
 

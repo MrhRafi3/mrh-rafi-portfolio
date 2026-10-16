@@ -279,10 +279,1038 @@
   }
 }
 
-@media (max-width: 900px) {
-  .hero-phone {
-    width: clamp(240px, 38vw, 360px);
-    height: 480px;
+/* ---------- True Centered 3D Forward-Flight Camera & Portal Engine ---------- */
+
+.cinematic-master-track {
+  position: relative;
+  width: 100%;
+  min-height: 550vh;
+}
+
+.cinematic-camera-viewport {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.cinematic-ambient-chamber-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 85vw;
+  height: 85vh;
+  max-width: 1100px;
+  max-height: 850px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+  filter: blur(100px);
+  opacity: 0.22;
+  transition: background 0.6s ease;
+}
+
+.cinematic-camera-viewport > * {
+  pointer-events: auto;
+}
+
+/* Individual 3D scene chamber co-located in the camera viewport */
+.cinematic-scene-chamber {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  padding: clamp(16px, 2.6vh, 32px) clamp(16px, 3vw, 40px);
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.cinematic-scene-chamber::-webkit-scrollbar {
+  display: none;
+}
+
+/* Inner content container designed to fit within 100vh */
+.cinematic-scene-inner {
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  box-sizing: border-box;
+}
+
+/* Compact Scene Header for Desktop Viewport Fitting */
+.cinematic-scene-header {
+  text-align: center;
+  margin-bottom: clamp(12px, 1.8vh, 22px);
+  max-width: 720px;
+  width: 100%;
+}
+
+.cinematic-scene-header .eyebrow {
+  margin-bottom: 4px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.cinematic-scene-title {
+  margin: 0;
+  font-family: var(--heading-font);
+  font-size: clamp(26px, 3.4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -1.6px;
+  line-height: 1.06;
+  color: var(--text);
+}
+
+.cinematic-scene-lead {
+  margin: 4px 0 0;
+  font-size: clamp(11.5px, 1.05vw, 13.5px);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ---------- 3-Card Balanced Showcase for Clocky, Expify Beta & NomNom ---------- */
+
+.cinematic-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 1.8vw, 24px);
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.cinematic-project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(14px, 1.8vh, 20px) clamp(14px, 1.6vw, 18px);
+  border-radius: 20px;
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  box-shadow: var(--glass-card-shadow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition: transform 0.28s var(--ease-standard),
+              border-color 0.28s var(--ease-standard),
+              box-shadow 0.28s var(--ease-standard);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  box-sizing: border-box;
+}
+
+.cinematic-project-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent-border);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.cinematic-card-glow {
+  position: absolute;
+  top: -15%;
+  left: 20%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  filter: blur(32px);
+  opacity: 0.55;
+}
+
+.cinematic-card-top {
+  margin-bottom: 6px;
+}
+
+.cinematic-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.cinematic-card-num {
+  font-family: var(--heading-font);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.cinematic-card-category {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.cinematic-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  margin-left: auto;
+}
+
+.badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent-text-glow);
+}
+
+.cinematic-card-title {
+  margin: 0;
+  font-family: var(--heading-font);
+  font-size: clamp(20px, 2.1vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.cinematic-card-tagline {
+  margin: 2px 0 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+/* Centered Mockup Stage inside Card */
+.cinematic-card-mockup-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  height: clamp(160px, 20vh, 210px);
+  min-height: 0;
+}
+
+.cinematic-card-phone {
+  position: relative;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 393 / 852;
+  padding: 5px;
+  border-radius: 26px;
+  border: 1.5px solid var(--phone-frame-border);
+  background: var(--phone-frame-bg);
+  box-shadow: var(--phone-frame-shadow);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: transform 0.3s var(--ease-standard);
+}
+
+.cinematic-project-card:hover .cinematic-card-phone {
+  transform: scale(1.03) translateY(-2px);
+}
+
+.cinematic-card-phone .iphone-inner-bezel {
+  border-radius: 22px;
+  padding: 2px;
+}
+
+.cinematic-card-phone .card-phone-screen-wrap {
+  border-radius: 20px;
+}
+
+.cinematic-card-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.cinematic-card-desc {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cinematic-card-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tech-chip {
+  padding: 2.5px 7px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--btn-secondary-bg);
+  border: 1px solid var(--border);
+}
+
+.cinematic-explore-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--btn-primary-text);
+  background: var(--btn-primary-bg);
+  border: 1px solid var(--btn-primary-border);
+  box-shadow: var(--btn-primary-shadow);
+  cursor: pointer;
+  transition: all 0.22s var(--ease-standard);
+}
+
+.cinematic-explore-btn:hover {
+  background: var(--btn-primary-hover-bg);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Dedicated Full-Screen Cinematic Project Journey (Clocky, Expify, NomNom)
+   ========================================================================== */
+
+.cinematic-project-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Two-column balanced project stage */
+.cinematic-project-stage {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.15fr) minmax(280px, 0.85fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 5;
+}
+
+/* Left Column: Project Copy & Highlights */
+.cinematic-project-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 580px;
+  text-align: left;
+}
+
+.project-kicker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.project-kicker-badge {
+  font-family: var(--heading-font);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.project-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 8.5px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+}
+
+.cinematic-project-heading {
+  margin: 0 0 4px;
+  font-family: var(--heading-font);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+.cinematic-project-tagline {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.cinematic-project-desc {
+  margin: 0 0 16px;
+  font-size: clamp(12.5px, 1.1vw, 14.5px);
+  line-height: 1.58;
+  color: var(--text-secondary);
+}
+
+/* Feature mini-cards */
+.cinematic-project-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.project-feature-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.feature-chip-icon {
+  font-size: 14px;
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  flex-shrink: 0;
+}
+
+.feature-chip-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.feature-chip-text strong {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feature-chip-text span {
+  font-size: 9.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tech stack row */
+.cinematic-project-tech-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+/* Actions */
+.cinematic-project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.repo-coming-soon {
+  cursor: default;
+  opacity: 0.72;
+  font-size: 12px;
+}
+
+/* Right Column: Hero Smartphone Showcase */
+.cinematic-phone-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.phone-floating-badge {
+  position: absolute;
+  top: -12px;
+  right: 14px;
+  z-index: 12;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  background: var(--glass-card-bg);
+  border: 1px solid var(--accent-border);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  pointer-events: none;
+}
+
+.cinematic-phone-frame {
+  position: relative;
+  height: clamp(380px, 48vh, 500px);
+  width: auto;
+  aspect-ratio: 393 / 852;
+  padding: 7px;
+  border-radius: 42px;
+  border: 2px solid var(--phone-frame-border);
+  background: var(--phone-frame-bg);
+  box-shadow:
+    var(--phone-frame-shadow),
+    0 24px 60px -14px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 0.32s var(--ease-out),
+              box-shadow 0.32s var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.cinematic-phone-frame:hover {
+  transform: scale(1.02) translateY(-4px);
+  box-shadow:
+    var(--phone-frame-shadow),
+    0 32px 75px -16px rgba(0, 0, 0, 0.45);
+}
+
+.cinematic-phone-frame .iphone-inner-bezel {
+  border-radius: 36px;
+  padding: 3px;
+  height: 100%;
+}
+
+.cinematic-phone-frame .card-phone-screen-wrap {
+  border-radius: 33px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.cinematic-phone-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: opacity 0.22s ease-in-out;
+}
+
+.phone-click-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  white-space: nowrap;
+}
+
+.cinematic-phone-frame:hover .phone-click-hint {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Interactive Screenshot Switcher Bar */
+.screenshot-switcher-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 360px;
+  padding: 7px 10px;
+  border-radius: 16px;
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--glass-card-shadow);
+  box-sizing: border-box;
+}
+
+.switcher-nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.switcher-arrow-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--btn-tertiary-bg);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.switcher-arrow-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  transform: scale(1.08);
+}
+
+.switcher-counter {
+  font-size: 11px;
+  font-family: var(--heading-font);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.switcher-counter strong {
+  color: var(--accent);
+}
+
+.switcher-counter .divider {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.screenshot-selector-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100%;
+}
+
+.screenshot-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.screenshot-pill-btn:hover {
+  color: var(--text);
+  background: var(--btn-tertiary-bg);
+}
+
+.screenshot-pill-btn.is-active {
+  color: var(--text);
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  font-weight: 700;
+}
+
+.screenshot-pill-btn .pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background 0.2s ease;
+}
+
+.screenshot-pill-btn.is-active .pill-dot {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent-text-glow);
+}
+
+/* ── Specific Chamber Atmospheres ── */
+
+/* 1. Clocky: Celestial Midnight, Dial Orbits */
+.clocky-chamber {
+  --chamber-accent: #38bdf8;
+}
+
+.clocky-orbit-backdrop {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.45;
+}
+
+.clocky-orbit-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed rgba(56, 189, 248, 0.22);
+}
+
+.clocky-orbit-ring.ring-1 {
+  width: 540px;
+  height: 540px;
+  animation: clocky-dial-spin 120s linear infinite;
+}
+
+.clocky-orbit-ring.ring-2 {
+  width: 780px;
+  height: 780px;
+  border-style: dotted;
+  border-color: rgba(56, 189, 248, 0.14);
+  animation: clocky-dial-spin 180s linear infinite reverse;
+}
+
+@keyframes clocky-dial-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 2. Expify: Emerald / Mint Ledger Grid */
+.expify-chamber {
+  --chamber-accent: #10b981;
+}
+
+.expify-grid-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.25;
+  background-image:
+    linear-gradient(rgba(16, 185, 129, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 185, 129, 0.12) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.8) 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.8) 20%, transparent 70%);
+}
+
+/* 3. NomNom: Warm Sunset Coral Radial Warmth */
+.nomnom-chamber {
+  --chamber-accent: #f97316;
+}
+
+.nomnom-warmth-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  background: radial-gradient(circle at 65% 45%, rgba(249, 115, 22, 0.18) 0%, transparent 60%);
+}
+
+/* ── Floating Cinematic Waypoint HUD ── */
+.cinematic-waypoint-hud {
+  position: fixed;
+  right: clamp(14px, 2vw, 24px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 7px;
+  border-radius: 99px;
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--glass-card-shadow);
+}
+
+.waypoint-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.waypoint-btn:hover {
+  transform: scale(1.15);
+}
+
+.waypoint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: all 0.25s var(--ease-out);
+}
+
+.waypoint-btn.is-active .waypoint-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-text-glow);
+}
+
+.waypoint-tooltip {
+  position: absolute;
+  right: 34px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(8px);
+  transition: all 0.2s var(--ease-out);
+  box-shadow: var(--glass-card-shadow);
+}
+
+.waypoint-btn:hover .waypoint-tooltip {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Viewport-Fitting Utilities for Hero, About, Skills, Contact */
+.hero-copy h1 {
+  font-size: clamp(30px, 3.8vw, 52px) !important;
+  margin: 6px 0 10px !important;
+  line-height: 1.08 !important;
+}
+
+.hero-description {
+  margin: 8px 0 14px !important;
+  font-size: clamp(12.5px, 1.1vw, 14.5px) !important;
+  line-height: 1.6 !important;
+}
+
+.hero-actions {
+  margin-bottom: 10px !important;
+}
+
+.iphone-3d-wrap {
+  height: clamp(340px, 46vh, 480px) !important;
+}
+
+.about-narrative-card {
+  padding: clamp(14px, 2vh, 22px) clamp(16px, 2vw, 24px) !important;
+  margin-bottom: clamp(10px, 1.6vh, 18px) !important;
+}
+
+.about-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(10px, 1.4vw, 18px) !important;
+}
+
+.about-pillar-card {
+  padding: clamp(12px, 1.6vh, 16px) clamp(12px, 1.4vw, 16px) !important;
+}
+
+.skills-category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(10px, 1.4vw, 18px) !important;
+}
+
+.skill-category-card {
+  padding: clamp(14px, 1.8vh, 18px) clamp(14px, 1.6vw, 18px) !important;
+}
+
+.skill-items-list {
+  gap: 6px !important;
+  margin-bottom: 10px !important;
+}
+
+.skill-item-row {
+  padding: 7px 10px !important;
+}
+
+.contact-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: clamp(10px, 1.4vw, 16px) !important;
+}
+
+.contact-channel-card {
+  padding: clamp(12px, 1.6vh, 16px) clamp(10px, 1.2vw, 14px) !important;
+}
+
+.footer-bottom-bar {
+  margin-top: clamp(14px, 2vh, 24px) !important;
+}
+
+/* Responsive & Mobile Rules */
+@media (max-width: 960px) {
+  .cinematic-waypoint-hud {
+    display: none !important;
+  }
+
+  .cinematic-project-stage {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .cinematic-project-copy {
+    align-items: center;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .project-kicker-row,
+  .cinematic-project-features,
+  .cinematic-project-tech-row,
+  .cinematic-project-actions {
+    justify-content: center;
+  }
+
+  .cinematic-phone-frame {
+    height: clamp(300px, 38vh, 400px);
+  }
+
+  .cinematic-projects-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .about-pillars-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .skills-category-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .contact-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .cinematic-master-track {
+    min-height: auto !important;
+  }
+
+  .cinematic-camera-viewport {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    perspective: none !important;
+    display: block !important;
+    pointer-events: auto !important;
+  }
+
+  .cinematic-scene-chamber {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    padding: 60px 16px !important;
+    overflow: visible !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .cinematic-scene-inner {
+    max-height: none !important;
   }
 }
 
@@ -321,5 +1349,29 @@
 
   .index-line::after {
     opacity: 0;
+  }
+
+  .cinematic-master-track {
+    min-height: auto !important;
+  }
+
+  .cinematic-camera-viewport {
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+    perspective: none !important;
+    display: block !important;
+    pointer-events: auto !important;
+  }
+
+  .cinematic-scene-chamber {
+    position: relative !important;
+    height: auto !important;
+    display: block !important;
+    padding: 60px 16px !important;
+    overflow: visible !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 }
