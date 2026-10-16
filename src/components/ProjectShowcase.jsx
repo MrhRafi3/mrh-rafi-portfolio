@@ -1,6 +1,18 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, Smartphone, X } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  Clock,
+  Flame,
+  Plus,
+  Search,
+  ShoppingBag,
+  Smartphone,
+  Star,
+  X,
+} from 'lucide-react'
 import {
   handleLiquidPointerLeave,
   handleLiquidPointerMove,
@@ -8,6 +20,331 @@ import {
 import ThemeToggle from './ThemeToggle'
 
 const easeOut = [0.22, 1, 0.36, 1]
+
+/**
+ * Procedural NomNom Food Delivery screen preview rendered inside the phone frame
+ * when screenshot image files are not on disk.
+ */
+function NomNomScreenPreview({ index = 0 }) {
+  if (index === 1) {
+    // Screen 1: Restaurant & Menu Storefront
+    return (
+      <div className="card-phone-fallback-ui is-nomnom is-menu">
+        <div className="card-phone-status-row">
+          <span>9:41</span>
+          <span className="card-phone-status-pills">STOREFRONT</span>
+        </div>
+        <div className="nomnom-store-header">
+          <span className="nomnom-store-badge">THE BURGER LOFT</span>
+          <h4 className="nomnom-store-title">Gourmet Burgers &amp; Shakes</h4>
+          <div className="nomnom-store-meta">
+            <span>★ 4.9 (1.4k)</span>
+            <span>·</span>
+            <span>20-25 min</span>
+            <span>·</span>
+            <span>৳ 40 Delivery</span>
+          </div>
+        </div>
+        <div className="nomnom-menu-tabs">
+          <span className="is-active">Specials</span>
+          <span>Burgers</span>
+          <span>Sides</span>
+          <span>Drinks</span>
+        </div>
+        <div className="nomnom-menu-list">
+          <div className="nomnom-menu-item">
+            <div>
+              <strong>Truffle Wagyu Melt</strong>
+              <p>Brioche, wagyu patty, black truffle butter.</p>
+              <span className="nomnom-item-price">৳ 580</span>
+            </div>
+            <span className="nomnom-item-add">+ Add</span>
+          </div>
+          <div className="nomnom-menu-item">
+            <div>
+              <strong>Smoky BBQ Crisp</strong>
+              <p>Double beef, smoked cheddar, crispy shallots.</p>
+              <span className="nomnom-item-price">৳ 480</span>
+            </div>
+            <span className="nomnom-item-add">+ Add</span>
+          </div>
+          <div className="nomnom-menu-item">
+            <div>
+              <strong>Parmesan Garlic Fries</strong>
+              <p>Hand-cut potatoes, aged parmesan, rosemary.</p>
+              <span className="nomnom-item-price">৳ 220</span>
+            </div>
+            <span className="nomnom-item-add">+ Add</span>
+          </div>
+        </div>
+        <div className="nomnom-floating-cart is-inline">
+          <span>🛍 View Cart (2 items)</span>
+          <strong>৳ 700 →</strong>
+        </div>
+      </div>
+    )
+  }
+
+  if (index === 2) {
+    // Screen 2: Dish Customizer Sheet
+    return (
+      <div className="card-phone-fallback-ui is-nomnom is-customizer">
+        <div className="card-phone-status-row">
+          <span>9:41</span>
+          <span className="card-phone-status-pills">CUSTOMIZER</span>
+        </div>
+        <div className="nomnom-custom-banner">
+          <span className="nomnom-custom-tag">CUSTOMIZE DISH</span>
+          <h4>Artisan Truffle Smash</h4>
+          <span className="nomnom-custom-base">Base: ৳ 450</span>
+        </div>
+        <div className="nomnom-options-group">
+          <span className="nomnom-opt-heading">PATTY SELECTION</span>
+          <div className="nomnom-opt-row is-selected">
+            <span>Double Smash Patty (Standard)</span>
+            <small>Included</small>
+          </div>
+          <div className="nomnom-opt-row">
+            <span>Triple Beast Patty (+150g)</span>
+            <small>+৳ 120</small>
+          </div>
+        </div>
+        <div className="nomnom-options-group">
+          <span className="nomnom-opt-heading">ADD-ONS &amp; SAUCE</span>
+          <div className="nomnom-opt-row is-selected">
+            <span>Extra Aged Cheddar Melt</span>
+            <small>+৳ 60</small>
+          </div>
+          <div className="nomnom-opt-row is-selected">
+            <span>Black Truffle Aioli Shot</span>
+            <small>+৳ 40</small>
+          </div>
+          <div className="nomnom-opt-row">
+            <span>Crispy Turkey Bacon Strips</span>
+            <small>+৳ 80</small>
+          </div>
+        </div>
+        <div className="nomnom-custom-footer">
+          <div className="nomnom-stepper">
+            <span>-</span>
+            <span>1</span>
+            <span>+</span>
+          </div>
+          <div className="nomnom-add-order-btn">
+            <span>Add to Order · ৳ 550</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (index === 3) {
+    // Screen 3: Cart & Checkout Summary
+    return (
+      <div className="card-phone-fallback-ui is-nomnom is-cart">
+        <div className="card-phone-status-row">
+          <span>9:41</span>
+          <span className="card-phone-status-pills">MY CART</span>
+        </div>
+        <div className="nomnom-cart-heading">
+          <h4>Order Summary</h4>
+          <span>2 items</span>
+        </div>
+        <div className="nomnom-cart-items">
+          <div className="nomnom-cart-line">
+            <span>1× Artisan Truffle Smash</span>
+            <strong>৳ 550</strong>
+          </div>
+          <div className="nomnom-cart-line">
+            <span>1× Parmesan Garlic Fries</span>
+            <strong>৳ 220</strong>
+          </div>
+        </div>
+        <div className="nomnom-promo-box">
+          <span>🏷 NOMNOM20 applied</span>
+          <small>-৳ 100</small>
+        </div>
+        <div className="nomnom-bill-breakdown">
+          <div>
+            <span>Subtotal</span>
+            <span>৳ 770</span>
+          </div>
+          <div>
+            <span>Delivery Fee</span>
+            <span>৳ 40</span>
+          </div>
+          <div>
+            <span>Voucher Discount</span>
+            <span className="is-discount">-৳ 100</span>
+          </div>
+          <div className="nomnom-bill-total">
+            <strong>Total Amount</strong>
+            <strong>৳ 710</strong>
+          </div>
+        </div>
+        <div className="nomnom-place-order-btn">
+          <span>Place Order · ৳ 710 →</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (index === 4) {
+    // Screen 4: Live Order Tracker
+    return (
+      <div className="card-phone-fallback-ui is-nomnom is-tracker">
+        <div className="card-phone-status-row">
+          <span>9:41</span>
+          <span className="card-phone-status-pills">LIVE TRACKING</span>
+        </div>
+        <div className="nomnom-tracker-card">
+          <div className="nomnom-tracker-top">
+            <span className="nomnom-pulse-dot" />
+            <span>ORDER #4092 ON THE WAY</span>
+          </div>
+          <h3 className="nomnom-tracker-eta">16 mins</h3>
+          <p>Estimated arrival at 24th Baker St</p>
+        </div>
+        <div className="nomnom-tracker-steps">
+          <div className="nomnom-step is-done">
+            <span className="nomnom-step-dot" />
+            <div>
+              <strong>Order Confirmed</strong>
+              <small>09:32 PM · The Burger Loft</small>
+            </div>
+          </div>
+          <div className="nomnom-step is-done">
+            <span className="nomnom-step-dot" />
+            <div>
+              <strong>Prepared by Chef</strong>
+              <small>09:40 PM · Freshly packed</small>
+            </div>
+          </div>
+          <div className="nomnom-step is-active">
+            <span className="nomnom-step-dot" />
+            <div>
+              <strong>Courier is En Route 🛵</strong>
+              <small>Rider: Rafiq M. (4.9 ★)</small>
+            </div>
+          </div>
+          <div className="nomnom-step">
+            <span className="nomnom-step-dot" />
+            <div>
+              <strong>Delivered to Door</strong>
+              <small>Pending arrival</small>
+            </div>
+          </div>
+        </div>
+        <div className="nomnom-courier-row">
+          <div>
+            <strong>Rafiq M.</strong>
+            <small>Yamaha FZ · Red (DH-492)</small>
+          </div>
+          <span className="nomnom-call-btn">📞 Call Rider</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Screen 0 (Default): Food Discovery & Categories
+  return (
+    <div className="card-phone-fallback-ui is-nomnom">
+      <div className="card-phone-status-row">
+        <span>9:41</span>
+        <span className="card-phone-status-pills">
+          <span className="status-live-dot" /> LIVE · 20m
+        </span>
+      </div>
+      <div className="nomnom-header-row">
+        <div>
+          <span className="nomnom-kicker">DELIVER TO</span>
+          <div className="nomnom-location-title">
+            <span>24th Baker St, Suite 4B</span>
+            <ChevronDown size={12} className="nomnom-chevron" />
+          </div>
+        </div>
+        <div className="nomnom-avatar-badge" aria-hidden="true">
+          <span>🍔</span>
+        </div>
+      </div>
+      <div className="nomnom-search-bar">
+        <Search size={12} className="nomnom-search-icon" />
+        <span>Search burgers, ramen, pizza...</span>
+      </div>
+      <div className="nomnom-cuisines-row" aria-hidden="true">
+        <span className="nomnom-cuisine-pill is-active">
+          <span>🍔</span> Burgers
+        </span>
+        <span className="nomnom-cuisine-pill">
+          <span>🍕</span> Pizza
+        </span>
+        <span className="nomnom-cuisine-pill">
+          <span>🍜</span> Asian
+        </span>
+        <span className="nomnom-cuisine-pill">
+          <span>🥗</span> Bowls
+        </span>
+      </div>
+      <div className="nomnom-featured-card">
+        <div className="nomnom-card-banner">
+          <span className="nomnom-card-tag">
+            <Flame size={10} /> TRENDING #1
+          </span>
+          <span className="nomnom-card-eta">
+            <Clock size={10} /> 20-25m
+          </span>
+        </div>
+        <div className="nomnom-card-body">
+          <div className="nomnom-dish-header">
+            <div>
+              <h4 className="nomnom-dish-title">Artisan Truffle Smash</h4>
+              <div className="nomnom-rating-row">
+                <Star size={10} fill="#f59e0b" color="#f59e0b" />
+                <span>4.9 (1.2k reviews)</span>
+              </div>
+            </div>
+            <span className="nomnom-dish-price">৳ 450</span>
+          </div>
+          <p className="nomnom-dish-desc">
+            Double smash beef, aged cheddar, black truffle aioli on brioche.
+          </p>
+          <div className="nomnom-card-actions">
+            <span className="nomnom-badge-free">Free Delivery</span>
+            <span className="nomnom-add-btn">
+              <Plus size={12} /> Add
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="nomnom-mini-row">
+        <div className="nomnom-mini-item">
+          <span className="nomnom-mini-thumb">🍟</span>
+          <div>
+            <span className="nomnom-mini-name">Truffle Fries</span>
+            <span className="nomnom-mini-price">৳ 180</span>
+          </div>
+        </div>
+        <div className="nomnom-mini-item">
+          <span className="nomnom-mini-thumb">🥟</span>
+          <div>
+            <span className="nomnom-mini-name">Crispy Gyoza</span>
+            <span className="nomnom-mini-price">৳ 260</span>
+          </div>
+        </div>
+      </div>
+      <div className="nomnom-floating-cart">
+        <div className="nomnom-cart-left">
+          <span className="nomnom-cart-icon-wrap">
+            <ShoppingBag size={12} />
+            <span className="nomnom-cart-count">2</span>
+          </span>
+          <span>View Cart (2 items)</span>
+        </div>
+        <span className="nomnom-cart-total">৳ 630 →</span>
+      </div>
+    </div>
+  )
+}
 
 /**
  * Renders a CSS-only phone frame inside the immersive Project Showcase modal.
@@ -21,6 +358,7 @@ function PhoneFrame({
   index,
   total,
   projectTitle,
+  projectId,
 }) {
   const [imgReady, setImgReady] = useState(false)
   const [imgError, setImgError] = useState(false)
@@ -34,6 +372,9 @@ function PhoneFrame({
     }
   }, [src])
 
+  const isNomNom = projectId === 'nomnom'
+  const isImageAvailable = Boolean(src) && !imgError
+
   return (
     <div className="showcase-phone-frame" aria-hidden="true">
       <div className="showcase-phone-body iphone-hardware-frame">
@@ -45,8 +386,9 @@ function PhoneFrame({
         <div className="showcase-phone-dynamic-island">
           <span className="iphone-camera-lens" />
         </div>
+
         <div className="showcase-phone-screen">
-          {!imgError && (
+          {isImageAvailable && (
             <img
               key={src}
               src={src}
@@ -57,27 +399,35 @@ function PhoneFrame({
               draggable={false}
             />
           )}
-          {(!imgReady || imgError) && (
-            <div className="showcase-screen-placeholder">
-              {imgError ? (
-                <div className="showcase-screen-slot-card">
-                  <span className="showcase-slot-badge">
-                    SCREEN {index + 1} OF {total}
-                  </span>
-                  <div className="showcase-slot-icon">
-                    <Smartphone size={20} />
-                  </div>
-                  <strong className="showcase-slot-title">
-                    {label || `${projectTitle} Screen ${index + 1}`}
-                  </strong>
-                  <p className="showcase-slot-desc">{alt}</p>
-                  <code className="showcase-slot-path">public{src}</code>
-                </div>
-              ) : (
-                <span className="showcase-screen-skeleton" />
-              )}
+
+          {isImageAvailable && !imgReady && (
+            <div className="showcase-screen-placeholder" aria-hidden="true">
+              <span className="showcase-screen-skeleton" />
             </div>
           )}
+
+          {!isImageAvailable && isNomNom && (
+            <NomNomScreenPreview index={index} />
+          )}
+
+          {!isImageAvailable && !isNomNom && (
+            <div className="showcase-screen-placeholder">
+              <div className="showcase-screen-slot-card">
+                <span className="showcase-slot-badge">
+                  SCREEN {index + 1} OF {total}
+                </span>
+                <div className="showcase-slot-icon">
+                  <Smartphone size={20} />
+                </div>
+                <strong className="showcase-slot-title">
+                  {label || `${projectTitle} Screen ${index + 1}`}
+                </strong>
+                <p className="showcase-slot-desc">{alt}</p>
+                <code className="showcase-slot-path">public{src}</code>
+              </div>
+            </div>
+          )}
+
           <span className="iphone-screen-glare" aria-hidden="true" />
         </div>
         <div className="showcase-phone-home-indicator" />
@@ -88,15 +438,14 @@ function PhoneFrame({
 
 /**
  * Full-screen immersive project showcase overlay.
- * Triggered when a visitor clicks "Project Overview" on a project card.
+ * Triggered when a visitor clicks a project card or "Project Overview".
  *
  * Shows a large CSS phone frame with the active screenshot, prev/next navigation,
- * and a dual-theme Liquid Glass project info panel (`.glass-modal`).
- * Also includes a live ThemeToggle in the top bar so visitors can switch themes
- * while inspecting project details.
+ * dot indicators, and a dual-theme Liquid Glass project info panel.
  *
  * @param {Object} props
  * @param {Object|null} props.project - The selected project object, or null to close.
+ * @param {number} [props.initialIndex=0] - Starting screenshot index.
  * @param {Function} props.onClose - Callback to dismiss the showcase.
  * @param {'light' | 'dark'} [props.theme='light'] - Active theme.
  * @param {Function} [props.onToggleTheme] - Theme toggle callback.
@@ -117,6 +466,18 @@ export default function ProjectShowcase({
   const totalScreenshots = screenshots.length
   const activeShot = screenshots[activeIndex] ?? null
 
+  // Preload all project screenshots for instantaneous switching
+  useEffect(() => {
+    if (project?.screenshots && project.screenshots.length > 0) {
+      project.screenshots.forEach((shot) => {
+        if (shot.src) {
+          const img = new window.Image()
+          img.src = shot.src
+        }
+      })
+    }
+  }, [project?.id, project?.screenshots])
+
   // Lock body scroll while the showcase is open without losing scroll position
   useEffect(() => {
     if (!project) return undefined
@@ -127,7 +488,7 @@ export default function ProjectShowcase({
     }
   }, [project])
 
-  // Keyboard navigation: ESC closes, arrow keys move between screenshots
+  // Keyboard navigation: ESC closes, arrows navigate screenshots
   useEffect(() => {
     if (!project) return undefined
 
@@ -279,10 +640,11 @@ export default function ProjectShowcase({
                   index={activeIndex}
                   total={totalScreenshots}
                   projectTitle={project.title}
+                  projectId={project.id}
                 />
               </motion.div>
 
-              {/* Prev / Next navigation — only when multiple screenshots exist */}
+              {/* Prev / Next navigation + Dot indicators */}
               {totalScreenshots > 1 && (
                 <div className="showcase-nav-row">
                   <button
@@ -294,7 +656,6 @@ export default function ProjectShowcase({
                     <ArrowLeft size={18} />
                   </button>
 
-                  {/* Dot indicators */}
                   <div
                     className="showcase-dots"
                     role="tablist"
@@ -302,7 +663,7 @@ export default function ProjectShowcase({
                   >
                     {screenshots.map((shot, index) => (
                       <button
-                        key={shot.src}
+                        key={shot.src || index}
                         type="button"
                         role="tab"
                         aria-selected={index === activeIndex}
@@ -353,27 +714,43 @@ export default function ProjectShowcase({
               exit={shouldReduceMotion ? false : { opacity: 0, x: 16 }}
               transition={{ duration: 0.42, delay: 0.08, ease: easeOut }}
             >
-              <div className="showcase-info-header" style={{ position: 'relative', zIndex: 2 }}>
+              <div
+                className="showcase-info-header"
+                style={{ position: 'relative', zIndex: 2 }}
+              >
                 <span className="showcase-info-pill">{project.category}</span>
                 {project.badge && (
                   <span className="showcase-info-badge">{project.badge}</span>
                 )}
               </div>
 
-              <h2 className="showcase-info-title" style={{ position: 'relative', zIndex: 2 }}>
+              <h2
+                className="showcase-info-title"
+                style={{ position: 'relative', zIndex: 2 }}
+              >
                 {project.title}
                 <span className="showcase-title-accent">{project.accent}</span>
               </h2>
 
-              <p className="showcase-info-role" style={{ position: 'relative', zIndex: 2 }}>
+              <p
+                className="showcase-info-role"
+                style={{ position: 'relative', zIndex: 2 }}
+              >
                 {project.role}
               </p>
-              <p className="showcase-info-desc" style={{ position: 'relative', zIndex: 2 }}>
+              <p
+                className="showcase-info-desc"
+                style={{ position: 'relative', zIndex: 2 }}
+              >
                 {project.description}
               </p>
 
+              {/* Highlights Section */}
               {project.highlights?.length > 0 && (
-                <div className="showcase-info-section" style={{ position: 'relative', zIndex: 2 }}>
+                <div
+                  className="showcase-info-section"
+                  style={{ position: 'relative', zIndex: 2 }}
+                >
                   <h3 className="showcase-info-section-heading">Highlights</h3>
                   <ul className="showcase-info-highlights">
                     {project.highlights.map((item) => (
@@ -383,8 +760,12 @@ export default function ProjectShowcase({
                 </div>
               )}
 
+              {/* Tech Stack Section */}
               {project.techStack?.length > 0 && (
-                <div className="showcase-info-section" style={{ position: 'relative', zIndex: 2 }}>
+                <div
+                  className="showcase-info-section"
+                  style={{ position: 'relative', zIndex: 2 }}
+                >
                   <h3 className="showcase-info-section-heading">Tech Stack</h3>
                   <div className="showcase-info-tags">
                     {project.techStack.map((tech) => (
@@ -396,8 +777,12 @@ export default function ProjectShowcase({
                 </div>
               )}
 
+              {/* Links */}
               {project.links?.length > 0 && (
-                <div className="showcase-info-links" style={{ position: 'relative', zIndex: 2 }}>
+                <div
+                  className="showcase-info-links"
+                  style={{ position: 'relative', zIndex: 2 }}
+                >
                   {project.links.map((link) =>
                     link.href ? (
                       <a
@@ -408,7 +793,7 @@ export default function ProjectShowcase({
                         className="showcase-info-link-btn glass-button liquid-btn"
                       >
                         <span>{link.label}</span>{' '}
-                        <span aria-hidden="true">{link.symbol}</span>
+                        <span aria-hidden="true">{link.symbol || '↗'}</span>
                       </a>
                     ) : (
                       <span
@@ -416,7 +801,7 @@ export default function ProjectShowcase({
                         className="showcase-info-link-btn is-disabled"
                       >
                         <span>{link.label}</span>{' '}
-                        <span aria-hidden="true">{link.symbol}</span>
+                        <span aria-hidden="true">{link.symbol || '•'}</span>
                       </span>
                     ),
                   )}
@@ -424,7 +809,10 @@ export default function ProjectShowcase({
               )}
 
               {project.repoNote && (
-                <p className="showcase-info-repo-note" style={{ position: 'relative', zIndex: 2 }}>
+                <p
+                  className="showcase-info-repo-note"
+                  style={{ position: 'relative', zIndex: 2 }}
+                >
                   {project.repoNote}
                 </p>
               )}

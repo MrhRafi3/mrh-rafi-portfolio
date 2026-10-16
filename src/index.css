@@ -1868,6 +1868,22 @@ svg {
   will-change: border-radius, transform;
 }
 
+/* NomNom card blob — appetizing sunset coral / tangerine / golden amber tones */
+.project-card-stage[data-project='nomnom']::before {
+  content: '';
+  position: absolute;
+  inset: -12% -8%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 70% 46%, rgba(255, 107, 74, 0.36) 0%, transparent 68%),
+    radial-gradient(ellipse 52% 44% at 24% 68%, rgba(251, 191, 36, 0.26) 0%, transparent 66%);
+  filter: blur(40px);
+  border-radius: 50% 50% 42% 58% / 55% 45% 58% 42%;
+  animation: blob-drift-a 15s ease-in-out infinite alternate;
+  will-change: border-radius, transform;
+}
+
 @keyframes blob-drift-a {
   0%   { border-radius: 60% 40% 55% 45% / 45% 55% 40% 60%; transform: scale(1) translateY(0); }
   50%  { border-radius: 42% 58% 62% 38% / 54% 44% 58% 46%; transform: scale(1.04) translateY(-10px); }
@@ -2559,6 +2575,765 @@ svg {
 .card-phone-expify-cta {
   font-weight: 700;
 }
+
+/* ── NomNom Food Delivery Device Mockup Styling ───────────────────────────── */
+
+.card-phone-fallback-ui.is-nomnom {
+  background: linear-gradient(165deg, #1c1410 0%, #120e0b 50%, #1a110c 100%);
+  color: #fceee8;
+  padding: 26px 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.mockup-orbit-ring.is-nomnom {
+  border-color: rgba(255, 107, 74, 0.28);
+  box-shadow: 0 0 45px rgba(255, 107, 74, 0.16);
+}
+
+.mockup-floating-badge.is-nomnom {
+  border-color: rgba(255, 107, 74, 0.35);
+  background: rgba(28, 18, 14, 0.82);
+  color: #ff8a65;
+}
+
+.card-phone-status-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 99px;
+  background: rgba(255, 107, 74, 0.18);
+  color: #ff8a65;
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.status-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  display: inline-block;
+}
+
+/* Header & Location */
+.nomnom-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.nomnom-kicker {
+  display: block;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #ff8a65;
+}
+
+.nomnom-location-title {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.nomnom-chevron {
+  color: #ff8a65;
+}
+
+.nomnom-avatar-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 107, 74, 0.18);
+  border: 1px solid rgba(255, 107, 74, 0.32);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+
+/* Search bar */
+.nomnom-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 8px;
+}
+
+.nomnom-search-icon {
+  color: #ff8a65;
+}
+
+/* Cuisines */
+.nomnom-cuisines-row {
+  display: flex;
+  gap: 4px;
+  overflow-x: hidden;
+}
+
+.nomnom-cuisine-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 7.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.nomnom-cuisine-pill.is-active {
+  background: rgba(255, 107, 74, 0.22);
+  border-color: rgba(255, 107, 74, 0.45);
+  color: #ff8a65;
+  font-weight: 700;
+}
+
+/* Featured card */
+.nomnom-featured-card {
+  padding: 8px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255, 107, 74, 0.14) 0%, rgba(20, 14, 11, 0.7) 100%);
+  border: 1px solid rgba(255, 107, 74, 0.22);
+}
+
+.nomnom-card-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.nomnom-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #f59e0b;
+}
+
+.nomnom-card-eta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 7.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nomnom-dish-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.nomnom-dish-title {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.nomnom-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 7.5px;
+  color: #f59e0b;
+  margin-top: 1px;
+}
+
+.nomnom-dish-price {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ff8a65;
+  white-space: nowrap;
+}
+
+.nomnom-dish-desc {
+  margin: 3px 0 6px;
+  font-size: 7px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.nomnom-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nomnom-badge-free {
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  font-size: 6.5px;
+  font-weight: 600;
+}
+
+.nomnom-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  background: #ff6b4a;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+/* Mini row */
+.nomnom-mini-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.nomnom-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nomnom-mini-thumb {
+  font-size: 13px;
+}
+
+.nomnom-mini-name {
+  display: block;
+  font-size: 8px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.1;
+}
+
+.nomnom-mini-price {
+  display: block;
+  font-size: 7.5px;
+  font-weight: 700;
+  color: #ff8a65;
+}
+
+/* Floating cart chip */
+.nomnom-floating-cart {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 9px;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #ff6b4a 0%, #ea580c 100%);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 600;
+  margin-top: auto;
+  box-shadow: 0 4px 14px rgba(255, 107, 74, 0.35);
+}
+
+.nomnom-floating-cart.is-inline {
+  margin-top: 8px;
+}
+
+.nomnom-cart-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.nomnom-cart-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nomnom-cart-count {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  color: #ea580c;
+  font-size: 6px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+
+.nomnom-cart-total {
+  font-weight: 800;
+}
+
+/* Bottom Nav */
+.nomnom-bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.nomnom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  font-size: 6.5px;
+}
+
+.nomnom-nav-item.is-active {
+  color: #ff8a65;
+}
+
+/* Storefront screen */
+.card-phone-fallback-ui.is-nomnom.is-menu {
+  background: linear-gradient(165deg, #181310 0%, #100c0a 100%);
+}
+
+.nomnom-store-header {
+  padding: 6px 0 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nomnom-store-badge {
+  display: inline-block;
+  font-size: 6.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #f59e0b;
+}
+
+.nomnom-store-title {
+  margin: 1px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.nomnom-store-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 7.5px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.nomnom-menu-tabs {
+  display: flex;
+  gap: 6px;
+  font-size: 7.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.nomnom-menu-tabs .is-active {
+  color: #ff8a65;
+  border-bottom: 1.5px solid #ff6b4a;
+  padding-bottom: 2px;
+}
+
+.nomnom-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nomnom-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nomnom-menu-item strong {
+  display: block;
+  font-size: 8.5px;
+  color: #fff;
+}
+
+.nomnom-menu-item p {
+  margin: 1px 0 2px;
+  font-size: 6.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.nomnom-item-price {
+  font-size: 8px;
+  font-weight: 700;
+  color: #ff8a65;
+}
+
+.nomnom-item-add {
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(255, 107, 74, 0.18);
+  border: 1px solid rgba(255, 107, 74, 0.35);
+  color: #ff8a65;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+/* Customizer Screen */
+.nomnom-custom-banner {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nomnom-custom-tag {
+  font-size: 6.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ff8a65;
+}
+
+.nomnom-custom-banner h4 {
+  margin: 1px 0;
+  font-size: 11px;
+  color: #fff;
+}
+
+.nomnom-custom-base {
+  font-size: 7.5px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nomnom-options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nomnom-opt-heading {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nomnom-opt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 7px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 7.5px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.nomnom-opt-row.is-selected {
+  background: rgba(255, 107, 74, 0.14);
+  border-color: rgba(255, 107, 74, 0.38);
+  color: #ff8a65;
+}
+
+.nomnom-opt-row small {
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nomnom-opt-row.is-selected small {
+  color: #ff8a65;
+  font-weight: 600;
+}
+
+.nomnom-custom-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.nomnom-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.nomnom-add-order-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #ff6b4a;
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Cart & Checkout Screen */
+.nomnom-cart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nomnom-cart-heading h4 {
+  margin: 0;
+  font-size: 11px;
+  color: #fff;
+}
+
+.nomnom-cart-heading span {
+  font-size: 7.5px;
+  color: #ff8a65;
+}
+
+.nomnom-cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nomnom-cart-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 7.5px;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.nomnom-promo-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  font-size: 7.5px;
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.nomnom-bill-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.6);
+  padding-top: 4px;
+}
+
+.nomnom-bill-breakdown div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nomnom-bill-breakdown .is-discount {
+  color: #4ade80;
+}
+
+.nomnom-bill-total {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 4px;
+  margin-top: 2px;
+  font-size: 8.5px;
+  color: #fff !important;
+}
+
+.nomnom-place-order-btn {
+  padding: 8px 10px;
+  border-radius: 11px;
+  background: linear-gradient(90deg, #ff6b4a 0%, #ea580c 100%);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: auto;
+}
+
+/* Order Tracker Screen */
+.nomnom-tracker-card {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 107, 74, 0.14);
+  border: 1px solid rgba(255, 107, 74, 0.28);
+}
+
+.nomnom-tracker-top {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 7px;
+  font-weight: 700;
+  color: #ff8a65;
+  letter-spacing: 0.8px;
+}
+
+.nomnom-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff6b4a;
+  box-shadow: 0 0 6px #ff6b4a;
+  animation: pulse-dot 1.4s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+
+.nomnom-tracker-eta {
+  margin: 3px 0 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.nomnom-tracker-card p {
+  margin: 0;
+  font-size: 7px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.nomnom-tracker-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  padding-left: 12px;
+}
+
+.nomnom-tracker-steps::before {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.nomnom-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  position: relative;
+}
+
+.nomnom-step-dot {
+  position: absolute;
+  left: -12px;
+  top: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.nomnom-step.is-done .nomnom-step-dot {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.nomnom-step.is-active .nomnom-step-dot {
+  background: #ff6b4a;
+  border-color: #fff;
+  box-shadow: 0 0 8px #ff6b4a;
+}
+
+.nomnom-step strong {
+  display: block;
+  font-size: 7.5px;
+  color: #fff;
+}
+
+.nomnom-step small {
+  font-size: 6.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nomnom-courier-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+}
+
+.nomnom-courier-row strong {
+  display: block;
+  font-size: 8px;
+  color: #fff;
+}
+
+.nomnom-courier-row small {
+  font-size: 6.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nomnom-call-btn {
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #4ade80;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+/* ── Clean Projects Grid Layout ───────────────────────────────────────────── */
+
+.projects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(48px, 6vw, 84px);
+  margin-top: 36px;
+}
+
+.works-lead-copy {
+  margin: 12px 0 0;
+  max-width: 620px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+
 
 /* ==========================================================================
    9B. REFERENCE-DRIVEN CINEMATIC PROJECT SHOWCASE & ANCHORED DEVICE STAGE
@@ -3994,11 +4769,13 @@ svg {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  width: clamp(230px, 26vw, 310px);
+  max-width: 100%;
   flex-shrink: 0;
 }
 
 .showcase-phone-frame {
-  width: clamp(230px, 26vw, 310px);
+  width: 100%;
 }
 
 .showcase-phone-body {

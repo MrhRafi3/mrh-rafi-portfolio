@@ -59,7 +59,10 @@ import './hero-upgrade.css'
 import Intro from './components/Intro'
 import Navbar from './components/Navbar'
 import HeroPhone from './components/HeroPhone'
-import CinematicProjectShowcase from './components/CinematicProjectShowcase'
+import ProjectCard from './components/ProjectCard'
+import ClockyMockup from './components/ClockyMockup'
+import ExpifyMockup from './components/ExpifyMockup'
+import NomNomMockup from './components/NomNomMockup'
 import MagneticButton from './components/MagneticButton'
 import CustomCursor from './components/CustomCursor'
 import ProjectShowcase from './components/ProjectShowcase'
@@ -250,6 +253,72 @@ const projectsData = [
     ],
     repoNote:
       'Expify Beta repository is being prepared and will be linked here once pushed to GitHub.',
+  },
+  {
+    id: 'nomnom',
+    category: 'PERSONAL PROJECT',
+    type: 'FLUTTER MOBILE APP',
+    badge: 'FOOD DELIVERY',
+    tagline: 'CRAVINGS DELIVERED FAST',
+    subtitleNote: 'FOOD ORDERING & DISCOVERY',
+    watermark: 'NOMNOM',
+    floatingBadge: '+ Fast Delivery Flow',
+    title: 'NomNom',
+    accent: '.',
+    screenshotSrc: '/images/nomnom/screen-1.png',
+    description:
+      'A contemporary food delivery and restaurant discovery mobile application built with Flutter. Designed with appetizing visuals, real-time menu exploration, dish customization, intuitive cart checkout, and live order tracking.',
+    techStack: [
+      'Flutter',
+      'Dart',
+      'State Management',
+      'Custom Mobile UI',
+      'Cart & Checkout Architecture',
+      'Live Order Tracking Flow',
+    ],
+    role: 'Flutter App Developer — Mobile UI Design & Architecture',
+    highlights: [
+      'Designed an engaging food discovery home feed with category pills, curated trending restaurants, and quick search filters.',
+      'Built a comprehensive dish customizer sheet supporting size choices, add-ons, and real-time order subtotal calculations.',
+      'Engineered an intuitive cart summary with voucher discounts and step-by-step simulated live order dispatch tracking.',
+    ],
+    features: [
+      { name: 'Discover & Cuisines', detail: 'Curated feeds & search', icon: '♨' },
+      { name: 'Dish Customizer', detail: 'Variations & live price', icon: '✦' },
+      { name: 'Cart & Tracking', detail: 'Live courier progress', icon: '⚡' },
+    ],
+    screenshots: [
+      {
+        src: '/images/nomnom/screen-1.png',
+        label: 'Discover & Cuisines',
+        alt: 'NomNom home screen showing delivery address, popular cuisine categories (Burgers, Pizza, Asian, Desserts), search bar, and trending restaurant cards',
+      },
+      {
+        src: '/images/nomnom/screen-2.png',
+        label: 'Restaurant & Menu',
+        alt: 'NomNom restaurant storefront screen showing rating, delivery fee, menu sections (Chef Specials, Combos, Beverages), and quick Add-to-Cart buttons',
+      },
+      {
+        src: '/images/nomnom/screen-3.png',
+        label: 'Dish Customizer',
+        alt: 'NomNom dish customizer sheet showing Artisan Burger customization with patty choice, extra cheese, sauce options, and real-time price tally',
+      },
+      {
+        src: '/images/nomnom/screen-4.png',
+        label: 'Cart & Checkout',
+        alt: 'NomNom cart and checkout screen showing selected order items, promo code input, delivery tip options, breakdown summary, and Place Order button',
+      },
+      {
+        src: '/images/nomnom/screen-5.png',
+        label: 'Live Order Tracker',
+        alt: 'NomNom order tracking screen showing step-by-step progress (Order Confirmed, Preparing, On the Way), courier map view, and estimated arrival time',
+      },
+    ],
+    links: [
+      { label: 'GitHub Repo · Coming Soon', href: null },
+    ],
+    repoNote:
+      'NomNom is in active development; repository and release builds will be available soon.',
   },
 ]
 
@@ -779,17 +848,61 @@ function App() {
       </motion.section>
 
       <motion.section
-        className="next-section"
+        className="next-section works-section"
         id="work"
         ref={workRef}
         {...scrollReveal(26)}
       >
-        <CinematicProjectShowcase
-          projects={projectsData}
-          shouldReduceMotion={Boolean(shouldReduceMotion)}
-          linkHover={linkHover}
-          onOpenDetails={handleOpenProjectDetails}
-        />
+        <div className="section-header-row">
+          <p className="eyebrow">01 / SELECTED WORK</p>
+        </div>
+
+        <div className="works-heading-row">
+          <h2 className="works-display-heading">
+            Featured <span className="works-heading-accent">Projects.</span>
+          </h2>
+          <p className="works-lead-copy">
+            Mobile applications built with Flutter, focusing on clean architecture,
+            intuitive touch interactions, and fluid 60fps performance.
+          </p>
+        </div>
+
+        <div className="projects-grid">
+          {projectsData.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              shouldReduceMotion={Boolean(shouldReduceMotion)}
+              linkHover={linkHover}
+              onOpenDetails={() => handleOpenProjectDetails(project, 0)}
+            >
+              {project.id === 'clocky' && (
+                <ClockyMockup
+                  shouldReduceMotion={Boolean(shouldReduceMotion)}
+                  screenshotSrc={project.screenshotSrc}
+                  onOpenDetails={() => handleOpenProjectDetails(project, 0)}
+                  floatingBadge={project.floatingBadge}
+                />
+              )}
+              {project.id === 'expify-beta' && (
+                <ExpifyMockup
+                  shouldReduceMotion={Boolean(shouldReduceMotion)}
+                  screenshotSrc={project.screenshotSrc}
+                  onOpenDetails={() => handleOpenProjectDetails(project, 0)}
+                  floatingBadge={project.floatingBadge}
+                />
+              )}
+              {project.id === 'nomnom' && (
+                <NomNomMockup
+                  shouldReduceMotion={Boolean(shouldReduceMotion)}
+                  screenshotSrc={project.screenshotSrc}
+                  onOpenDetails={() => handleOpenProjectDetails(project, 0)}
+                  floatingBadge={project.floatingBadge}
+                />
+              )}
+            </ProjectCard>
+          ))}
+        </div>
       </motion.section>
 
       <motion.section

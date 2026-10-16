@@ -77,7 +77,7 @@ export default function ProjectCard({
   const repoLinks = Array.isArray(project.links) ? project.links : []
 
   return (
-    <div className="project-card-stage">
+    <div className="project-card-stage" data-project={project.id}>
       <div className="project-card-ambient-glow" aria-hidden="true" />
 
       <motion.article
@@ -110,7 +110,23 @@ export default function ProjectCard({
 
           <p className="project-tagline">{project.tagline}</p>
 
-          <h3 className="project-title">
+          <h3
+            className="project-title"
+            onClick={onOpenDetails ? () => onOpenDetails(project) : undefined}
+            role={onOpenDetails ? 'button' : undefined}
+            tabIndex={onOpenDetails ? 0 : undefined}
+            onKeyDown={
+              onOpenDetails
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onOpenDetails(project)
+                    }
+                  }
+                : undefined
+            }
+            style={onOpenDetails ? { cursor: 'pointer' } : undefined}
+          >
             {project.title}
             <span className="project-title-accent">{project.accent}</span>
           </h3>
