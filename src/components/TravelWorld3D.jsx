@@ -168,7 +168,7 @@ function createDeterministicParticles(count) {
 }
 
 const DESKTOP_PARTICLES = createDeterministicParticles(680)
-const MOBILE_PARTICLES = createDeterministicParticles(320)
+const MOBILE_PARTICLES = createDeterministicParticles(240)
 
 /**
  * Calculates smoothly interpolated palette and coordinates across the 7 realms.
@@ -904,8 +904,8 @@ function TravelWorld3D({ scrollProgress, theme = 'dark', reducedMotion = false }
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(
-        window.innerWidth <= 860 ||
-          Boolean(window.matchMedia?.('(pointer: coarse)').matches)
+        window.innerWidth <= 768 ||
+          (window.innerWidth <= 1024 && Boolean(window.matchMedia?.('(pointer: coarse)').matches))
       )
     }
     checkMobile()
@@ -925,7 +925,29 @@ function TravelWorld3D({ scrollProgress, theme = 'dark', reducedMotion = false }
     return () => window.removeEventListener('pointermove', handlePointerMove)
   }, [reducedMotion, isMobile])
 
-  if (!isSupported || reducedMotion) {
+  if (!isSupported) {
+    return (
+      <div
+        className="travel-world-fallback-bg"
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          width: '100vw',
+          height: '100dvh',
+          minHeight: '100vh',
+          pointerEvents: 'none',
+          zIndex: 0,
+          background: theme === 'light'
+            ? 'radial-gradient(ellipse at 50% 30%, #fef3c7 0%, #faf6ef 60%, #f4ede2 100%)'
+            : 'radial-gradient(ellipse at 50% 30%, #1c1308 0%, #080605 60%, #020202 100%)',
+          transition: 'background 0.8s ease',
+        }}
+      />
+    )
+  }
+
+  if (reducedMotion) {
     return null
   }
 
@@ -937,7 +959,8 @@ function TravelWorld3D({ scrollProgress, theme = 'dark', reducedMotion = false }
         position: 'fixed',
         inset: 0,
         width: '100vw',
-        height: '100vh',
+        height: '100dvh',
+        minHeight: '100vh',
         pointerEvents: 'none',
         zIndex: 0,
         overflow: 'hidden',

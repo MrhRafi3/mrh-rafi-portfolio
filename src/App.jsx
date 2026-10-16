@@ -113,11 +113,6 @@ const HERO_SCREEN_OPTIONS = [
   },
 ]
 
-const headlineLines = [
-  { text: 'I build apps', accent: false },
-  { text: 'that feel', accent: false },
-  { text: 'effortless.', accent: true },
-]
 
 const projectsData = [
   {
@@ -806,20 +801,7 @@ function App() {
   const [activeSection, setActiveSection] = useState('home')
   const currentSectionRef = useRef('home')
 
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(
-        window.innerWidth <= 860 ||
-          Boolean(window.matchMedia?.('(pointer: coarse)').matches)
-      )
-    }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  const isMotionDisabled = Boolean(shouldReduceMotion) || isMobile
+  const isMotionDisabled = Boolean(shouldReduceMotion)
 
   // ── Master Pinned 3D Camera Scroll Engine (7 Scenes across 6 intervals: 1/6 ≈ 0.1667)
   const { scrollYProgress: masterProgress } = useScroll({
@@ -852,6 +834,8 @@ function App() {
   const heroOpacity = useTransform(masterProgress, [0.0, 0.11], [1.0, 0.0])
   const heroPointerEvents = useTransform(masterProgress, (v) => (v < 0.08 ? 'auto' : 'none'))
   const heroPhoneProgress = useTransform(masterProgress, [0.0, 1 / 6], [0, 1])
+  const heroWatermarkZ = useTransform(masterProgress, [0.0, 1 / 6], [-90, -340])
+  const heroWatermarkOpacity = useTransform(masterProgress, [0.0, 0.08], [0.75, 0.0])
 
   // ── 1. Clocky transforms (Arrival 0.00 -> 0.167, Departure 0.167 -> 0.333)
   const clockyScale = useTransform(masterProgress, [0.0, 1 / 6, 2 / 6], [0.35, 1.0, 2.2])
@@ -1192,194 +1176,200 @@ function App() {
             }}
           >
             <div className="cinematic-scene-inner">
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'clamp(28px, 4vw, 56px)', alignItems: 'center', width: '100%' }}>
-                <div className="hero-copy" style={{ transformOrigin: 'center center' }}>
-                  <motion.div className="availability glass-surface" {...reveal(0.12)}>
-                    <span className="status-dot" /> FLUTTER APP DEVELOPER
-                  </motion.div>
+              <div className="hero-spatial-stage">
+                {/* Layer 0: Giant Architectural Watermark Typography (Behind Phone) */}
+                <motion.div
+                  className="hero-spatial-watermark"
+                  aria-hidden="true"
+                  style={{
+                    z: isMotionDisabled ? -80 : heroWatermarkZ,
+                    opacity: isMotionDisabled ? 0.75 : heroWatermarkOpacity,
+                  }}
+                >
+                  <span>FLUTTER</span>
+                  <span className="watermark-sub">01 / ARCHITECTURE &amp; CRAFTSMANSHIP</span>
+                </motion.div>
 
-                  <HeroIdentityCard
-                    reveal={reveal}
-                    shouldReduceMotion={shouldReduceMotion}
-                  />
+                {/* Layer 1: Editorial 2-Column Grid */}
+                <div className="hero-editorial-grid">
+                  <div className="hero-editorial-copy">
+                    <motion.div className="availability glass-surface" {...reveal(0.12)}>
+                      <span className="status-dot" /> FLUTTER APP DEVELOPER
+                    </motion.div>
 
-                  <motion.p className="eyebrow" {...reveal(0.26)}>
-                    INDEPENDENT MOBILE DEVELOPER · BANGLADESH
-                  </motion.p>
+                    <HeroIdentityCard
+                      reveal={reveal}
+                      shouldReduceMotion={shouldReduceMotion}
+                    />
 
-                  <h1 aria-label="I build apps that feel effortless.">
-                    {headlineLines.map((line, index) => (
-                      <span className="line-mask" key={line.text} aria-hidden="true">
-                        <motion.span
-                          className={`line-inner${line.accent ? ' accent-text' : ''}`}
-                          initial={shouldReduceMotion ? false : { y: '112%' }}
-                          animate={{ y: ready || shouldReduceMotion ? '0%' : '112%' }}
-                          transition={{
-                            duration: shouldReduceMotion ? 0 : 0.95,
-                            delay: shouldReduceMotion ? 0 : 0.3 + index * 0.12,
-                            ease: easeOut,
-                          }}
-                        >
-                          {line.text}
-                        </motion.span>
+                    {/* Premium 3D Editorial Headline */}
+                    <div className="hero-editorial-headline">
+                      <motion.span className="editorial-eyebrow-kicker" {...reveal(0.24)}>
+                        INDEPENDENT MOBILE DEVELOPER · BANGLADESH
+                      </motion.span>
+                      <motion.span className="editorial-lead-line" {...reveal(0.32)}>
+                        I CRAFT
+                      </motion.span>
+                      <motion.span className="editorial-hero-display" {...reveal(0.42)}>
+                        IMMERSIVE
+                      </motion.span>
+                      <motion.span className="editorial-accent-line" {...reveal(0.52)}>
+                        MOBILE <span className="molten-text-accent">EXPERIENCES<span className="accent-dot">.</span></span>
+                      </motion.span>
+                    </div>
+
+                    <motion.p className="hero-editorial-desc" {...reveal(0.62)}>
+                      I build thoughtful, user-focused mobile applications with{' '}
+                      <strong>Flutter</strong>—pairing tactile, distraction-free UI craftsmanship
+                      with robust problem-solving foundations in <strong>C++</strong> and{' '}
+                      <strong>Data Structures &amp; Algorithms</strong>.
+                    </motion.p>
+
+                    <motion.div className="hero-editorial-pills" {...reveal(0.70)}>
+                      <span className="editorial-spec-pill">
+                        <span className="editorial-spec-dot" /> Flutter &amp; Dart
                       </span>
-                    ))}
-                  </h1>
+                      <span className="editorial-spec-pill">
+                        <span className="editorial-spec-dot" /> Custom Canvas UI
+                      </span>
+                      <span className="editorial-spec-pill">
+                        <span className="editorial-spec-dot" /> C++ &amp; DSA Logic
+                      </span>
+                    </motion.div>
 
-                  <motion.p className="hero-description" {...reveal(0.55)}>
-                    I build thoughtful, user-focused mobile experiences with{' '}
-                    <strong>Flutter</strong>—combining clean UI craftsmanship with
-                    strong problem-solving foundations in <strong>C++</strong> and{' '}
-                    <strong>Data Structures &amp; Algorithms</strong>.
-                  </motion.p>
-
-                  <motion.div className="hero-actions" {...reveal(0.68)}>
-                    <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
-                      <motion.a
-                        className="button-primary glass-button liquid-btn"
-                        href="#work"
-                        onClick={(e) => {
-                          if (!isMotionDisabled) {
-                            e.preventDefault()
-                            scrollToSection('work')
+                    <motion.div className="hero-actions" {...reveal(0.78)}>
+                      <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
+                        <motion.a
+                          className="button-primary glass-button liquid-btn"
+                          href="#work"
+                          onClick={(e) => {
+                            if (!isMotionDisabled) {
+                              e.preventDefault()
+                              scrollToSection('work')
+                            }
+                          }}
+                          whileHover={
+                            shouldReduceMotion ? undefined : { y: -3, scale: 1.015 }
                           }
-                        }}
-                        whileHover={
-                          shouldReduceMotion ? undefined : { y: -3, scale: 1.015 }
-                        }
-                        whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                      >
-                        <span>Explore My Projects</span> <span aria-hidden="true">↗</span>
-                      </motion.a>
-                    </MagneticButton>
-                    <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
-                      <motion.a
-                        className="button-secondary glass-button liquid-btn"
-                        href="#contact"
-                        onClick={(e) => {
-                          if (!isMotionDisabled) {
-                            e.preventDefault()
-                            scrollToSection('contact')
-                          }
-                        }}
-                        whileHover={linkHover}
-                        whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                      >
-                        <span>Get in Touch</span> <span aria-hidden="true">→</span>
-                      </motion.a>
-                    </MagneticButton>
-                    {PROFILE_CONFIG.resumeUrl && (
+                          whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                        >
+                          <span>Explore My Projects</span> <span aria-hidden="true">↗</span>
+                        </motion.a>
+                      </MagneticButton>
                       <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
                         <motion.a
                           className="button-secondary glass-button liquid-btn"
-                          href={PROFILE_CONFIG.resumeUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          href="#contact"
+                          onClick={(e) => {
+                            if (!isMotionDisabled) {
+                              e.preventDefault()
+                              scrollToSection('contact')
+                            }
+                          }}
                           whileHover={linkHover}
+                          whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                         >
-                          <span>Resume</span> <span aria-hidden="true">↗</span>
+                          <span>Get in Touch</span> <span aria-hidden="true">→</span>
                         </motion.a>
                       </MagneticButton>
-                    )}
-                  </motion.div>
+                      {PROFILE_CONFIG.resumeUrl && (
+                        <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
+                          <motion.a
+                            className="button-secondary glass-button liquid-btn"
+                            href={PROFILE_CONFIG.resumeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={linkHover}
+                          >
+                            <span>Resume</span> <span aria-hidden="true">↗</span>
+                          </motion.a>
+                        </MagneticButton>
+                      )}
+                    </motion.div>
 
-                  <motion.div className="hero-location" {...reveal(0.82, 10)}>
-                    <span aria-hidden="true">↳</span> Based in {PROFILE_CONFIG.location} · Open to Mobile App Opportunities
-                  </motion.div>
-                </div>
-
-                <motion.div
-                  className="visual-stage"
-                  ref={stageRef}
-                  onPointerMove={handleStagePointerMove}
-                  onPointerLeave={handleStagePointerLeave}
-                  initial={
-                    shouldReduceMotion ? false : { opacity: 0, y: 24 }
-                  }
-                  animate={
-                    ready || shouldReduceMotion
-                      ? { opacity: 1, y: 0 }
-                      : { opacity: 0, y: 24 }
-                  }
-                  transition={{
-                    duration: shouldReduceMotion ? 0 : 1,
-                    delay: shouldReduceMotion ? 0 : 0.25,
-                    ease: easeOut,
-                  }}
-                  style={{ transformOrigin: 'center center' }}
-                >
-                  <motion.div
-                    className="orbit orbit-one"
-                    initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
-                    animate={
-                      ready || shouldReduceMotion
-                        ? { opacity: 1, scale: 1 }
-                        : { opacity: 0, scale: 0.8 }
-                    }
-                    transition={{ duration: 1.2, delay: 0.45, ease: easeOut }}
-                  />
-                  <motion.div
-                    className="orbit orbit-two"
-                    initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
-                    animate={
-                      ready || shouldReduceMotion
-                        ? { opacity: 1, scale: 1 }
-                        : { opacity: 0, scale: 0.8 }
-                    }
-                    transition={{ duration: 1.2, delay: 0.6, ease: easeOut }}
-                  />
-                  <div className="phone-tilt">
-                    <HeroPhone
-                      reducedMotion={shouldReduceMotion}
-                      scrollProgress={heroPhoneProgress}
-                      screenImageSrc={activeHeroScreen}
-                      pageReady={ready}
-                    />
+                    <motion.div className="hero-location" {...reveal(0.86, 10)}>
+                      <span aria-hidden="true">↳</span> Based in {PROFILE_CONFIG.location} · Open to Mobile Opportunities
+                    </motion.div>
                   </div>
 
-                  <motion.div
-                    className="floating-label label-top glass-surface"
-                    data-depth="20"
-                    {...reveal(0.75, 12)}
-                  >
-                    <span className="label-dot" /> Built with Flutter
-                  </motion.div>
+                  {/* Right Column: Hero 3D iPhone Visual Stage */}
+                  <div className="hero-editorial-phone-col">
+                    <motion.div
+                      className="visual-stage"
+                      ref={stageRef}
+                      onPointerMove={handleStagePointerMove}
+                      onPointerLeave={handleStagePointerLeave}
+                      initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+                      animate={ready || shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+                      transition={{ duration: shouldReduceMotion ? 0 : 1, delay: shouldReduceMotion ? 0 : 0.25, ease: easeOut }}
+                      style={{ transformOrigin: 'center center' }}
+                    >
+                      <motion.div
+                        className="orbit orbit-one"
+                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                        animate={ready || shouldReduceMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 1.2, delay: 0.45, ease: easeOut }}
+                      />
+                      <motion.div
+                        className="orbit orbit-two"
+                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                        animate={ready || shouldReduceMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 1.2, delay: 0.6, ease: easeOut }}
+                      />
+                      <div className="phone-tilt">
+                        <HeroPhone
+                          reducedMotion={shouldReduceMotion}
+                          scrollProgress={heroPhoneProgress}
+                          screenImageSrc={activeHeroScreen}
+                          pageReady={ready}
+                        />
+                      </div>
 
-                  <motion.div
-                    className="hero-screen-switcher glass-surface"
-                    role="group"
-                    aria-label="Switch 3D iPhone app screen"
-                    {...reveal(0.9, 10)}
-                  >
-                    <span className="switcher-caption">3D DISPLAY:</span>
-                    {HERO_SCREEN_OPTIONS.map((option) => {
-                      const isActive = activeHeroScreen === option.src
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          className={`switcher-pill liquid-btn${isActive ? ' is-active' : ''}`}
-                          aria-pressed={isActive}
-                          onClick={() => setActiveHeroScreen(option.src)}
-                        >
-                          <span>{option.label}</span>
-                        </button>
-                      )
-                    })}
-                  </motion.div>
+                      <motion.div
+                        className="floating-label label-top glass-surface"
+                        data-depth="20"
+                        {...reveal(0.75, 12)}
+                      >
+                        <span className="label-dot" /> Built with Flutter
+                      </motion.div>
 
-                  <motion.div
-                    className="floating-label label-bottom glass-surface"
-                    data-depth="24"
-                    {...reveal(0.88, 12)}
-                  >
-                    <span className="label-icon" aria-hidden="true">✦</span> Dart &amp; Flutter UI
-                  </motion.div>
+                      <motion.div
+                        className="hero-screen-switcher glass-surface"
+                        role="group"
+                        aria-label="Switch 3D iPhone app screen"
+                        {...reveal(0.9, 10)}
+                      >
+                        <span className="switcher-caption">3D DISPLAY:</span>
+                        {HERO_SCREEN_OPTIONS.map((option) => {
+                          const isActive = activeHeroScreen === option.src
+                          return (
+                            <button
+                              key={option.id}
+                              type="button"
+                              className={`switcher-pill liquid-btn${isActive ? ' is-active' : ''}`}
+                              aria-pressed={isActive}
+                              onClick={() => setActiveHeroScreen(option.src)}
+                            >
+                              <span>{option.label}</span>
+                            </button>
+                          )
+                        })}
+                      </motion.div>
 
-                  <motion.div className="tech-label" {...reveal(0.95, 8)}>
-                    FLUTTER · DART · C++ · DSA
-                  </motion.div>
-                </motion.div>
+                      <motion.div
+                        className="floating-label label-bottom glass-surface"
+                        data-depth="24"
+                        {...reveal(0.88, 12)}
+                      >
+                        <span className="label-icon" aria-hidden="true">✦</span> Dart &amp; Flutter UI
+                      </motion.div>
+
+                      <motion.div className="tech-label" {...reveal(0.95, 8)}>
+                        FLUTTER · DART · C++ · DSA
+                      </motion.div>
+                    </motion.div>
+                  </div>
+                </div>
               </div>
 
               <motion.div className="hero-index" {...reveal(1, 8)}>

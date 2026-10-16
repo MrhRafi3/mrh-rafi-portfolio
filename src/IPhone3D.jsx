@@ -386,7 +386,14 @@ function PhoneModel({
 }) {
   const group = useRef(null)
   const dragging = useRef(false)
+  const isPointerDown = useRef(false)
+  const hasCaptured = useRef(false)
+  const startX = useRef(0)
+  const startY = useRef(0)
   const lastX = useRef(0)
+  const lastTime = useRef(0)
+  const dragVelocity = useRef(0)
+  const lastInteractionTime = useRef(0)
   const targetAngle = useRef(0)
   const currentAngle = useRef(0)
   const currentScrollTurn = useRef(0)
@@ -450,7 +457,7 @@ function PhoneModel({
       model,
       scale,
       overlay,
-      position: [-center.x * scale, -center.y * scale, -center.z * scale],
+      position: [-center.x * scale, -center.y * scale - 0.12, -center.z * scale],
     }
   }, [scene])
 
@@ -522,40 +529,88 @@ function PhoneModel({
     if (!element) return undefined
 
     const handleDown = (event) => {
-      dragging.current = true
+      isPointerDown.current = true
+      hasCaptured.current = false
+      startX.current = event.clientX
+      startY.current = event.clientY
       lastX.current = event.clientX
-      try {
-        element.setPointerCapture(event.pointerId)
-      } catch {
-        // Ignore pointer capture errors
-      }
+      lastTime.current = performance.now()
+      dragVelocity.current = 0
+      lastInteractionTime.current = performance.now()
     }
 
     const handleMove = (event) => {
-      if (dragging.current) {
-        targetAngle.current += (event.clientX - lastX.current) * 0.011
-        lastX.current = event.clientX
+      if (!isPointerDown.current) {
+        if (!reducedMotion && event.pointerType === 'mouse') {
+          const bounds = element.getBoundingClientRect()
+          if (bounds.width > 0 && bounds.height > 0) {
+            const nx = (event.clientX - bounds.left) / bounds.width - 0.5
+            const ny = (event.clientY - bounds.top) / bounds.height - 0.5
+            hoverTiltX.current = ny * 0.14
+            hoverTiltY.current = nx * 0.22
+          }
+        }
         return
       }
 
-      if (!reducedMotion && event.pointerType === 'mouse') {
-        const bounds = element.getBoundingClientRect()
-        if (bounds.width > 0 && bounds.height > 0) {
-          const nx = (event.clientX - bounds.left) / bounds.width - 0.5
-          const ny = (event.clientY - bounds.top) / bounds.height - 0.5
-          hoverTiltX.current = ny * 0.14
-          hoverTiltY.current = nx * 0.22
+      const dx = event.clientX - startX.current
+      const dy = event.clientY - startY.current
+
+      // For touch events: disambiguate vertical scroll vs horizontal rotation
+      if (event.pointerType === 'touch') {
+        if (!hasCaptured.current) {
+          if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 7) {
+            // User intends to scroll vertically; cancel our drag
+            isPointerDown.current = false
+            dragging.current = false
+            return
+          }
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 6) {
+            // User intends to rotate horizontally; claim gesture
+            hasCaptured.current = true
+            dragging.current = true
+            try {
+              element.setPointerCapture(event.pointerId)
+            } catch {}
+          }
         }
+      } else {
+        // Mouse drag
+        if (!dragging.current && (Math.abs(dx) > 2 || Math.abs(dy) > 2)) {
+          dragging.current = true
+          try {
+            element.setPointerCapture(event.pointerId)
+          } catch {}
+        }
+      }
+
+      if (dragging.current) {
+        if (event.cancelable) {
+          event.preventDefault()
+        }
+        const now = performance.now()
+        const dtSec = Math.max((now - lastTime.current) / 1000, 0.006)
+        const stepX = event.clientX - lastX.current
+        targetAngle.current += stepX * 0.009
+        dragVelocity.current = (stepX * 0.009) / dtSec
+        lastX.current = event.clientX
+        lastTime.current = now
+        lastInteractionTime.current = now
       }
     }
 
     const handleUp = (event) => {
-      dragging.current = false
-      try {
-        element.releasePointerCapture(event.pointerId)
-      } catch {
-        // Ignore pointer release errors
+      if (dragging.current) {
+        try {
+          element.releasePointerCapture(event.pointerId)
+        } catch {}
+        dragging.current = false
+        // Clamp release velocity
+        dragVelocity.current = Math.max(-6, Math.min(6, dragVelocity.current))
       }
+      isPointerDown.current = false
+      hasCaptured.current = false
+      lastInteractionTime.current = performance.now()
     }
 
     const handleLeave = () => {
@@ -563,17 +618,17 @@ function PhoneModel({
       hoverTiltY.current = 0
     }
 
-    element.addEventListener('pointerdown', handleDown)
-    element.addEventListener('pointermove', handleMove)
-    element.addEventListener('pointerup', handleUp)
-    element.addEventListener('pointercancel', handleUp)
-    element.addEventListener('pointerleave', handleLeave)
+    element.addEventListener('pointerdown', handleDown, { passive: true })
+    window.addEventListener('pointermove', handleMove, { passive: false })
+    window.addEventListener('pointerup', handleUp, { passive: true })
+    window.addEventListener('pointercancel', handleUp, { passive: true })
+    element.addEventListener('pointerleave', handleLeave, { passive: true })
 
     return () => {
       element.removeEventListener('pointerdown', handleDown)
-      element.removeEventListener('pointermove', handleMove)
-      element.removeEventListener('pointerup', handleUp)
-      element.removeEventListener('pointercancel', handleUp)
+      window.removeEventListener('pointermove', handleMove)
+      window.removeEventListener('pointerup', handleUp)
+      window.removeEventListener('pointercancel', handleUp)
       element.removeEventListener('pointerleave', handleLeave)
     }
   }, [containerRef, reducedMotion])
@@ -606,16 +661,35 @@ function PhoneModel({
     // Smooth quartic ease-out for the entrance spin and scale reveal
     const eased = 1 - (1 - t) ** 4
 
-    if (!dragging.current && !reducedMotion && introStart.current !== null) {
-      targetAngle.current += dt * 0.32
-    }
+    if (dragging.current) {
+      currentAngle.current = THREE.MathUtils.damp(
+        currentAngle.current,
+        targetAngle.current,
+        22,
+        dt,
+      )
+    } else {
+      if (Math.abs(dragVelocity.current) > 0.002) {
+        // Smooth inertia
+        targetAngle.current += dragVelocity.current * dt
+        dragVelocity.current *= Math.pow(0.92, dt * 60)
+      } else {
+        dragVelocity.current = 0
+        const timeSince = (performance.now() - lastInteractionTime.current) / 1000
+        // Gently resume auto-rotation after 2.5s idle
+        if (!reducedMotion && introStart.current !== null && timeSince > 2.5) {
+          const ramp = Math.min((timeSince - 2.5) / 1.5, 1)
+          targetAngle.current += dt * 0.28 * ramp
+        }
+      }
 
-    currentAngle.current = THREE.MathUtils.damp(
-      currentAngle.current,
-      targetAngle.current,
-      dragging.current ? 18 : 8,
-      dt,
-    )
+      currentAngle.current = THREE.MathUtils.damp(
+        currentAngle.current,
+        targetAngle.current,
+        10,
+        dt,
+      )
+    }
 
     const rawScrollTurn = scrollProgress ? scrollProgress.get() * 0.85 : 0
     currentScrollTurn.current = THREE.MathUtils.damp(
@@ -727,7 +801,7 @@ export default function IPhone3D({
             onReady={onReady}
           />
           <ContactShadows
-            position={[0, -1.95, 0]}
+            position={[0, -2.05, 0]}
             opacity={0.34}
             scale={4.6}
             blur={2.8}

@@ -2274,8 +2274,8 @@ svg {
   width: 100%;
   height: 100%;
   flex: 1;
-  padding: 3px;
-  border-radius: 37px;
+  padding: 1.5px;
+  border-radius: 43px;
   background: #070605;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   display: flex;
@@ -2291,7 +2291,7 @@ svg {
   height: 100%;
   flex: 1;
   overflow: hidden;
-  border-radius: 34px;
+  border-radius: 41.5px;
   background: #100c0a;
   line-height: 0;
   display: flex;
@@ -4794,8 +4794,8 @@ svg {
 }
 
 .showcase-phone-body .iphone-inner-bezel {
-  border-radius: 40px;
-  padding: 3.5px;
+  border-radius: 43px;
+  padding: 1.5px;
 }
 
 .showcase-phone-screen {
@@ -4803,7 +4803,7 @@ svg {
   width: 100%;
   height: 100%;
   flex: 1;
-  border-radius: 36.5px;
+  border-radius: 41.5px;
   overflow: hidden;
   display: flex;
   align-items: center;

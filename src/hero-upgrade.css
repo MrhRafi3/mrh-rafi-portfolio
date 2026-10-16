@@ -162,8 +162,11 @@
 
 .hero-phone {
   position: relative;
-  width: clamp(280px, 34vw, 440px);
-  height: 560px;
+  width: clamp(280px, 32vw, 420px);
+  height: clamp(400px, 50vh, 520px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* The 3D canvas fills the box; the static phone sits underneath it. */
@@ -534,11 +537,13 @@
   height: 100%;
   width: auto;
   aspect-ratio: 393 / 852;
-  padding: 5px;
-  border-radius: 26px;
-  border: 1.5px solid var(--phone-frame-border);
+  padding: 2.5px;
+  border-radius: 28px;
+  border: 1px solid var(--phone-frame-border);
   background: var(--phone-frame-bg);
-  box-shadow: var(--phone-frame-shadow);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    var(--phone-frame-shadow);
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -550,12 +555,13 @@
 }
 
 .cinematic-card-phone .iphone-inner-bezel {
-  border-radius: 22px;
-  padding: 2px;
+  border-radius: 26px;
+  padding: 1px;
+  background: #030303;
 }
 
 .cinematic-card-phone .card-phone-screen-wrap {
-  border-radius: 20px;
+  border-radius: 25px;
 }
 
 .cinematic-card-bottom {
@@ -816,16 +822,18 @@
 
 .cinematic-phone-frame {
   position: relative;
-  height: clamp(380px, 48vh, 500px);
+  height: clamp(380px, 48vh, 520px);
   width: auto;
   aspect-ratio: 393 / 852;
-  padding: 7px;
-  border-radius: 42px;
-  border: 2px solid var(--phone-frame-border);
+  padding: 3px;
+  border-radius: 46px;
+  border: 1px solid var(--phone-frame-border);
   background: var(--phone-frame-bg);
   box-shadow:
-    var(--phone-frame-shadow),
-    0 24px 60px -14px rgba(0, 0, 0, 0.35);
+    0 0 0 1px rgba(255, 255, 255, 0.12),
+    0 24px 60px -14px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.6);
   cursor: pointer;
   transition: transform 0.32s var(--ease-out),
               box-shadow 0.32s var(--ease-out);
@@ -837,18 +845,26 @@
 .cinematic-phone-frame:hover {
   transform: scale(1.02) translateY(-4px);
   box-shadow:
-    var(--phone-frame-shadow),
-    0 32px 75px -16px rgba(0, 0, 0, 0.45);
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 32px 75px -16px rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.7);
 }
 
 .cinematic-phone-frame .iphone-inner-bezel {
-  border-radius: 36px;
-  padding: 3px;
+  border-radius: 43px;
+  padding: 1.5px;
   height: 100%;
+  background: #030303;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .cinematic-phone-frame .card-phone-screen-wrap {
-  border-radius: 33px;
+  border-radius: 41.5px;
   position: relative;
   width: 100%;
   height: 100%;
@@ -1180,9 +1196,6 @@
   margin-bottom: 10px !important;
 }
 
-.iphone-3d-wrap {
-  height: clamp(340px, 46vh, 480px) !important;
-}
 
 .about-narrative-card {
   padding: clamp(14px, 2vh, 22px) clamp(16px, 2vw, 24px) !important;
@@ -1281,47 +1294,289 @@
 
 @media (max-width: 860px) {
   .cinematic-master-track {
-    min-height: auto !important;
+    min-height: 480vh;
   }
 
   .cinematic-camera-viewport {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    overflow: visible !important;
-    perspective: none !important;
-    display: block !important;
-    pointer-events: auto !important;
+    height: 100dvh;
+    min-height: -webkit-fill-available;
   }
 
   .cinematic-scene-chamber {
-    position: relative !important;
-    inset: auto !important;
-    width: 100% !important;
-    height: auto !important;
-    display: block !important;
-    padding: 60px 16px !important;
-    overflow: visible !important;
-    transform: none !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
+    height: 100dvh;
+    min-height: -webkit-fill-available;
+    padding: clamp(14px, 2vh, 24px) 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .cinematic-scene-inner {
-    max-height: none !important;
+    width: 100%;
+    max-height: 94dvh;
+  }
+
+  .cinematic-project-stage {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-height: 88dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cinematic-phone-frame {
+    height: clamp(260px, 34vh, 360px);
+  }
+
+  .hero-phone {
+    width: min(84vw, 320px);
+    height: clamp(340px, 44vh, 440px);
+  }
+
+  .phone-fallback-frame {
+    transform: scale(0.85);
   }
 }
 
 @media (max-width: 620px) {
   .hero-phone {
-    width: min(78vw, 330px);
-    height: 440px;
+    width: min(88vw, 300px);
+    height: clamp(320px, 40vh, 400px);
   }
 
   .phone-fallback-frame {
-    transform: scale(0.88);
+    transform: scale(0.78);
+  }
+/* ── Spatial Editorial 3D Typography System ── */
+
+.hero-spatial-stage {
+  position: relative;
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+/* Layer 0: Giant Architectural Watermark Typography (Behind Phone) */
+.hero-spatial-watermark {
+  position: absolute;
+  top: 48%;
+  right: -3%;
+  transform: translateY(-50%) translateZ(-90px);
+  font-family: var(--heading-font);
+  font-size: clamp(80px, 13.5vw, 195px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.82;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.08);
+  opacity: 0.75;
+  will-change: transform, opacity;
+  transition: opacity 0.5s ease;
+}
+
+[data-theme='light'] .hero-spatial-watermark {
+  -webkit-text-stroke: 1.5px rgba(113, 89, 74, 0.12);
+  opacity: 0.82;
+}
+
+.hero-spatial-watermark span {
+  display: block;
+}
+
+.hero-spatial-watermark .watermark-sub {
+  font-size: 0.15em;
+  letter-spacing: 0.32em;
+  font-weight: 700;
+  -webkit-text-stroke: 0px;
+  color: var(--accent);
+  opacity: 0.55;
+  margin-top: 6px;
+}
+
+/* Layer 1: Editorial 2-Column Grid */
+.hero-editorial-grid {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(320px, 1.18fr) minmax(290px, 0.82fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  width: 100%;
+  transform-style: preserve-3d;
+}
+
+.hero-editorial-copy {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+/* Editorial Headline */
+.hero-editorial-headline {
+  margin: 6px 0 14px;
+  font-family: var(--heading-font);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.0;
+}
+
+.editorial-eyebrow-kicker {
+  font-family: var(--mono-font, var(--body-font));
+  font-size: clamp(10.5px, 1vw, 12.5px);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.editorial-lead-line {
+  display: block;
+  font-size: clamp(26px, 3.6vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text-secondary);
+}
+
+.editorial-hero-display {
+  display: block;
+  font-size: clamp(48px, 6.4vw, 84px);
+  font-weight: 900;
+  letter-spacing: -0.048em;
+  line-height: 0.94;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 50%, #C4BCAF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4));
+}
+
+[data-theme='light'] .editorial-hero-display {
+  background: linear-gradient(180deg, #1C120C 0%, #2E1B12 55%, #4A2E1E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px rgba(76, 49, 31, 0.15));
+}
+
+.editorial-accent-line {
+  display: block;
+  font-size: clamp(34px, 4.4vw, 60px);
+  font-weight: 800;
+  letter-spacing: -0.038em;
+  line-height: 1.02;
+  color: var(--text);
+}
+
+.editorial-accent-line .molten-text-accent {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 28px rgba(245, 158, 11, 0.35);
+}
+
+.editorial-accent-line .accent-dot {
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+}
+
+/* Editorial Description */
+.hero-editorial-desc {
+  margin: 0 0 16px;
+  font-size: clamp(12.5px, 1.08vw, 14.5px);
+  line-height: 1.62;
+  color: var(--text-secondary);
+  max-width: 530px;
+}
+
+.hero-editorial-desc strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Editorial Tech Pills */
+.hero-editorial-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+.editorial-spec-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--text);
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.editorial-spec-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* Phone Stage Column */
+.hero-editorial-phone-col {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .hero-spatial-watermark {
+    display: none;
+  }
+
+  .hero-editorial-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .hero-editorial-copy {
+    align-items: center;
+    text-align: center;
+  }
+
+  .editorial-eyebrow-kicker,
+  .hero-editorial-pills,
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .editorial-hero-display {
+    font-size: clamp(38px, 10vw, 54px);
+  }
+
+  .editorial-accent-line {
+    font-size: clamp(28px, 7.5vw, 40px);
   }
 }
 
