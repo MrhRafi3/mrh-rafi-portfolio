@@ -11,17 +11,17 @@ const REALM_CONFIGS = [
     id: 'home',
     z: 10,
     dark: {
-      bg: '#080605',
-      fog: '#0a0806',
-      accent: '#f59e0b',
-      secondary: '#d97706',
-      ambientIntensity: 0.85,
+      bg: '#090A0D',
+      fog: '#15171D',
+      accent: '#FF7138',
+      secondary: '#FF3548',
+      ambientIntensity: 0.90,
     },
     light: {
-      bg: '#faf6ef',
-      fog: '#f4ede2',
-      accent: '#d97706',
-      secondary: '#b45309',
+      bg: '#F8F9FA',
+      fog: '#EDF0F3',
+      accent: '#FF7138',
+      secondary: '#E0561F',
       ambientIntensity: 1.1,
     },
   },
@@ -203,20 +203,41 @@ function getRealmInterpolation(progress, theme) {
 
 /**
  * Camera controller that translates the camera through real 3D space along the Z-axis
- * and adds responsive parallax based on cursor/pointer position.
+ * with velocity-responsive flight attitude, smooth kinetic damping, and cursor parallax.
  */
 function ConduitCameraController({ scrollProgress, pointerRef }) {
   const currentZRef = useRef(10)
   const targetCamPos = useRef(new THREE.Vector3(0, 0, 10))
+  const lastTargetZRef = useRef(10)
+  const smoothVelocityRef = useRef(0)
+  const targetFovRef = useRef(58)
 
   useFrame((state, delta) => {
     const p = scrollProgress ? scrollProgress.get() : 0
     const targetZ = 10 - p * 180
 
-    // Smooth lerp to prevent jarring motion on sudden trackwheel jumps
-    const dt = Math.min(delta, 0.05)
-    currentZRef.current = THREE.MathUtils.lerp(currentZRef.current, targetZ, dt * 6.5)
+    const dt = Math.max(0.001, Math.min(delta, 0.05))
 
+    // Calculate instantaneous scroll flight velocity (Z distance per second)
+    const rawVel = (targetZ - lastTargetZRef.current) / dt
+    lastTargetZRef.current = targetZ
+
+    // Smooth velocity with responsive damping to filter out sudden mousewheel ticks
+    smoothVelocityRef.current = THREE.MathUtils.damp(
+      smoothVelocityRef.current,
+      rawVel,
+      7.5,
+      dt
+    )
+
+    const vel = smoothVelocityRef.current
+    const speed = Math.abs(vel)
+
+    // Velocity-responsive damping on camera Z travel: responsive during flight, buttery at settle
+    const zDamping = THREE.MathUtils.lerp(6.5, 7.8, Math.min(speed / 90, 1))
+    currentZRef.current = THREE.MathUtils.lerp(currentZRef.current, targetZ, dt * zDamping)
+
+    // Parallax from cursor position
     const ptr = pointerRef.current || { x: 0, y: 0 }
     targetCamPos.current.set(
       ptr.x * 0.9,
@@ -226,9 +247,26 @@ function ConduitCameraController({ scrollProgress, pointerRef }) {
 
     state.camera.position.lerp(targetCamPos.current, dt * 5.0)
 
-    // Subtle pitch and yaw to reinforce physical flight through space
-    state.camera.rotation.y = THREE.MathUtils.lerp(state.camera.rotation.y, -ptr.x * 0.05, dt * 4.0)
-    state.camera.rotation.x = THREE.MathUtils.lerp(state.camera.rotation.x, ptr.y * 0.04, dt * 4.0)
+    // Velocity-responsive flight pitch: subtle forward tilt into speed, leveling out at rest
+    // Forward travel (scrolling down -> Z decreases -> vel < 0): pitch down slightly into portal
+    const flightPitch = THREE.MathUtils.clamp(-vel * 0.00035, -0.022, 0.022)
+
+    // Subtle pitch and yaw combining pointer parallax and velocity flight attitude
+    const targetRotY = -ptr.x * 0.05
+    const targetRotX = ptr.y * 0.04 + flightPitch
+
+    state.camera.rotation.y = THREE.MathUtils.lerp(state.camera.rotation.y, targetRotY, dt * 4.0)
+    state.camera.rotation.x = THREE.MathUtils.lerp(state.camera.rotation.x, targetRotX, dt * 4.5)
+
+    // Subtle optical warp: FOV expands slightly during fast travel (max +2.5 deg)
+    const speedRatio = Math.min(speed / 110, 1)
+    const nextTargetFov = 58 + speedRatio * 2.5
+    targetFovRef.current = THREE.MathUtils.damp(targetFovRef.current, nextTargetFov, 6.0, dt)
+
+    if (Math.abs(state.camera.fov - targetFovRef.current) > 0.02) {
+      state.camera.fov = targetFovRef.current
+      state.camera.updateProjectionMatrix()
+    }
   })
 
   return null
@@ -770,17 +808,20 @@ function ContactDawnLandmark({ theme }) {
 
 /**
  * Adaptive Particle Slipstream along the entire 3D Dimensional Conduit.
- * 680 (desktop) / 320 (mobile) particles with depth-motion velocity response.
+ * Renders glowing ambient particle dust that dynamically stretches into aerodynamic
+ * conduit streaks during fast camera flight, then smoothly contracts back at rest.
  */
 function ParticleSlipstream({ scrollProgress, theme, isMobile }) {
   const pointsRef = useRef(null)
+  const linesRef = useRef(null)
   const lastProgressRef = useRef(0)
   const velocityRef = useRef(0)
+  const currentStreakZRef = useRef(0)
 
   const particleData = isMobile ? MOBILE_PARTICLES : DESKTOP_PARTICLES
-  const particleCount = isMobile ? 320 : 680
+  const particleCount = isMobile ? 240 : 680
 
-  const material = useMemo(() => {
+  const pointsMaterial = useMemo(() => {
     return new THREE.PointsMaterial({
       color: new THREE.Color(theme === 'light' ? '#94a3b8' : '#e2e8f0'),
       size: theme === 'light' ? 0.18 : 0.24,
@@ -788,44 +829,134 @@ function ParticleSlipstream({ scrollProgress, theme, isMobile }) {
       opacity: theme === 'light' ? 0.45 : 0.75,
       blending: theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending,
       sizeAttenuation: true,
+      depthWrite: false,
     })
   }, [theme])
 
-  const geometry = useMemo(() => {
+  const linesMaterial = useMemo(() => {
+    return new THREE.LineBasicMaterial({
+      color: new THREE.Color(theme === 'light' ? '#78889b' : '#38bdf8'),
+      transparent: true,
+      opacity: 0,
+      blending: theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending,
+      depthWrite: false,
+    })
+  }, [theme])
+
+  const pointsGeometry = useMemo(() => {
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(particleData.positions), 3))
     return geo
   }, [particleData.positions])
 
+  const linesGeometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry()
+    const linePositions = new Float32Array(particleCount * 6)
+    for (let i = 0; i < particleCount; i++) {
+      const i3 = i * 3
+      const i6 = i * 6
+      const x = particleData.positions[i3]
+      const y = particleData.positions[i3 + 1]
+      const z = particleData.positions[i3 + 2]
+      linePositions[i6] = x
+      linePositions[i6 + 1] = y
+      linePositions[i6 + 2] = z
+      linePositions[i6 + 3] = x
+      linePositions[i6 + 4] = y
+      linePositions[i6 + 5] = z
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3))
+    return geo
+  }, [particleData.positions, particleCount])
+
+  useEffect(() => {
+    return () => {
+      pointsGeometry.dispose()
+      linesGeometry.dispose()
+      pointsMaterial.dispose()
+      linesMaterial.dispose()
+    }
+  }, [pointsGeometry, linesGeometry, pointsMaterial, linesMaterial])
+
   useFrame((_, delta) => {
-    if (!pointsRef.current) return
+    if (!pointsRef.current || !linesRef.current) return
     const currentProgress = scrollProgress ? scrollProgress.get() : 0
     const dt = Math.max(0.001, Math.min(delta, 0.05))
 
     const rawVel = (currentProgress - lastProgressRef.current) / dt
-    velocityRef.current = THREE.MathUtils.lerp(velocityRef.current, rawVel, 0.15)
+    velocityRef.current = THREE.MathUtils.damp(velocityRef.current, rawVel, 7.5, dt)
     lastProgressRef.current = currentProgress
+
+    const vel = velocityRef.current
+    const speed = Math.abs(vel)
+
+    // Calculate dynamic streak stretch along the Z axis (backward from flight direction)
+    // Forward flight (vel > 0 in progress -> camera moves -Z): particles streak behind towards +Z
+    const targetStreakZ = THREE.MathUtils.clamp(vel * 3.8, -2.4, 2.4)
+    currentStreakZRef.current = THREE.MathUtils.damp(currentStreakZRef.current, targetStreakZ, 8.5, dt)
+    const streakZ = currentStreakZRef.current
+
+    // Fade streaks in during movement; hide completely when resting
+    const streakStrength = Math.min(speed * 2.8, 1)
+    if (linesRef.current.material) {
+      linesRef.current.material.opacity = THREE.MathUtils.lerp(
+        0,
+        theme === 'light' ? 0.38 : 0.62,
+        streakStrength
+      )
+    }
+
+    // Subtle particle size expansion during fast travel
+    if (pointsRef.current.material) {
+      const baseSize = theme === 'light' ? 0.18 : 0.24
+      pointsRef.current.material.size = baseSize + THREE.MathUtils.clamp(speed * 0.08, 0, 0.10)
+    }
 
     const posAttr = pointsRef.current.geometry.attributes.position
     const posArray = posAttr.array
-    const vel = velocityRef.current
 
-    // Drift particles subtly; streak slightly during fast camera flight
+    const lineAttr = linesRef.current.geometry.attributes.position
+    const lineArray = lineAttr.array
+
     for (let i = 0; i < particleCount; i++) {
       const i3 = i * 3
+      const i6 = i * 6
+
+      // Move particle through space with camera travel
       posArray[i3 + 2] += vel * 8.0 * dt
 
+      // Wrap around conduit boundaries
       if (posArray[i3 + 2] > 26) {
         posArray[i3 + 2] = -185
       } else if (posArray[i3 + 2] < -188) {
         posArray[i3 + 2] = 24
       }
+
+      const px = posArray[i3]
+      const py = posArray[i3 + 1]
+      const pz = posArray[i3 + 2]
+
+      // Line segment head
+      lineArray[i6] = px
+      lineArray[i6 + 1] = py
+      lineArray[i6 + 2] = pz
+
+      // Line segment tail (stretched along Z during flight)
+      lineArray[i6 + 3] = px
+      lineArray[i6 + 4] = py
+      lineArray[i6 + 5] = pz + streakZ
     }
 
     posAttr.needsUpdate = true
+    lineAttr.needsUpdate = true
   })
 
-  return <points ref={pointsRef} geometry={geometry} material={material} />
+  return (
+    <group>
+      <points ref={pointsRef} geometry={pointsGeometry} material={pointsMaterial} />
+      <lineSegments ref={linesRef} geometry={linesGeometry} material={linesMaterial} />
+    </group>
+  )
 }
 
 /**

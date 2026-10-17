@@ -61,7 +61,9 @@ import Navbar from './components/Navbar'
 import HeroPhone from './components/HeroPhone'
 import MagneticButton from './components/MagneticButton'
 import CustomCursor from './components/CustomCursor'
-import ProjectShowcase from './components/ProjectShowcase'
+import ProjectShowcase, {
+  NomNomScreenPreview,
+} from './components/ProjectShowcase'
 import TravelWorld3D from './components/TravelWorld3D'
 import useLiquidGL from './hooks/useLiquidGL'
 import useTheme from './hooks/useTheme'
@@ -257,7 +259,7 @@ const projectsData = [
     floatingBadge: '+ Fast Delivery Flow',
     title: 'NomNom',
     accent: '.',
-    screenshotSrc: '/images/nomnom/screen-1.png',
+    screenshotSrc: '/images/NomNom/home.png',
     description:
       'A contemporary food delivery and restaurant discovery mobile application built with Flutter. Designed with appetizing visuals, real-time menu exploration, dish customization, intuitive cart checkout, and live order tracking.',
     techStack: [
@@ -281,29 +283,49 @@ const projectsData = [
     ],
     screenshots: [
       {
-        src: '/images/nomnom/screen-1.png',
-        label: 'Discover & Cuisines',
-        alt: 'NomNom home screen showing delivery address, popular cuisine categories (Burgers, Pizza, Asian, Desserts), search bar, and trending restaurant cards',
+        src: '/images/NomNom/splash-interface.png',
+        label: 'Splash & Brand',
+        alt: 'NomNom splash branding interface featuring the bold NomNom emblem, "Crave It · Tap It · Taste It" tagline, and developer signature',
       },
       {
-        src: '/images/nomnom/screen-2.png',
-        label: 'Restaurant & Menu',
-        alt: 'NomNom restaurant storefront screen showing rating, delivery fee, menu sections (Chef Specials, Combos, Beverages), and quick Add-to-Cart buttons',
+        src: '/images/NomNom/home.png',
+        label: 'Home Feed & Deals',
+        alt: 'NomNom main home feed showing delivery address in Mirpur-6, food search bar, 25% off Daily Cravings promo banner, food categories, and Best Sellers section',
       },
       {
-        src: '/images/nomnom/screen-3.png',
+        src: '/images/NomNom/explore-menu.png',
+        label: 'Explore & Menus',
+        alt: 'NomNom explore screen showing cuisine filter tabs, restaurant listings, dish cards with ratings, preparation time, and pricing',
+      },
+      {
+        src: '/images/NomNom/food.png',
         label: 'Dish Customizer',
-        alt: 'NomNom dish customizer sheet showing Artisan Burger customization with patty choice, extra cheese, sauce options, and real-time price tally',
+        alt: 'NomNom dish customizer sheet showing Fiery Crispy Chicken Royale with portion selector, custom toppings, spice level options, and Add to Cart action',
       },
       {
-        src: '/images/nomnom/screen-4.png',
+        src: '/images/NomNom/food-combo.png',
+        label: 'Feast Box Combo',
+        alt: 'NomNom feast box combo view showcasing bundled value meals, side selections, beverage flavor picker, 20% savings badge, and order summary',
+      },
+      {
+        src: '/images/NomNom/cart.png',
         label: 'Cart & Checkout',
-        alt: 'NomNom cart and checkout screen showing selected order items, promo code input, delivery tip options, breakdown summary, and Place Order button',
+        alt: 'NomNom cart and checkout view with itemized order breakdown, delivery address in Mirpur-6, promo code voucher field, and Proceed to Checkout button',
       },
       {
-        src: '/images/nomnom/screen-5.png',
+        src: '/images/NomNom/order-tracking.png',
         label: 'Live Order Tracker',
-        alt: 'NomNom order tracking screen showing step-by-step progress (Order Confirmed, Preparing, On the Way), courier map view, and estimated arrival time',
+        alt: 'NomNom live order tracking view showing estimated 18-minute arrival countdown, courier route map, multi-stage delivery timeline, and driver contact options',
+      },
+      {
+        src: '/images/NomNom/offers.png',
+        label: 'Offers & Rewards',
+        alt: 'NomNom rewards and discounts screen displaying Silver Flame Member loyalty status, crown reward points, active discount vouchers, and coupon redemption cards',
+      },
+      {
+        src: '/images/NomNom/progile-settings.png',
+        label: 'Profile & Settings',
+        alt: 'NomNom profile and account settings screen for Mrh Rafi showing saved delivery locations, payment methods, order history, and preferences',
       },
     ],
     links: [
@@ -530,6 +552,34 @@ function CinematicWaypointHUD({ activeSection, onSelectScene }) {
 }
 
 /**
+ * Media display component inside the Cinematic Project Chamber's phone frame.
+ * Renders the real screenshot image, with automatic fallback to NomNomScreenPreview
+ * for NomNom if an image is missing or fails to load.
+ */
+function ChamberPhoneMedia({ project, currentScreen, screenIndex }) {
+  const [failedSrc, setFailedSrc] = useState(null)
+
+  const isFailed = failedSrc === currentScreen?.src
+  if (isFailed || !currentScreen?.src) {
+    if (project.id === 'nomnom') {
+      return <NomNomScreenPreview index={screenIndex} />
+    }
+    return null
+  }
+
+  return (
+    <img
+      key={currentScreen.src}
+      src={currentScreen.src}
+      alt={currentScreen.alt || `${project.title} mobile screen`}
+      className="cinematic-phone-img"
+      loading="lazy"
+      onError={() => setFailedSrc(currentScreen.src)}
+    />
+  )
+}
+
+/**
  * Renders a full-screen cinematic project destination scene for the 3D scroll journey.
  * Features distinct atmospheric backdrop, verified project copy, feature chips,
  * and a prominent titanium smartphone mockup with an interactive screenshot switcher.
@@ -673,12 +723,10 @@ function CinematicProjectChamber({
                     <span className="iphone-camera-lens" />
                   </span>
 
-                  <img
-                    key={currentScreen?.src}
-                    src={currentScreen?.src}
-                    alt={currentScreen?.alt || `${project.title} mobile screen`}
-                    className="cinematic-phone-img"
-                    loading="lazy"
+                  <ChamberPhoneMedia
+                    project={project}
+                    currentScreen={currentScreen}
+                    screenIndex={screenIndex}
                   />
 
                   <div className="iphone-screen-glare" aria-hidden="true" />
@@ -785,6 +833,20 @@ function App() {
     setSelectedProject(project)
   }, [])
 
+  const handleShowcaseScreenChange = useCallback(
+    (index) => {
+      setSelectedScreenIndex(index)
+      if (selectedProject?.id === 'clocky') {
+        setClockyScreenIndex(index)
+      } else if (selectedProject?.id === 'expify-beta') {
+        setExpifyScreenIndex(index)
+      } else if (selectedProject?.id === 'nomnom') {
+        setNomnomScreenIndex(index)
+      }
+    },
+    [selectedProject?.id],
+  )
+
   /** Mark initial intro animation as complete to trigger hero entrance choreography. */
   const handleIntroDone = useCallback(() => setReady(true), [])
 
@@ -814,13 +876,13 @@ function App() {
     masterProgress,
     [0.0, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6, 1.0],
     [
-      'rgba(217, 119, 6, 0.22)',   // Scene 0: Amber (Hero)
+      'rgba(255, 113, 56, 0.28)',  // Scene 0: Radiant Orange (Hero)
       'rgba(56, 189, 248, 0.26)',  // Scene 1: Celestial Blue (Clocky)
       'rgba(16, 185, 129, 0.26)',  // Scene 2: Emerald / Mint (Expify)
       'rgba(249, 115, 22, 0.26)',  // Scene 3: Sunset Coral (NomNom)
-      'rgba(202, 138, 4, 0.20)',   // Scene 4: Warm Bronze (About)
+      'rgba(57, 123, 255, 0.22)',  // Scene 4: Electric Blue (About)
       'rgba(99, 102, 241, 0.24)',  // Scene 5: Indigo (Skills)
-      'rgba(234, 179, 8, 0.22)',   // Scene 6: Champagne Gold (Contact)
+      'rgba(255, 113, 56, 0.24)',  // Scene 6: Hot Orange (Contact)
     ],
   )
   const ambientGlowGradient = useTransform(
@@ -1175,24 +1237,24 @@ function App() {
               pointerEvents: isMotionDisabled ? 'auto' : heroPointerEvents,
             }}
           >
-            <div className="cinematic-scene-inner">
+            <div className="cinematic-scene-inner hero-scene-inner">
               <div className="hero-spatial-stage">
-                {/* Layer 0: Giant Architectural Watermark Typography (Behind Phone) */}
+                {/* Layer 0: Giant Layered Background Typography (Directly Behind Centered Phone) */}
                 <motion.div
-                  className="hero-spatial-watermark"
+                  className="hero-layered-bg-text"
                   aria-hidden="true"
                   style={{
-                    z: isMotionDisabled ? -80 : heroWatermarkZ,
-                    opacity: isMotionDisabled ? 0.75 : heroWatermarkOpacity,
+                    z: isMotionDisabled ? -90 : heroWatermarkZ,
+                    opacity: isMotionDisabled ? 0.85 : heroWatermarkOpacity,
                   }}
                 >
-                  <span>FLUTTER</span>
-                  <span className="watermark-sub">01 / ARCHITECTURE &amp; CRAFTSMANSHIP</span>
+                  <span className="bg-headline-line line-flutter">FLUTTER</span>
+                  <span className="bg-headline-line line-developer">DEVELOPER</span>
                 </motion.div>
 
-                {/* Layer 1: Editorial 2-Column Grid */}
-                <div className="hero-editorial-grid">
-                  <div className="hero-editorial-copy">
+                {/* Layer 1: Top Header Layer (Above Centered Phone) */}
+                <div className="hero-top-layer">
+                  <div className="hero-top-row">
                     <motion.div className="availability glass-surface" {...reveal(0.12)}>
                       <span className="status-dot" /> FLUTTER APP DEVELOPER
                     </motion.div>
@@ -1201,174 +1263,172 @@ function App() {
                       reveal={reveal}
                       shouldReduceMotion={shouldReduceMotion}
                     />
+                  </div>
 
-                    {/* Premium 3D Editorial Headline */}
-                    <div className="hero-editorial-headline">
-                      <motion.span className="editorial-eyebrow-kicker" {...reveal(0.24)}>
-                        INDEPENDENT MOBILE DEVELOPER · BANGLADESH
-                      </motion.span>
-                      <motion.span className="editorial-lead-line" {...reveal(0.32)}>
-                        I CRAFT
-                      </motion.span>
-                      <motion.span className="editorial-hero-display" {...reveal(0.42)}>
-                        IMMERSIVE
-                      </motion.span>
-                      <motion.span className="editorial-accent-line" {...reveal(0.52)}>
-                        MOBILE <span className="molten-text-accent">EXPERIENCES<span className="accent-dot">.</span></span>
-                      </motion.span>
+                  {/* Premium 3D Editorial Headline */}
+                  <div className="hero-editorial-headline">
+                    <motion.span className="editorial-eyebrow-kicker" {...reveal(0.24)}>
+                      INDEPENDENT MOBILE DEVELOPER · BANGLADESH
+                    </motion.span>
+                    <motion.h1 className="editorial-hero-display" {...reveal(0.38)}>
+                      I CRAFT <span className="molten-text-accent">IMMERSIVE</span> EXPERIENCES<span className="accent-dot">.</span>
+                    </motion.h1>
+                  </div>
+                </div>
+
+                {/* Layer 2: Center Visual Stage (Foreground 3D iPhone) */}
+                <div className="hero-center-visual-stage">
+                  <motion.div
+                    className="visual-stage"
+                    ref={stageRef}
+                    onPointerMove={handleStagePointerMove}
+                    onPointerLeave={handleStagePointerLeave}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+                    animate={ready || shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+                    transition={{ duration: shouldReduceMotion ? 0 : 1, delay: shouldReduceMotion ? 0 : 0.25, ease: easeOut }}
+                    style={{ transformOrigin: 'center center' }}
+                  >
+                    <motion.div
+                      className="orbit orbit-one"
+                      initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                      animate={ready || shouldReduceMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 1.2, delay: 0.45, ease: easeOut }}
+                    />
+                    <motion.div
+                      className="orbit orbit-two"
+                      initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+                      animate={ready || shouldReduceMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 1.2, delay: 0.6, ease: easeOut }}
+                    />
+                    <div className="phone-tilt">
+                      <HeroPhone
+                        reducedMotion={shouldReduceMotion}
+                        scrollProgress={heroPhoneProgress}
+                        screenImageSrc={activeHeroScreen}
+                        pageReady={ready}
+                        theme={theme}
+                      />
                     </div>
 
-                    <motion.p className="hero-editorial-desc" {...reveal(0.62)}>
-                      I build thoughtful, user-focused mobile applications with{' '}
-                      <strong>Flutter</strong>—pairing tactile, distraction-free UI craftsmanship
-                      with robust problem-solving foundations in <strong>C++</strong> and{' '}
-                      <strong>Data Structures &amp; Algorithms</strong>.
-                    </motion.p>
-
-                    <motion.div className="hero-editorial-pills" {...reveal(0.70)}>
-                      <span className="editorial-spec-pill">
-                        <span className="editorial-spec-dot" /> Flutter &amp; Dart
-                      </span>
-                      <span className="editorial-spec-pill">
-                        <span className="editorial-spec-dot" /> Custom Canvas UI
-                      </span>
-                      <span className="editorial-spec-pill">
-                        <span className="editorial-spec-dot" /> C++ &amp; DSA Logic
-                      </span>
+                    <motion.div
+                      className="floating-label label-top glass-surface"
+                      data-depth="20"
+                      {...reveal(0.75, 12)}
+                    >
+                      <span className="label-dot" /> Built with Flutter
                     </motion.div>
 
-                    <motion.div className="hero-actions" {...reveal(0.78)}>
-                      <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
-                        <motion.a
-                          className="button-primary glass-button liquid-btn"
-                          href="#work"
-                          onClick={(e) => {
-                            if (!isMotionDisabled) {
-                              e.preventDefault()
-                              scrollToSection('work')
-                            }
-                          }}
-                          whileHover={
-                            shouldReduceMotion ? undefined : { y: -3, scale: 1.015 }
+                    <motion.div
+                      className="hero-screen-switcher glass-surface"
+                      role="group"
+                      aria-label="Switch 3D iPhone app screen"
+                      {...reveal(0.9, 10)}
+                    >
+                      <span className="switcher-caption">3D DISPLAY:</span>
+                      {HERO_SCREEN_OPTIONS.map((option) => {
+                        const isActive = activeHeroScreen === option.src
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            className={`switcher-pill liquid-btn${isActive ? ' is-active' : ''}`}
+                            aria-pressed={isActive}
+                            onClick={() => setActiveHeroScreen(option.src)}
+                          >
+                            <span>{option.label}</span>
+                          </button>
+                        )
+                      })}
+                    </motion.div>
+
+                    <motion.div
+                      className="floating-label label-bottom glass-surface"
+                      data-depth="24"
+                      {...reveal(0.88, 12)}
+                    >
+                      <span className="label-icon" aria-hidden="true">✦</span> Dart &amp; Flutter UI
+                    </motion.div>
+
+                    <motion.div className="tech-label" {...reveal(0.95, 8)}>
+                      FLUTTER · DART · C++ · DSA
+                    </motion.div>
+                  </motion.div>
+                </div>
+
+                {/* Layer 3: Bottom Narrative & Actions Layer */}
+                <div className="hero-bottom-layer">
+                  <motion.p className="hero-editorial-desc" {...reveal(0.55)}>
+                    I build thoughtful, user-focused mobile applications with{' '}
+                    <strong>Flutter</strong>—pairing tactile, distraction-free UI craftsmanship
+                    with robust problem-solving foundations in <strong>C++</strong> and{' '}
+                    <strong>Data Structures &amp; Algorithms</strong>.
+                  </motion.p>
+
+                  <motion.div className="hero-editorial-pills" {...reveal(0.65)}>
+                    <span className="editorial-spec-pill">
+                      <span className="editorial-spec-dot" /> Flutter &amp; Dart
+                    </span>
+                    <span className="editorial-spec-pill">
+                      <span className="editorial-spec-dot" /> Custom Canvas UI
+                    </span>
+                    <span className="editorial-spec-pill">
+                      <span className="editorial-spec-dot" /> C++ &amp; DSA Logic
+                    </span>
+                  </motion.div>
+
+                  <motion.div className="hero-actions" {...reveal(0.75)}>
+                    <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
+                      <motion.a
+                        className="button-primary glass-button liquid-btn"
+                        href="#work"
+                        onClick={(e) => {
+                          if (!isMotionDisabled) {
+                            e.preventDefault()
+                            scrollToSection('work')
                           }
-                          whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
-                        >
-                          <span>Explore My Projects</span> <span aria-hidden="true">↗</span>
-                        </motion.a>
-                      </MagneticButton>
+                        }}
+                        whileHover={
+                          shouldReduceMotion ? undefined : { y: -3, scale: 1.015 }
+                        }
+                        whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                      >
+                        <span>Explore My Projects</span> <span aria-hidden="true">↗</span>
+                      </motion.a>
+                    </MagneticButton>
+                    <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
+                      <motion.a
+                        className="button-secondary glass-button liquid-btn"
+                        href="#contact"
+                        onClick={(e) => {
+                          if (!isMotionDisabled) {
+                            e.preventDefault()
+                            scrollToSection('contact')
+                          }
+                        }}
+                        whileHover={linkHover}
+                        whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
+                      >
+                        <span>Get in Touch</span> <span aria-hidden="true">→</span>
+                      </motion.a>
+                    </MagneticButton>
+                    {PROFILE_CONFIG.resumeUrl && (
                       <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
                         <motion.a
                           className="button-secondary glass-button liquid-btn"
-                          href="#contact"
-                          onClick={(e) => {
-                            if (!isMotionDisabled) {
-                              e.preventDefault()
-                              scrollToSection('contact')
-                            }
-                          }}
+                          href={PROFILE_CONFIG.resumeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           whileHover={linkHover}
-                          whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                         >
-                          <span>Get in Touch</span> <span aria-hidden="true">→</span>
+                          <span>Resume</span> <span aria-hidden="true">↗</span>
                         </motion.a>
                       </MagneticButton>
-                      {PROFILE_CONFIG.resumeUrl && (
-                        <MagneticButton shouldReduceMotion={shouldReduceMotion} strength={14}>
-                          <motion.a
-                            className="button-secondary glass-button liquid-btn"
-                            href={PROFILE_CONFIG.resumeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={linkHover}
-                          >
-                            <span>Resume</span> <span aria-hidden="true">↗</span>
-                          </motion.a>
-                        </MagneticButton>
-                      )}
-                    </motion.div>
+                    )}
+                  </motion.div>
 
-                    <motion.div className="hero-location" {...reveal(0.86, 10)}>
-                      <span aria-hidden="true">↳</span> Based in {PROFILE_CONFIG.location} · Open to Mobile Opportunities
-                    </motion.div>
-                  </div>
-
-                  {/* Right Column: Hero 3D iPhone Visual Stage */}
-                  <div className="hero-editorial-phone-col">
-                    <motion.div
-                      className="visual-stage"
-                      ref={stageRef}
-                      onPointerMove={handleStagePointerMove}
-                      onPointerLeave={handleStagePointerLeave}
-                      initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
-                      animate={ready || shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-                      transition={{ duration: shouldReduceMotion ? 0 : 1, delay: shouldReduceMotion ? 0 : 0.25, ease: easeOut }}
-                      style={{ transformOrigin: 'center center' }}
-                    >
-                      <motion.div
-                        className="orbit orbit-one"
-                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
-                        animate={ready || shouldReduceMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 1.2, delay: 0.45, ease: easeOut }}
-                      />
-                      <motion.div
-                        className="orbit orbit-two"
-                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
-                        animate={ready || shouldReduceMotion ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 1.2, delay: 0.6, ease: easeOut }}
-                      />
-                      <div className="phone-tilt">
-                        <HeroPhone
-                          reducedMotion={shouldReduceMotion}
-                          scrollProgress={heroPhoneProgress}
-                          screenImageSrc={activeHeroScreen}
-                          pageReady={ready}
-                        />
-                      </div>
-
-                      <motion.div
-                        className="floating-label label-top glass-surface"
-                        data-depth="20"
-                        {...reveal(0.75, 12)}
-                      >
-                        <span className="label-dot" /> Built with Flutter
-                      </motion.div>
-
-                      <motion.div
-                        className="hero-screen-switcher glass-surface"
-                        role="group"
-                        aria-label="Switch 3D iPhone app screen"
-                        {...reveal(0.9, 10)}
-                      >
-                        <span className="switcher-caption">3D DISPLAY:</span>
-                        {HERO_SCREEN_OPTIONS.map((option) => {
-                          const isActive = activeHeroScreen === option.src
-                          return (
-                            <button
-                              key={option.id}
-                              type="button"
-                              className={`switcher-pill liquid-btn${isActive ? ' is-active' : ''}`}
-                              aria-pressed={isActive}
-                              onClick={() => setActiveHeroScreen(option.src)}
-                            >
-                              <span>{option.label}</span>
-                            </button>
-                          )
-                        })}
-                      </motion.div>
-
-                      <motion.div
-                        className="floating-label label-bottom glass-surface"
-                        data-depth="24"
-                        {...reveal(0.88, 12)}
-                      >
-                        <span className="label-icon" aria-hidden="true">✦</span> Dart &amp; Flutter UI
-                      </motion.div>
-
-                      <motion.div className="tech-label" {...reveal(0.95, 8)}>
-                        FLUTTER · DART · C++ · DSA
-                      </motion.div>
-                    </motion.div>
-                  </div>
+                  <motion.div className="hero-location" {...reveal(0.85, 10)}>
+                    <span aria-hidden="true">↳</span> Based in {PROFILE_CONFIG.location} · Open to Mobile Opportunities
+                  </motion.div>
                 </div>
               </div>
 
@@ -1863,12 +1923,12 @@ function App() {
       </div>
 
       <ProjectShowcase
-        key={`${selectedProject?.id ?? 'closed'}-${selectedScreenIndex}`}
         project={selectedProject}
         initialIndex={selectedScreenIndex}
         onClose={() => setSelectedProject(null)}
         theme={theme}
         onToggleTheme={toggleTheme}
+        onScreenIndexChange={handleShowcaseScreenChange}
       />
     </main>
   )

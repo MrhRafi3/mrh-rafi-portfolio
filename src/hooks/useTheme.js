@@ -7,13 +7,13 @@ const TRANSITION_EASING = 'cubic-bezier(0.33, 1, 0.68, 1)'
 
 /**
  * Resolves the initial theme without causing a flash or hydration mismatch.
- * Defaults to Light Mode ('light' — Clay Brown + Soft Butter) whenever no valid
- * user preference has been saved in localStorage, regardless of OS theme.
+ * Defaults to Dark Mode ('dark' — Deep Black #090A0D + Orange #FF7138) whenever no valid
+ * user preference has been saved in localStorage.
  *
  * @returns {'light' | 'dark'}
  */
 function resolveInitialTheme() {
-  if (typeof window === 'undefined') return 'light'
+  if (typeof window === 'undefined') return 'dark'
 
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY)
@@ -29,7 +29,7 @@ function resolveInitialTheme() {
     return rootAttr
   }
 
-  return 'light'
+  return 'dark'
 }
 
 /**
@@ -52,7 +52,7 @@ function applyThemeToDOM(nextTheme) {
   if (themeMeta) {
     themeMeta.setAttribute(
       'content',
-      safeTheme === 'light' ? '#F7F0D8' : '#171310',
+      safeTheme === 'light' ? '#F8F9FA' : '#090A0D',
     )
   }
 }

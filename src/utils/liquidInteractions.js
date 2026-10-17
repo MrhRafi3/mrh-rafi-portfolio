@@ -31,9 +31,13 @@ export function handleLiquidPointerMove(event, shouldReduceMotion = false) {
 
     const x = clientX - bounds.left
     const y = clientY - bounds.top
+    const rx = (x / bounds.width).toFixed(3)
+    const ry = (y / bounds.height).toFixed(3)
 
     element.style.setProperty('--spot-x', `${x.toFixed(1)}px`)
     element.style.setProperty('--spot-y', `${y.toFixed(1)}px`)
+    element.style.setProperty('--spot-rx', rx)
+    element.style.setProperty('--spot-ry', ry)
     element.style.setProperty('--spot-opacity', '1')
   })
 

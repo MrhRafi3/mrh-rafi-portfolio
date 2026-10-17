@@ -53,6 +53,7 @@ export default function HeroPhone({
   scrollProgress,
   screenImageSrc = '/images/hero-1.png',
   pageReady = true,
+  theme = 'dark',
 }) {
   const [webglOk, setWebglOk] = useState(() => supportsWebGL())
   const [sceneReady, setSceneReady] = useState(false)
@@ -82,6 +83,7 @@ export default function HeroPhone({
             scrollProgress={scrollProgress}
             screenImageSrc={screenImageSrc}
             pageReady={pageReady}
+            theme={theme}
             onReady={handleReady}
             onFail={handleFail}
           />

@@ -13,7 +13,7 @@ import {
   User,
 } from 'lucide-react'
 
-const DEFAULT_NOMNOM_SCREENSHOT = '/images/nomnom/screen-1.png'
+const DEFAULT_NOMNOM_SCREENSHOT = '/images/NomNom/home.png'
 
 /**
  * Renders the NomNom food delivery mobile application inside a realistic iPhone-inspired

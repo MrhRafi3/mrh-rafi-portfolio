@@ -25,7 +25,7 @@ const easeOut = [0.22, 1, 0.36, 1]
  * Procedural NomNom Food Delivery screen preview rendered inside the phone frame
  * when screenshot image files are not on disk.
  */
-function NomNomScreenPreview({ index = 0 }) {
+export function NomNomScreenPreview({ index = 0 }) {
   if (index === 1) {
     // Screen 1: Restaurant & Menu Storefront
     return (
@@ -359,14 +359,13 @@ function PhoneFrame({
   total,
   projectTitle,
   projectId,
+  shouldReduceMotion = false,
 }) {
-  const [imgReady, setImgReady] = useState(false)
   const [imgError, setImgError] = useState(false)
   const prevSrc = useRef(src)
 
   useEffect(() => {
     if (src !== prevSrc.current) {
-      setImgReady(false)
       setImgError(false)
       prevSrc.current = src
     }
@@ -388,45 +387,61 @@ function PhoneFrame({
         </div>
 
         <div className="showcase-phone-screen">
-          {isImageAvailable && (
-            <img
-              key={src}
-              src={src}
-              alt={alt}
-              className={`showcase-screen-img ${imgReady ? 'is-ready' : ''}`}
-              onLoad={() => setImgReady(true)}
-              onError={() => setImgError(true)}
-              draggable={false}
-            />
-          )}
+          <AnimatePresence mode="popLayout" initial={false}>
+            {isImageAvailable && (
+              <motion.img
+                key={src}
+                src={src}
+                alt={alt}
+                className="showcase-screen-img is-ready"
+                initial={
+                  shouldReduceMotion ? false : { opacity: 0, scale: 1.015 }
+                }
+                animate={{ opacity: 1, scale: 1 }}
+                exit={
+                  shouldReduceMotion ? false : { opacity: 0, scale: 0.985 }
+                }
+                transition={{ duration: 0.28, ease: easeOut }}
+                onError={() => setImgError(true)}
+                draggable={false}
+              />
+            )}
 
-          {isImageAvailable && !imgReady && (
-            <div className="showcase-screen-placeholder" aria-hidden="true">
-              <span className="showcase-screen-skeleton" />
-            </div>
-          )}
+            {!isImageAvailable && isNomNom && (
+              <motion.div
+                key={`nomnom-${index}`}
+                initial={
+                  shouldReduceMotion ? false : { opacity: 0, scale: 1.015 }
+                }
+                animate={{ opacity: 1, scale: 1 }}
+                exit={
+                  shouldReduceMotion ? false : { opacity: 0, scale: 0.985 }
+                }
+                transition={{ duration: 0.28, ease: easeOut }}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <NomNomScreenPreview index={index} />
+              </motion.div>
+            )}
 
-          {!isImageAvailable && isNomNom && (
-            <NomNomScreenPreview index={index} />
-          )}
-
-          {!isImageAvailable && !isNomNom && (
-            <div className="showcase-screen-placeholder">
-              <div className="showcase-screen-slot-card">
-                <span className="showcase-slot-badge">
-                  SCREEN {index + 1} OF {total}
-                </span>
-                <div className="showcase-slot-icon">
-                  <Smartphone size={20} />
+            {!isImageAvailable && !isNomNom && (
+              <div key={`slot-${index}`} className="showcase-screen-placeholder">
+                <div className="showcase-screen-slot-card">
+                  <span className="showcase-slot-badge">
+                    SCREEN {index + 1} OF {total}
+                  </span>
+                  <div className="showcase-slot-icon">
+                    <Smartphone size={20} />
+                  </div>
+                  <strong className="showcase-slot-title">
+                    {label || `${projectTitle} Screen ${index + 1}`}
+                  </strong>
+                  <p className="showcase-slot-desc">{alt}</p>
+                  <code className="showcase-slot-path">public{src}</code>
                 </div>
-                <strong className="showcase-slot-title">
-                  {label || `${projectTitle} Screen ${index + 1}`}
-                </strong>
-                <p className="showcase-slot-desc">{alt}</p>
-                <code className="showcase-slot-path">public{src}</code>
               </div>
-            </div>
-          )}
+            )}
+          </AnimatePresence>
 
           <span className="iphone-screen-glare" aria-hidden="true" />
         </div>
@@ -456,27 +471,43 @@ export default function ProjectShowcase({
   onClose,
   theme = 'light',
   onToggleTheme,
+  onScreenIndexChange,
 }) {
   const shouldReduceMotion = useReducedMotion()
   const [activeIndex, setActiveIndex] = useState(initialIndex)
+  const [cachedProject, setCachedProject] = useState(project)
+  const [prevProjectKey, setPrevProjectKey] = useState(
+    project ? `${project.id}-${initialIndex}` : '',
+  )
   const closeButtonRef = useRef(null)
   const backdropRef = useRef(null)
+  const previouslyFocusedElementRef = useRef(null)
 
-  const screenshots = project?.screenshots ?? []
+  // Retain the last active project & synchronize active screenshot index when project/initialIndex changes
+  const currentProjectKey = project ? `${project.id}-${initialIndex}` : ''
+  if (project && currentProjectKey !== prevProjectKey) {
+    setPrevProjectKey(currentProjectKey)
+    setActiveIndex(initialIndex)
+    setCachedProject(project)
+  }
+
+  const displayProject = project || cachedProject
+
+  const screenshots = displayProject?.screenshots ?? []
   const totalScreenshots = screenshots.length
-  const activeShot = screenshots[activeIndex] ?? null
+  const activeShot = screenshots[activeIndex] ?? screenshots[0] ?? null
 
   // Preload all project screenshots for instantaneous switching
   useEffect(() => {
-    if (project?.screenshots && project.screenshots.length > 0) {
-      project.screenshots.forEach((shot) => {
+    if (displayProject?.screenshots && displayProject.screenshots.length > 0) {
+      displayProject.screenshots.forEach((shot) => {
         if (shot.src) {
           const img = new window.Image()
           img.src = shot.src
         }
       })
     }
-  }, [project?.id, project?.screenshots])
+  }, [displayProject?.id, displayProject?.screenshots])
 
   // Lock body scroll while the showcase is open without losing scroll position
   useEffect(() => {
@@ -488,6 +519,41 @@ export default function ProjectShowcase({
     }
   }, [project])
 
+  // Shift focus to the close button when opened, and restore focus to trigger on close
+  useEffect(() => {
+    if (project) {
+      previouslyFocusedElementRef.current = document.activeElement
+      const timer = setTimeout(() => {
+        closeButtonRef.current?.focus()
+      }, 50)
+      return () => clearTimeout(timer)
+    } else {
+      if (previouslyFocusedElementRef.current?.focus) {
+        previouslyFocusedElementRef.current.focus()
+      }
+    }
+  }, [project])
+
+  const handleIndexChange = useCallback(
+    (newIndex) => {
+      setActiveIndex(newIndex)
+      onScreenIndexChange?.(newIndex)
+    },
+    [onScreenIndexChange],
+  )
+
+  const goNext = useCallback(() => {
+    if (totalScreenshots < 2) return
+    const nextIdx = (activeIndex + 1) % totalScreenshots
+    handleIndexChange(nextIdx)
+  }, [activeIndex, totalScreenshots, handleIndexChange])
+
+  const goPrev = useCallback(() => {
+    if (totalScreenshots < 2) return
+    const prevIdx = (activeIndex - 1 + totalScreenshots) % totalScreenshots
+    handleIndexChange(prevIdx)
+  }, [activeIndex, totalScreenshots, handleIndexChange])
+
   // Keyboard navigation: ESC closes, arrows navigate screenshots
   useEffect(() => {
     if (!project) return undefined
@@ -496,34 +562,15 @@ export default function ProjectShowcase({
       if (event.key === 'Escape') {
         onClose()
       } else if (event.key === 'ArrowRight' && totalScreenshots > 1) {
-        setActiveIndex((prev) => (prev + 1) % totalScreenshots)
+        goNext()
       } else if (event.key === 'ArrowLeft' && totalScreenshots > 1) {
-        setActiveIndex(
-          (prev) => (prev - 1 + totalScreenshots) % totalScreenshots,
-        )
+        goPrev()
       }
     }
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [project, onClose, totalScreenshots])
-
-  // Shift focus to the close button when the showcase opens
-  useEffect(() => {
-    if (project && closeButtonRef.current) {
-      closeButtonRef.current.focus()
-    }
-  }, [project])
-
-  const goNext = useCallback(() => {
-    if (totalScreenshots < 2) return
-    setActiveIndex((prev) => (prev + 1) % totalScreenshots)
-  }, [totalScreenshots])
-
-  const goPrev = useCallback(() => {
-    if (totalScreenshots < 2) return
-    setActiveIndex((prev) => (prev - 1 + totalScreenshots) % totalScreenshots)
-  }, [totalScreenshots])
+  }, [project, onClose, totalScreenshots, goNext, goPrev])
 
   // Swipe support on touch devices
   const touchStartX = useRef(null)
@@ -554,24 +601,34 @@ export default function ProjectShowcase({
 
   return (
     <AnimatePresence>
-      {project && (
+      {project && displayProject && (
         <motion.div
+          key="project-showcase-backdrop"
           ref={backdropRef}
           className="showcase-backdrop"
           data-liquid-ignore=""
           role="dialog"
           aria-modal="true"
-          aria-label={`${project.title} project showcase`}
-          initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0 }}
+          aria-label={`${displayProject.title} project showcase`}
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.32, ease: easeOut }}
           onClick={handleBackdropClick}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {/* Ambient glow behind the phone, using theme-aware semantic accent */}
-          <div className="showcase-ambient-glow" aria-hidden="true" />
+          <motion.div
+            className="showcase-ambient-glow"
+            aria-hidden="true"
+            initial={
+              shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.8 }
+            }
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.4, ease: easeOut }}
+          />
 
           {/* Top-right controls: ThemeToggle + Close button */}
           <div className="showcase-top-controls">
@@ -591,7 +648,7 @@ export default function ProjectShowcase({
               initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={shouldReduceMotion ? false : { opacity: 0, scale: 0.85 }}
-              transition={{ duration: 0.22, delay: 0.15 }}
+              transition={{ duration: 0.2 }}
               whileHover={shouldReduceMotion ? undefined : { scale: 1.06 }}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
             >
@@ -599,17 +656,17 @@ export default function ProjectShowcase({
             </motion.button>
           </div>
 
-          {/* Main content: phone + info panel */}
+          {/* Main content: phone + info panel with spatial zoom origin */}
           <motion.div
             className="showcase-content"
             initial={
-              shouldReduceMotion ? false : { opacity: 0, y: 32, scale: 0.96 }
+              shouldReduceMotion ? false : { opacity: 0, scale: 0.88, y: 16 }
             }
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={
-              shouldReduceMotion ? false : { opacity: 0, y: 24, scale: 0.97 }
+              shouldReduceMotion ? false : { opacity: 0, scale: 0.88, y: 14 }
             }
-            transition={{ duration: 0.42, ease: easeOut }}
+            transition={{ duration: 0.36, ease: easeOut }}
             onClick={(event) => event.stopPropagation()}
           >
             {/* ── Phone column ── */}
@@ -617,30 +674,27 @@ export default function ProjectShowcase({
               <motion.div
                 className="showcase-phone-motion-wrap"
                 initial={
-                  shouldReduceMotion
-                    ? false
-                    : { scale: 0.84, y: 28, rotateY: -8 }
+                  shouldReduceMotion ? false : { opacity: 0, scale: 0.92, y: 12 }
                 }
-                animate={{ scale: 1, y: 0, rotateY: 0 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={
-                  shouldReduceMotion
-                    ? false
-                    : { scale: 0.88, y: 20, rotateY: 6 }
+                  shouldReduceMotion ? false : { opacity: 0, scale: 0.92, y: 10 }
                 }
-                transition={{ duration: 0.48, ease: easeOut }}
+                transition={{ duration: 0.34, ease: easeOut }}
               >
                 <PhoneFrame
                   src={activeShot?.src ?? ''}
                   alt={
                     activeShot?.alt ??
                     activeShot?.label ??
-                    `${project.title} screenshot`
+                    `${displayProject.title} screenshot`
                   }
                   label={activeShot?.label}
                   index={activeIndex}
                   total={totalScreenshots}
-                  projectTitle={project.title}
-                  projectId={project.id}
+                  projectTitle={displayProject.title}
+                  projectId={displayProject.id}
+                  shouldReduceMotion={Boolean(shouldReduceMotion)}
                 />
               </motion.div>
 
@@ -669,7 +723,7 @@ export default function ProjectShowcase({
                         aria-selected={index === activeIndex}
                         aria-label={`Screenshot ${index + 1}: ${shot.label ?? ''}`}
                         className={`showcase-dot ${index === activeIndex ? 'is-active' : ''}`}
-                        onClick={() => setActiveIndex(index)}
+                        onClick={() => handleIndexChange(index)}
                       />
                     ))}
                   </div>
@@ -709,18 +763,22 @@ export default function ProjectShowcase({
                 handleLiquidPointerMove(e, shouldReduceMotion)
               }
               onPointerLeave={handleLiquidPointerLeave}
-              initial={shouldReduceMotion ? false : { opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={shouldReduceMotion ? false : { opacity: 0, x: 16 }}
-              transition={{ duration: 0.42, delay: 0.08, ease: easeOut }}
+              initial={
+                shouldReduceMotion ? false : { opacity: 0, x: 24, scale: 0.96 }
+              }
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={
+                shouldReduceMotion ? false : { opacity: 0, x: 16, scale: 0.96 }
+              }
+              transition={{ duration: 0.32, delay: 0.04, ease: easeOut }}
             >
               <div
                 className="showcase-info-header"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                <span className="showcase-info-pill">{project.category}</span>
-                {project.badge && (
-                  <span className="showcase-info-badge">{project.badge}</span>
+                <span className="showcase-info-pill">{displayProject.category}</span>
+                {displayProject.badge && (
+                  <span className="showcase-info-badge">{displayProject.badge}</span>
                 )}
               </div>
 
@@ -728,32 +786,32 @@ export default function ProjectShowcase({
                 className="showcase-info-title"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                {project.title}
-                <span className="showcase-title-accent">{project.accent}</span>
+                {displayProject.title}
+                <span className="showcase-title-accent">{displayProject.accent}</span>
               </h2>
 
               <p
                 className="showcase-info-role"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                {project.role}
+                {displayProject.role}
               </p>
               <p
                 className="showcase-info-desc"
                 style={{ position: 'relative', zIndex: 2 }}
               >
-                {project.description}
+                {displayProject.description}
               </p>
 
               {/* Highlights Section */}
-              {project.highlights?.length > 0 && (
+              {displayProject.highlights?.length > 0 && (
                 <div
                   className="showcase-info-section"
                   style={{ position: 'relative', zIndex: 2 }}
                 >
                   <h3 className="showcase-info-section-heading">Highlights</h3>
                   <ul className="showcase-info-highlights">
-                    {project.highlights.map((item) => (
+                    {displayProject.highlights.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
@@ -761,14 +819,14 @@ export default function ProjectShowcase({
               )}
 
               {/* Tech Stack Section */}
-              {project.techStack?.length > 0 && (
+              {displayProject.techStack?.length > 0 && (
                 <div
                   className="showcase-info-section"
                   style={{ position: 'relative', zIndex: 2 }}
                 >
                   <h3 className="showcase-info-section-heading">Tech Stack</h3>
                   <div className="showcase-info-tags">
-                    {project.techStack.map((tech) => (
+                    {displayProject.techStack.map((tech) => (
                       <span key={tech} className="showcase-info-tag">
                         {tech}
                       </span>
@@ -778,12 +836,12 @@ export default function ProjectShowcase({
               )}
 
               {/* Links */}
-              {project.links?.length > 0 && (
+              {displayProject.links?.length > 0 && (
                 <div
                   className="showcase-info-links"
                   style={{ position: 'relative', zIndex: 2 }}
                 >
-                  {project.links.map((link) =>
+                  {displayProject.links.map((link) =>
                     link.href ? (
                       <a
                         key={link.label}
@@ -808,12 +866,12 @@ export default function ProjectShowcase({
                 </div>
               )}
 
-              {project.repoNote && (
+              {displayProject.repoNote && (
                 <p
                   className="showcase-info-repo-note"
                   style={{ position: 'relative', zIndex: 2 }}
                 >
-                  {project.repoNote}
+                  {displayProject.repoNote}
                 </p>
               )}
 

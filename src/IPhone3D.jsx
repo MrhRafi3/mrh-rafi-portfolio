@@ -9,7 +9,6 @@ import * as THREE from 'three'
  */
 export const DEFAULT_HERO_SCREEN_IMAGE = '/images/hero-1.png'
 
-const GLASS_OPACITY = 0.08
 const SCREEN_BRIGHTNESS = 1
 const MAX_DPR =
   typeof window !== 'undefined' &&
@@ -220,8 +219,8 @@ function drawFallbackPortfolioUI(ctx, W, H) {
   const PAD = 16
 
   const bg = ctx.createLinearGradient(0, 0, W * 0.4, H)
-  bg.addColorStop(0, '#181513')
-  bg.addColorStop(1, '#0c0a09')
+  bg.addColorStop(0, '#15171D')
+  bg.addColorStop(1, '#090A0D')
   ctx.fillStyle = bg
   ctx.fillRect(0, 0, W, H)
 
@@ -239,7 +238,7 @@ function drawFallbackPortfolioUI(ctx, W, H) {
   ctx.fillStyle = '#f6f8f5'
   ctx.fillText('mrh', PAD + 2, 84)
   const brandWidth = ctx.measureText('mrh').width
-  ctx.fillStyle = '#E3C27C'
+  ctx.fillStyle = '#FF7138'
   ctx.fillText('.rafi', PAD + 2 + brandWidth, 84)
 
   ctx.font = `500 12.5px ${FONT}`
@@ -383,6 +382,7 @@ function PhoneModel({
   pageReady,
   containerRef,
   onReady,
+  hoverRef,
 }) {
   const group = useRef(null)
   const dragging = useRef(false)
@@ -419,6 +419,7 @@ function PhoneModel({
     const scale = 3.35 / maxDimension
 
     let screenMesh = null
+    const customMaterials = []
 
     model.traverse((object) => {
       if (!object.isMesh) return
@@ -428,10 +429,54 @@ function PhoneModel({
       }
 
       if (object.material?.name === 'Glass') {
-        object.material = object.material.clone()
-        object.material.opacity = GLASS_OPACITY
-        object.material.transparent = true
-        object.material.depthWrite = false
+        // Physical front glass with additive specular reflection for realistic glare without darkening the screen
+        const glassMat = new THREE.MeshStandardMaterial({
+          color: '#ffffff',
+          metalness: 0.12,
+          roughness: 0.035,
+          transparent: true,
+          opacity: 0.18,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+          envMapIntensity: 2.5,
+        })
+        object.material = glassMat
+        customMaterials.push(glassMat)
+      } else if (object.material?.name === 'Anodized aluminum') {
+        // Titanium frame with high metallic response and micro-brushed roughness
+        const mat = object.material.clone()
+        mat.metalness = 0.86
+        mat.roughness = 0.22
+        mat.envMapIntensity = 1.65
+        object.material = mat
+        customMaterials.push(mat)
+      } else if (object.material?.name === 'Display Frame') {
+        // Subtle display bezel
+        const mat = object.material.clone()
+        mat.metalness = 0.25
+        mat.roughness = 0.14
+        mat.envMapIntensity = 1.35
+        object.material = mat
+        customMaterials.push(mat)
+      } else if (object.material?.name === 'Frosted glass') {
+        // Matte frosted rear back panel
+        const mat = object.material.clone()
+        mat.metalness = 0.08
+        mat.roughness = 0.32
+        mat.envMapIntensity = 1.2
+        object.material = mat
+        customMaterials.push(mat)
+      } else if (
+        object.material?.name === 'Camera sapphire miror' ||
+        object.material?.name === 'Camera Lens'
+      ) {
+        // High-gloss camera lens elements
+        const mat = object.material.clone()
+        mat.metalness = 0.95
+        mat.roughness = 0.02
+        mat.envMapIntensity = 2.4
+        object.material = mat
+        customMaterials.push(mat)
       }
     })
 
@@ -457,6 +502,7 @@ function PhoneModel({
       model,
       scale,
       overlay,
+      customMaterials,
       position: [-center.x * scale, -center.y * scale - 0.12, -center.z * scale],
     }
   }, [scene])
@@ -521,6 +567,7 @@ function PhoneModel({
     return () => {
       fitted.overlay?.geometry.dispose()
       fitted.overlay?.material.dispose()
+      fitted.customMaterials?.forEach((mat) => mat.dispose())
     }
   }, [fitted])
 
@@ -712,6 +759,11 @@ function PhoneModel({
       dt,
     )
 
+    if (hoverRef?.current) {
+      hoverRef.current.x = currentHoverX.current
+      hoverRef.current.y = currentHoverY.current
+    }
+
     const floatTime = state.clock.elapsedTime
     const floatY = reducedMotion ? 0 : Math.sin(floatTime * 1.15) * 0.055
     const floatPitch = reducedMotion ? 0 : Math.sin(floatTime * 0.65) * 0.022
@@ -739,6 +791,81 @@ function PhoneModel({
 }
 
 /**
+ * Commercial studio lighting rig inspired by premium mobile hardware showcases.
+ * Combines high-contrast key lighting, dual opposing rim lights to define titanium chamfers,
+ * subtle bottom kicker illumination, and a cursor-synchronized specular point glint.
+ */
+function StudioLighting({ theme = 'dark', hoverRef, reducedMotion }) {
+  const specularLightRef = useRef(null)
+  const isLight = theme === 'light'
+
+  useFrame(() => {
+    if (!specularLightRef.current) return
+    const hx = reducedMotion ? 0 : hoverRef?.current?.x || 0
+    const hy = reducedMotion ? 0 : hoverRef?.current?.y || 0
+    // Dynamic specular reflection smoothly sweeps across the glass front in response to pointer tilt
+    specularLightRef.current.position.set(hy * 4.4, 2.7 - hx * 3.4, 5.5)
+  })
+
+  return (
+    <>
+      {/* Soft studio ambient base */}
+      <ambientLight
+        intensity={isLight ? 0.95 : 0.72}
+        color={isLight ? '#fffdfa' : '#f8f4ed'}
+      />
+
+      {/* Balanced hemisphere light (top sky vs ground bounce) */}
+      <hemisphereLight
+        args={[
+          isLight ? '#ffffff' : '#fefbf6',
+          isLight ? '#cfc7ba' : '#1c1815',
+          isLight ? 1.25 : 0.95,
+        ]}
+      />
+
+      {/* Key Light: High-fidelity studio key light from top-right */}
+      <directionalLight
+        position={[3.8, 4.6, 5.0]}
+        intensity={isLight ? 2.8 : 2.5}
+        color={isLight ? '#fff5eb' : '#fffaf2'}
+      />
+
+      {/* Rim Light 1: Cool electric-blue contour rim light grazing the left titanium chamfer */}
+      <directionalLight
+        position={[-4.6, 3.4, -3.8]}
+        intensity={isLight ? 2.2 : 2.6}
+        color={isLight ? '#5a95ff' : '#397BFF'}
+      />
+
+      {/* Rim Light 2: Warm orange silhouette accent grazing the right titanium edge */}
+      <directionalLight
+        position={[4.6, -1.6, -3.2]}
+        intensity={isLight ? 1.6 : 2.0}
+        color={isLight ? '#ff8554' : '#FF7138'}
+      />
+
+      {/* Bottom Kicker Light: Subtle upward fill for USB-C, speaker grills & bottom curve */}
+      <directionalLight
+        position={[0, -4.2, 2.4]}
+        intensity={isLight ? 1.1 : 0.85}
+        color={isLight ? '#f1f5f9' : '#e2e8f0'}
+      />
+
+      {/* Dynamic Specular Glint: Sweeps across the front glass and titanium bezel */}
+      <pointLight
+        ref={specularLightRef}
+        position={[0, 2.7, 5.5]}
+        intensity={isLight ? 1.8 : 2.2}
+        distance={12}
+        decay={2}
+        color="#ffffff"
+      />
+    </>
+  )
+}
+
+/**
  * Main 3D Canvas component that sets up the WebGL environment, lighting, and renders the PhoneModel.
  * Features an intersection observer to pause rendering when out of view for performance.
  */
@@ -747,10 +874,12 @@ export default function IPhone3D({
   scrollProgress,
   screenImageSrc = DEFAULT_HERO_SCREEN_IMAGE,
   pageReady = true,
+  theme = 'dark',
   onReady,
   onFail,
 }) {
   const wrapRef = useRef(null)
+  const hoverRef = useRef({ x: 0, y: 0 })
   const [inView, setInView] = useState(true)
 
   useEffect(() => {
@@ -786,10 +915,11 @@ export default function IPhone3D({
           })
         }}
       >
-        <ambientLight intensity={1.25} />
-        <hemisphereLight args={['#ffffff', '#b8b1a7', 1.5]} />
-        <directionalLight position={[4, 5, 5]} intensity={2.4} color="#fff8ef" />
-        <directionalLight position={[-4, 1, -3]} intensity={1.8} color="#dce5ff" />
+        <StudioLighting
+          theme={theme}
+          hoverRef={hoverRef}
+          reducedMotion={reducedMotion}
+        />
 
         <Suspense fallback={null}>
           <PhoneModel
@@ -799,10 +929,11 @@ export default function IPhone3D({
             pageReady={pageReady}
             containerRef={wrapRef}
             onReady={onReady}
+            hoverRef={hoverRef}
           />
           <ContactShadows
             position={[0, -2.05, 0]}
-            opacity={0.34}
+            opacity={theme === 'light' ? 0.44 : 0.32}
             scale={4.6}
             blur={2.8}
             far={4}
