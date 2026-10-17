@@ -9,16 +9,15 @@ import { useState } from 'react'
  * @returns {JSX.Element} The rendered phone fallback component.
  */
 export default function PhoneFallback({
-  screenImageSrc = '/images/hero-1.png',
+  screenImageSrc = '/images/rafi-portrait.jpg',
 }) {
   const [failedSrc, setFailedSrc] = useState(null)
   const showScreenshot = Boolean(screenImageSrc) && failedSrc !== screenImageSrc
-  const isHeroPoster = Boolean(screenImageSrc && screenImageSrc.includes('hero-1'))
 
   return (
     <div className="phone-fallback" aria-hidden="true">
       <div className="phone-fallback-frame">
-        <div className={`phone-fallback-screen${isHeroPoster ? ' is-poster' : ''}`}>
+        <div className="phone-fallback-screen">
           <span className="phone-fallback-island" />
 
           {showScreenshot ? (

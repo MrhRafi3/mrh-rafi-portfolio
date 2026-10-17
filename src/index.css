@@ -1586,59 +1586,6 @@ svg {
   opacity: 0.9;
 }
 
-.hero-screen-switcher {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 7px 5px 13px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--tooltip-border);
-  background: var(--tooltip-bg);
-  box-shadow: var(--tooltip-shadow);
-  white-space: nowrap;
-}
-
-.switcher-caption {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.4px;
-  color: var(--muted);
-  margin-right: 2px;
-}
-
-.switcher-pill {
-  padding: 5px 12px;
-  border-radius: var(--radius-pill);
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 10.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background var(--motion-fast) var(--ease-standard),
-    color var(--motion-fast) var(--ease-standard),
-    box-shadow var(--motion-fast) var(--ease-standard);
-}
-
-.switcher-pill:hover {
-  color: var(--text);
-  background: var(--interactive-hover-bg);
-}
-
-.switcher-pill.is-active {
-  color: var(--btn-primary-text);
-  font-weight: 700;
-  background: var(--btn-primary-bg);
-  box-shadow: var(--btn-primary-shadow);
-}
-
 /* Fallback 2D Screen inside PhoneFallback */
 .project-screen {
   box-sizing: border-box;
@@ -4624,132 +4571,8 @@ svg {
   color: var(--muted);
 }
 
-/* Contact & Footer */
-.footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 90px 0 32px;
-  border-top: 1px solid var(--border);
-}
+/* Contact & Footer: Handled cleanly in hero-upgrade.css for Scene 6 cinematic chamber */
 
-.contact-showcase {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: clamp(28px, 4vw, 56px);
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.contact-description {
-  max-width: 460px;
-  margin: 18px 0 0;
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.85;
-}
-
-.contact-cards-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.contact-channel-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 18px;
-}
-
-.contact-channel-card:hover {
-  border-color: var(--accent-border);
-  box-shadow: var(--card-hover-shadow);
-}
-
-.contact-channel-card.is-placeholder {
-  border-style: dashed;
-  border-color: var(--border-strong);
-  opacity: 0.85;
-}
-
-.contact-channel-icon {
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: var(--accent-soft);
-  border: 1px solid var(--accent-border);
-  color: var(--accent);
-}
-
-.contact-channel-label {
-  display: block;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.4px;
-  color: var(--accent);
-}
-
-.contact-channel-card strong {
-  display: block;
-  margin: 2px 0;
-  font-size: 14px;
-  color: var(--text);
-}
-
-.contact-channel-card small {
-  display: block;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-
-.contact-channel-arrow {
-  margin-left: auto;
-  color: var(--accent);
-}
-
-.footer-bottom-bar {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding-top: 28px;
-  border-top: 1px solid var(--border);
-}
-
-.footer-tagline {
-  margin: 4px 0 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.footer-nav-col {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 22px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.footer-nav-col a:hover {
-  color: var(--accent);
-}
-
-.footer-note {
-  margin: 0;
-  color: var(--muted);
-  font-size: 11.5px;
-}
 
 /* ==========================================================================
    11. PROJECT SHOWCASE — IMMERSIVE FULL-SCREEN MODAL OVERLAY
@@ -5299,8 +5122,7 @@ svg {
     height: 300px;
   }
 
-  .about-narrative-card,
-  .contact-showcase {
+  .about-narrative-card {
     grid-template-columns: 1fr;
   }
 
@@ -5460,20 +5282,6 @@ svg {
     height: 400px;
   }
 
-  .hero-screen-switcher {
-    top: 4px;
-    padding: 4px 6px 4px 10px;
-  }
-
-  .switcher-caption {
-    font-size: 8px;
-  }
-
-  .switcher-pill {
-    padding: 4px 9px;
-    font-size: 10px;
-  }
-
   .next-section {
     padding: 72px 0 64px;
   }
@@ -5525,8 +5333,7 @@ svg {
   .next-section,
   .placeholder-section,
   .about-section-upgraded,
-  .skills-section-upgraded,
-  .footer {
+  .skills-section-upgraded {
     width: calc(100% - 24px);
   }
 

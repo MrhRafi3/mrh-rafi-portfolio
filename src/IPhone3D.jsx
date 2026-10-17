@@ -7,7 +7,7 @@ import * as THREE from 'three'
  * Default screenshot displayed on the Hero 3D iPhone screen.
  * You can change this path anytime (or pass `screenImageSrc` from `App.jsx`).
  */
-export const DEFAULT_HERO_SCREEN_IMAGE = '/images/hero-1.png'
+export const DEFAULT_HERO_SCREEN_IMAGE = '/images/rafi-portrait.jpg'
 
 const SCREEN_BRIGHTNESS = 1
 const MAX_DPR =
@@ -57,11 +57,9 @@ function loadImageCached(src) {
   return promise
 }
 
-// Preload default hero poster and both real app screenshots immediately when the module is imported.
+// Preload the profile picture immediately when the module is imported.
 if (typeof window !== 'undefined') {
-  loadImageCached('/images/hero-1.png').catch(() => {})
-  loadImageCached('/images/expify/screen-1.png').catch(() => {})
-  loadImageCached('/images/clocky/screen-1.png').catch(() => {})
+  loadImageCached('/images/rafi-portrait.jpg').catch(() => {})
 }
 
 /**
@@ -79,10 +77,11 @@ function roundedRect(ctx, x, y, w, h, r) {
 
 /**
  * Draws an image onto the canvas for the 3D OLED screen.
- * - For native 19.5:9 mobile screenshots (Expify Beta, Clocky), uses standard aspect-ratio cover math.
- * - For wider 9:16 portrait posters (like `hero-1.png`), preserves the full horizontal width so side
- *   typography, floating badges, books, and signatures are never clipped, while seamlessly extending
- *   the top studio sky behind the Dynamic Island and finishing the bottom edge with a native iOS bar.
+ * - For portrait profile photos (wider aspect ratio than the 19.5:9 screen, like `rafi-portrait.jpg`),
+ *   scales vertically to fit naturally with comfortable breathing room below the Dynamic Island,
+ *   centering the face and shoulders horizontally without any distortion or stretching.
+ * - Samples the studio backdrop color to extend the top seamlessly behind the Dynamic Island.
+ * - For native 19.5:9 screenshots, uses standard aspect-ratio cover math.
  */
 function drawImageCover(ctx, img, targetW, targetH) {
   const imgW = img.naturalWidth || img.width || targetW
@@ -94,104 +93,24 @@ function drawImageCover(ctx, img, targetW, targetH) {
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
-  if (imgAspect > screenAspect * 1.08) {
-    // 9:16 poster framing (e.g., /images/hero-1.png: 941x1672 -> 1080x2342 OLED)
-    const cropX = imgW * 0.0085
-    const srcW = imgW - cropX * 2
-    const topSkySrcH = Math.max(8, imgH * 0.024)
-    const bottomEdgeSrcY = imgH * 0.992
-    const bottomEdgeSrcH = Math.max(4, imgH - bottomEdgeSrcY)
+  if (imgAspect > screenAspect) {
+    // 1. Fill background with matching studio backdrop color
+    try {
+      ctx.drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1)
+      const p = ctx.getImageData(0, 0, 1, 1).data
+      ctx.fillStyle = `rgb(${p[0]}, ${p[1]}, ${p[2]})`
+    } catch {
+      ctx.fillStyle = '#bcc3d5'
+    }
+    ctx.fillRect(0, 0, targetW, targetH)
 
-    const topBandH = Math.round(targetH * 0.062)
-    const bottomBandY = Math.round(targetH * 0.948)
-    const bottomBandH = targetH - bottomBandY
-
-    // 1. Extend bottom edge strip seamlessly to the bottom bezel
-    ctx.drawImage(
-      img,
-      cropX,
-      bottomEdgeSrcY,
-      srcW,
-      bottomEdgeSrcH,
-      0,
-      bottomBandY - 6,
-      targetW,
-      bottomBandH + 6,
-    )
-
-    // 2. Extend top studio sky seamlessly behind the status bar & Dynamic Island
-    ctx.drawImage(
-      img,
-      cropX,
-      0,
-      srcW,
-      topSkySrcH,
-      0,
-      0,
-      targetW,
-      topBandH + 6,
-    )
-
-    // 3. Draw main poster body edge-to-edge without clipping side text or badges
-    const mainSrcY = topSkySrcH * 0.85
-    const mainSrcH = bottomEdgeSrcY - mainSrcY
-    ctx.drawImage(
-      img,
-      cropX,
-      mainSrcY,
-      srcW,
-      mainSrcH,
-      0,
-      topBandH,
-      targetW,
-      bottomBandY - topBandH,
-    )
-
-    // 4. Native iOS status bar in the top studio sky zone flanking the Dynamic Island
-    ctx.fillStyle = '#1e293b'
-    ctx.font = `700 34px ${FONT}`
-    ctx.textBaseline = 'middle'
-    ctx.textAlign = 'left'
-    ctx.fillText('9:41', 88, 76)
-
-    const rightBaseX = targetW - 88
-    roundedRect(ctx, rightBaseX - 58, 61, 50, 28, 8)
-    ctx.lineWidth = 3
-    ctx.strokeStyle = 'rgba(30, 41, 59, 0.5)'
-    ctx.stroke()
-
-    roundedRect(ctx, rightBaseX - 5, 69, 4, 12, 2)
-    ctx.fillStyle = 'rgba(30, 41, 59, 0.5)'
-    ctx.fill()
-
-    roundedRect(ctx, rightBaseX - 53, 66, 40, 18, 5)
-    ctx.fillStyle = '#1e293b'
-    ctx.fill()
-
-    const barHeights = [10, 15, 20, 25]
-    barHeights.forEach((bh, idx) => {
-      const bx = rightBaseX - 118 + idx * 11
-      const by = 86 - bh
-      roundedRect(ctx, bx, by, 7, bh, 2.5)
-      ctx.fillStyle = '#1e293b'
-      ctx.fill()
-    })
-
-    // 5. Smooth bottom vignette + iOS Home Indicator pill
-    const bottomGrad = ctx.createLinearGradient(0, bottomBandY - 28, 0, targetH)
-    bottomGrad.addColorStop(0, 'rgba(12, 18, 32, 0)')
-    bottomGrad.addColorStop(0.55, 'rgba(12, 18, 32, 0.42)')
-    bottomGrad.addColorStop(1, 'rgba(10, 15, 28, 0.78)')
-    ctx.fillStyle = bottomGrad
-    ctx.fillRect(0, bottomBandY - 28, targetW, targetH - (bottomBandY - 28))
-
-    const homeW = targetW * 0.34
-    const homeH = 11
-    const homeX = (targetW - homeW) * 0.5
-    const homeY = targetH - 36
-    roundedRect(ctx, homeX, homeY, homeW, homeH, homeH * 0.5)
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.68)'
-    ctx.fill()
+    // 2. Draw profile picture with natural vertical framing below the Dynamic Island
+    const s = targetH / imgH
+    const dw = imgW * s
+    const dh = imgH * s
+    const dx = (targetW - dw) * 0.5
+    const topOffset = 80
+    ctx.drawImage(img, dx, topOffset, dw, dh)
   } else {
     const scale = Math.max(targetW / imgW, targetH / imgH)
     const drawW = imgW * scale
@@ -429,16 +348,16 @@ function PhoneModel({
       }
 
       if (object.material?.name === 'Glass') {
-        // Physical front glass with additive specular reflection for realistic glare without darkening the screen
+        // Physical front glass with subtle, authentic glance reflections that preserve the natural skin tones and contrast of the screen portrait
         const glassMat = new THREE.MeshStandardMaterial({
           color: '#ffffff',
-          metalness: 0.12,
-          roughness: 0.035,
+          metalness: 0.05,
+          roughness: 0.06,
           transparent: true,
-          opacity: 0.18,
-          blending: THREE.AdditiveBlending,
+          opacity: 0.045,
+          blending: THREE.NormalBlending,
           depthWrite: false,
-          envMapIntensity: 2.5,
+          envMapIntensity: 0.55,
         })
         object.material = glassMat
         customMaterials.push(glassMat)
@@ -811,7 +730,7 @@ function StudioLighting({ theme = 'dark', hoverRef, reducedMotion }) {
     <>
       {/* Soft studio ambient base */}
       <ambientLight
-        intensity={isLight ? 0.95 : 0.72}
+        intensity={isLight ? 0.55 : 0.42}
         color={isLight ? '#fffdfa' : '#f8f4ed'}
       />
 
@@ -820,44 +739,44 @@ function StudioLighting({ theme = 'dark', hoverRef, reducedMotion }) {
         args={[
           isLight ? '#ffffff' : '#fefbf6',
           isLight ? '#cfc7ba' : '#1c1815',
-          isLight ? 1.25 : 0.95,
+          isLight ? 0.70 : 0.55,
         ]}
       />
 
-      {/* Key Light: High-fidelity studio key light from top-right */}
+      {/* Key Light: High-fidelity studio key light grazing from top-right */}
       <directionalLight
-        position={[3.8, 4.6, 5.0]}
-        intensity={isLight ? 2.8 : 2.5}
+        position={[4.5, 4.8, 3.2]}
+        intensity={isLight ? 1.5 : 1.3}
         color={isLight ? '#fff5eb' : '#fffaf2'}
       />
 
       {/* Rim Light 1: Cool electric-blue contour rim light grazing the left titanium chamfer */}
       <directionalLight
         position={[-4.6, 3.4, -3.8]}
-        intensity={isLight ? 2.2 : 2.6}
+        intensity={isLight ? 2.0 : 2.4}
         color={isLight ? '#5a95ff' : '#397BFF'}
       />
 
       {/* Rim Light 2: Warm orange silhouette accent grazing the right titanium edge */}
       <directionalLight
         position={[4.6, -1.6, -3.2]}
-        intensity={isLight ? 1.6 : 2.0}
+        intensity={isLight ? 1.5 : 1.8}
         color={isLight ? '#ff8554' : '#FF7138'}
       />
 
       {/* Bottom Kicker Light: Subtle upward fill for USB-C, speaker grills & bottom curve */}
       <directionalLight
-        position={[0, -4.2, 2.4]}
-        intensity={isLight ? 1.1 : 0.85}
+        position={[0, -4.2, 2.0]}
+        intensity={isLight ? 0.7 : 0.55}
         color={isLight ? '#f1f5f9' : '#e2e8f0'}
       />
 
-      {/* Dynamic Specular Glint: Sweeps across the front glass and titanium bezel */}
+      {/* Dynamic Specular Glint: Sweeps across the titanium bezel and glass edge */}
       <pointLight
         ref={specularLightRef}
-        position={[0, 2.7, 5.5]}
-        intensity={isLight ? 1.8 : 2.2}
-        distance={12}
+        position={[0, 2.7, 5.0]}
+        intensity={isLight ? 0.45 : 0.55}
+        distance={10}
         decay={2}
         color="#ffffff"
       />

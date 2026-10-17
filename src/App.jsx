@@ -6,8 +6,11 @@ import {
 } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  ArrowUp,
   ArrowUpRight,
+  Check,
   Code2,
+  Copy,
   Cpu,
   Layers,
   Mail,
@@ -35,7 +38,7 @@ function GitHubIcon({ size = 20 }) {
   )
 }
 
-function LinkedInIcon({ size = 20 }) {
+function LinkedInIcon({ size = 18 }) {
   return (
     <svg
       width={size}
@@ -49,11 +52,12 @@ function LinkedInIcon({ size = 20 }) {
       aria-hidden="true"
     >
       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-      <rect width="4" height="12" x="2" y="9" />
+      <rect x="2" y="9" width="4" height="12" />
       <circle cx="4" cy="4" r="2" />
     </svg>
   )
 }
+
 import './index.css'
 import './hero-upgrade.css'
 import Intro from './components/Intro'
@@ -75,6 +79,7 @@ import {
 const easeOut = [0.22, 1, 0.36, 1]
 const CURRENT_YEAR = 2026
 
+
 /**
  * Central configuration for Mrh Rafi's personal profile and Hero 3D iPhone screen.
  * - Change `heroPhoneScreenSrc` anytime to swap the default screenshot displayed on the 3D iPhone.
@@ -85,35 +90,13 @@ const PROFILE_CONFIG = {
   title: 'Flutter App Developer',
   secondaryFocus: 'C++ & Data Structures and Algorithms (DSA)',
   location: 'Bangladesh',
-  portraitSrc: '/images/rafi-portrait.jpg',
-  heroPhoneScreenSrc: '/images/hero-1.png',
+  portraitSrc: '/images/hero-1.png',
+  heroPhoneScreenSrc: '/images/rafi-portrait.jpg',
   email: 'mrhrafi99@gmail.com',
   resumeUrl: null,
   githubUrl: 'https://github.com/mrhrafi',
   linkedinUrl: 'https://bd.linkedin.com/in/mrhrafi',
 }
-
-/**
- * Presets for the Hero 3D iPhone display switcher.
- * Add or replace entries here to preview any app screenshot on the 3D iPhone.
- */
-const HERO_SCREEN_OPTIONS = [
-  {
-    id: 'hero-poster',
-    label: 'Mrh Rafi',
-    src: '/images/hero-1.png',
-  },
-  {
-    id: 'expify',
-    label: 'Expify Beta',
-    src: '/images/expify/screen-1.png',
-  },
-  {
-    id: 'clocky',
-    label: 'Clocky',
-    src: '/images/clocky/screen-1.png',
-  },
-]
 
 
 const projectsData = [
@@ -441,16 +424,6 @@ const skillCategories = [
   },
 ]
 
-/**
- * Renders a section heading with optional accented suffix.
- */
-function StaggeredHeading({ text, accentText }) {
-  return (
-    <h2>
-      {text} {accentText && <span>{accentText}</span>}
-    </h2>
-  )
-}
 
 /**
  * Renders Mrh Rafi's portrait and personal introduction card in the Hero section.
@@ -819,9 +792,31 @@ function App() {
   const [ready, setReady] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedScreenIndex, setSelectedScreenIndex] = useState(0)
-  const [activeHeroScreen, setActiveHeroScreen] = useState(
-    PROFILE_CONFIG.heroPhoneScreenSrc,
-  )
+  const [copiedEmail, setCopiedEmail] = useState(false)
+
+  const handleCopyEmail = useCallback(async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(PROFILE_CONFIG.email)
+      } else {
+        const textArea = document.createElement('textarea')
+        textArea.value = PROFILE_CONFIG.email
+        textArea.style.position = 'fixed'
+        textArea.style.opacity = '0'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+      }
+      setCopiedEmail(true)
+      setTimeout(() => setCopiedEmail(false), 2000)
+    } catch (err) {
+      console.warn('Clipboard copy failed:', err)
+    }
+  }, [])
 
   // Interactive screenshot state for the 3 dedicated project scenes
   const [clockyScreenIndex, setClockyScreenIndex] = useState(0)
@@ -882,7 +877,7 @@ function App() {
       'rgba(249, 115, 22, 0.26)',  // Scene 3: Sunset Coral (NomNom)
       'rgba(57, 123, 255, 0.22)',  // Scene 4: Electric Blue (About)
       'rgba(99, 102, 241, 0.24)',  // Scene 5: Indigo (Skills)
-      'rgba(255, 113, 56, 0.24)',  // Scene 6: Hot Orange (Contact)
+      'rgba(255, 113, 56, 0.22)',  // Scene 6: Radiant Ember Horizon (Contact)
     ],
   )
   const ambientGlowGradient = useTransform(
@@ -1304,7 +1299,7 @@ function App() {
                       <HeroPhone
                         reducedMotion={shouldReduceMotion}
                         scrollProgress={heroPhoneProgress}
-                        screenImageSrc={activeHeroScreen}
+                        screenImageSrc={PROFILE_CONFIG.portraitSrc}
                         pageReady={ready}
                         theme={theme}
                       />
@@ -1316,29 +1311,6 @@ function App() {
                       {...reveal(0.75, 12)}
                     >
                       <span className="label-dot" /> Built with Flutter
-                    </motion.div>
-
-                    <motion.div
-                      className="hero-screen-switcher glass-surface"
-                      role="group"
-                      aria-label="Switch 3D iPhone app screen"
-                      {...reveal(0.9, 10)}
-                    >
-                      <span className="switcher-caption">3D DISPLAY:</span>
-                      {HERO_SCREEN_OPTIONS.map((option) => {
-                        const isActive = activeHeroScreen === option.src
-                        return (
-                          <button
-                            key={option.id}
-                            type="button"
-                            className={`switcher-pill liquid-btn${isActive ? ' is-active' : ''}`}
-                            aria-pressed={isActive}
-                            onClick={() => setActiveHeroScreen(option.src)}
-                          >
-                            <span>{option.label}</span>
-                          </button>
-                        )
-                      })}
                     </motion.div>
 
                     <motion.div
@@ -1722,9 +1694,9 @@ function App() {
             </div>
           </motion.section>
 
-          {/* ── Scene 6: Contact & Footer ── */}
+          {/* ── Scene 6: Contact / Digital Studio Finale ── */}
           <motion.footer
-            className="footer cinematic-scene-chamber"
+            className="cinematic-scene-chamber contact-section"
             id="contact"
             style={{
               scale: isMotionDisabled ? 1 : contactScale,
@@ -1734,188 +1706,141 @@ function App() {
             }}
             {...(isMotionDisabled ? scrollReveal(26) : {})}
           >
-            <div className="cinematic-scene-inner">
-              <div className="contact-showcase" style={{ width: '100%' }}>
-                <motion.div
-                  className="contact-copy"
-                  style={{
-                    opacity: isMotionDisabled ? 1 : contactHeaderOpacity,
-                    y: isMotionDisabled ? 0 : contactHeaderY,
-                  }}
-                >
-                  <p className="eyebrow">07 / GET IN TOUCH</p>
-                  <StaggeredHeading
-                    text="Let's build something"
-                    accentText="meaningful."
-                    shouldReduceMotion={shouldReduceMotion}
-                  />
-                  <p className="contact-description">
-                    Interested in collaborating on a Flutter application, discussing a
-                    mobile role, or connecting over software engineering? Reach out
-                    through any of my verified channels below.
-                  </p>
-                </motion.div>
+            {/* Atmospheric subtle vignette */}
+            <div className="contact-ambient-glow" aria-hidden="true" />
 
-                <motion.div
-                  className="contact-cards-grid"
-                  style={{
-                    opacity: isMotionDisabled ? 1 : contactGridOpacity,
-                    y: isMotionDisabled ? 0 : contactGridY,
-                  }}
-                >
-                  <motion.a
-                    className="contact-channel-card glass-card liquid-glass-card liquid-btn"
-                    data-liquid-intensity="subtle"
-                    href={PROFILE_CONFIG.linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
-                    onPointerLeave={handleLiquidPointerLeave}
-                    whileHover={linkHover}
-                  >
-                    <span className="contact-channel-icon" style={{ position: 'relative', zIndex: 2 }}>
-                      <LinkedInIcon size={20} />
-                    </span>
-                    <div style={{ position: 'relative', zIndex: 2 }}>
-                      <span className="contact-channel-label">LINKEDIN</span>
-                      <strong>in/mrhrafi</strong>
-                      <small>Connect professionally</small>
-                    </div>
-                    <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
-                  </motion.a>
-
-                  <motion.a
-                    className="contact-channel-card glass-card liquid-glass-card liquid-btn"
-                    data-liquid-intensity="subtle"
-                    href={PROFILE_CONFIG.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
-                    onPointerLeave={handleLiquidPointerLeave}
-                    whileHover={linkHover}
-                  >
-                    <span className="contact-channel-icon" style={{ position: 'relative', zIndex: 2 }}>
-                      <GitHubIcon size={20} />
-                    </span>
-                    <div style={{ position: 'relative', zIndex: 2 }}>
-                      <span className="contact-channel-label">GITHUB</span>
-                      <strong>@mrhrafi</strong>
-                      <small>Explore my repositories &amp; code</small>
-                    </div>
-                    <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
-                  </motion.a>
-
-                  {PROFILE_CONFIG.email ? (
-                    <motion.a
-                      className="contact-channel-card glass-card liquid-glass-card liquid-btn"
-                      data-liquid-intensity="subtle"
-                      href={`mailto:${PROFILE_CONFIG.email}`}
-                      onPointerMove={(e) => handleLiquidPointerMove(e, shouldReduceMotion)}
-                      onPointerLeave={handleLiquidPointerLeave}
-                      whileHover={linkHover}
-                    >
-                      <span className="contact-channel-icon" style={{ position: 'relative', zIndex: 2 }}>
-                        <Mail size={20} />
-                      </span>
-                      <div style={{ position: 'relative', zIndex: 2 }}>
-                        <span className="contact-channel-label">DIRECT EMAIL</span>
-                        <strong>{PROFILE_CONFIG.email}</strong>
-                        <small>You can mail me anytime</small>
-                      </div>
-                      <ArrowUpRight size={18} className="contact-channel-arrow" style={{ position: 'relative', zIndex: 2 }} />
-                    </motion.a>
-                  ) : (
-                    <div className="contact-channel-card glass-card liquid-glass-card is-placeholder">
-                      <span className="contact-channel-icon">
-                        <Mail size={20} />
-                      </span>
-                      <div>
-                        <span className="contact-channel-label">DIRECT EMAIL</span>
-                        <strong>mrhrafi99@gmail.com</strong>
-                        <small>You can mail me anytime</small>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              </div>
-
+            <div className="cinematic-scene-inner contact-inner">
               <motion.div
-                className="footer-bottom-bar"
+                className="contact-card-chamber"
                 style={{
-                  width: '100%',
-                  marginTop: 36,
+                  opacity: isMotionDisabled ? 1 : contactHeaderOpacity,
+                  y: isMotionDisabled ? 0 : contactHeaderY,
+                }}
+              >
+                {/* Precision scene marker */}
+                <div className="contact-eyebrow">
+                  <span className="contact-eyebrow-dot" aria-hidden="true" />
+                  <span className="contact-eyebrow-text">07 // FINALE · INITIATE CONTACT</span>
+                </div>
+
+                {/* Monumental cinematic headline */}
+                <h2 className="contact-headline">
+                  Have something <br className="contact-headline-break" />
+                  <span className="contact-headline-accent">worth building?</span>
+                </h2>
+
+                {/* Supporting identity narrative */}
+                <p className="contact-description">
+                  Independent Flutter developer available for select mobile applications,
+                  clean architecture consulting, and product engineering worldwide.
+                </p>
+
+                {/* Contact Actions Container */}
+                <div className="contact-actions">
+                  {/* Sculpted Email Card */}
+                  <div className="contact-email-card">
+                    <div className="contact-email-info">
+                      <div className="contact-email-icon-box" aria-hidden="true">
+                        <Mail size={18} />
+                      </div>
+                      <div className="contact-email-text">
+                        <span className="contact-email-label">DIRECT CHANNEL</span>
+                        <a
+                          href={`mailto:${PROFILE_CONFIG.email}`}
+                          className="contact-email-address"
+                          aria-label={`Send email to ${PROFILE_CONFIG.email}`}
+                        >
+                          {PROFILE_CONFIG.email}
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="contact-email-actions">
+                      <button
+                        type="button"
+                        onClick={handleCopyEmail}
+                        className={`contact-copy-btn ${copiedEmail ? 'is-copied' : ''}`}
+                        aria-label={copiedEmail ? 'Email address copied to clipboard' : 'Copy email address'}
+                        title={copiedEmail ? 'Copied to clipboard' : 'Copy email to clipboard'}
+                      >
+                        {copiedEmail ? (
+                          <>
+                            <Check size={14} className="contact-copy-check" aria-hidden="true" />
+                            <span>Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={14} aria-hidden="true" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+
+                      <a
+                        href={`mailto:${PROFILE_CONFIG.email}`}
+                        className="contact-cta-btn"
+                        aria-label={`Start conversation with ${PROFILE_CONFIG.name} via email`}
+                      >
+                        <span>Start conversation</span>
+                        <ArrowUpRight size={15} className="contact-cta-arrow" aria-hidden="true" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Secondary Social Channels */}
+                  <div className="contact-social-row">
+                    <span className="contact-social-caption">ELSEWHERE</span>
+                    <div className="contact-social-links">
+                      <a
+                        href={PROFILE_CONFIG.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="contact-social-pill"
+                        aria-label="LinkedIn profile (opens in new tab)"
+                      >
+                        <LinkedInIcon size={16} />
+                        <span>LinkedIn</span>
+                        <ArrowUpRight size={13} className="contact-pill-arrow" aria-hidden="true" />
+                      </a>
+                      <a
+                        href={PROFILE_CONFIG.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="contact-social-pill"
+                        aria-label="GitHub profile (opens in new tab)"
+                      >
+                        <GitHubIcon size={16} />
+                        <span>GitHub</span>
+                        <ArrowUpRight size={13} className="contact-pill-arrow" aria-hidden="true" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Anchored Footer Baseline */}
+              <motion.div
+                className="contact-footer"
+                style={{
                   opacity: isMotionDisabled ? 1 : contactGridOpacity,
                   y: isMotionDisabled ? 0 : contactGridY,
                 }}
               >
-                <div className="footer-brand-col">
-                  <a
-                    className="wordmark"
-                    href="#home"
-                    onClick={(e) => {
-                      if (!isMotionDisabled) {
-                        e.preventDefault()
-                        scrollToSection('home')
-                      }
-                    }}
-                  >
-                    mrh<span>.</span>rafi
-                  </a>
-                  <p className="footer-tagline">
-                    Mrh Rafi · Flutter App Developer · Bangladesh
-                  </p>
+                <div className="contact-footer-meta">
+                  <span className="contact-footer-location">Dhaka, Bangladesh · UTC+6</span>
+                  <span className="contact-footer-sep" aria-hidden="true">/</span>
+                  <span className="contact-footer-copy">© {CURRENT_YEAR} Mrh Rafi</span>
                 </div>
 
-                <div className="footer-nav-col">
-                  <a
-                    href="#home"
-                    onClick={(e) => {
-                      if (!isMotionDisabled) {
-                        e.preventDefault()
-                        scrollToSection('home')
-                      }
-                    }}
-                  >
-                    Home
-                  </a>
-                  <a
-                    href="#work"
-                    onClick={(e) => {
-                      if (!isMotionDisabled) {
-                        e.preventDefault()
-                        scrollToSection('work')
-                      }
-                    }}
-                  >
-                    Projects
-                  </a>
-                  <a
-                    href="#about"
-                    onClick={(e) => {
-                      if (!isMotionDisabled) {
-                        e.preventDefault()
-                        scrollToSection('about')
-                      }
-                    }}
-                  >
-                    About
-                  </a>
-                  <a
-                    href="#skills"
-                    onClick={(e) => {
-                      if (!isMotionDisabled) {
-                        e.preventDefault()
-                        scrollToSection('skills')
-                      }
-                    }}
-                  >
-                    Skills
-                  </a>
-                </div>
-
-                <p className="footer-note">
-                  © {CURRENT_YEAR} Mrh Rafi · Crafted with Flutter spirit &amp; React Three Fiber.
-                </p>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection('home')}
+                  className="contact-back-to-top"
+                  aria-label="Return to top of portfolio"
+                >
+                  <span>Back to top</span>
+                  <ArrowUp size={14} className="contact-back-arrow" aria-hidden="true" />
+                </button>
               </motion.div>
             </div>
           </motion.footer>

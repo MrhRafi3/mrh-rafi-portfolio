@@ -119,17 +119,17 @@ const REALM_CONFIGS = [
     id: 'contact',
     z: -170,
     dark: {
-      bg: '#120f05',
-      fog: '#181407',
-      accent: '#eab308',
-      secondary: '#ca8a04',
+      bg: '#090A0D',
+      fog: '#0D0F14',
+      accent: '#FF7138',
+      secondary: '#FF8554',
       ambientIntensity: 0.95,
     },
     light: {
-      bg: '#faf7ec',
-      fog: '#f5f0db',
-      accent: '#ca8a04',
-      secondary: '#a16207',
+      bg: '#F8F9FA',
+      fog: '#EEF2F6',
+      accent: '#FF7138',
+      secondary: '#EA580C',
       ambientIntensity: 1.2,
     },
   },
@@ -749,58 +749,82 @@ function SkillsConstellationLandmark({ theme }) {
 }
 
 /**
- * Realm 6 Landmark: Contact Dawn Gateway.
- * Grand golden arch with converging perspective light rays.
+ * Realm 6 Landmark: The Illuminated Ember Horizon Orb.
+ * A dimensional, radiant core at the horizon that serves as the cinematic
+ * visual centerpiece for the portfolio finale.
  */
 function ContactDawnLandmark({ theme }) {
-  const archGeo = useMemo(() => new THREE.TorusGeometry(8.8, 0.06, 16, 32), [])
-  const beamGeo = useMemo(() => new THREE.CylinderGeometry(0.04, 0.25, 28, 8), [])
+  const orbRef = useRef(null)
+  const coronaRef = useRef(null)
+  const isLight = theme === 'light'
 
-  const archMat = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: new THREE.Color(theme === 'light' ? '#ca8a04' : '#eab308'),
-      transparent: true,
-      opacity: theme === 'light' ? 0.4 : 0.75,
-      blending: theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending,
-    })
-  }, [theme])
+  const orbGeo = useMemo(() => new THREE.SphereGeometry(3.6, 64, 64), [])
+  const coronaGeo = useMemo(() => new THREE.RingGeometry(3.9, 5.2, 64), [])
+  const horizonGeo = useMemo(() => new THREE.CylinderGeometry(0.018, 0.018, 64, 8), [])
 
-  const beamMat = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: new THREE.Color(theme === 'light' ? '#eab308' : '#fef08a'),
-      transparent: true,
-      opacity: theme === 'light' ? 0.18 : 0.35,
-      blending: theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending,
+  const orbMat = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      color: isLight ? '#f97316' : '#1a0e08',
+      emissive: new THREE.Color(isLight ? '#ea580c' : '#FF7138'),
+      emissiveIntensity: isLight ? 0.45 : 0.85,
+      roughness: 0.28,
+      metalness: 0.12,
     })
-  }, [theme])
+  }, [isLight])
+
+  const coronaMat = useMemo(() => {
+    return new THREE.MeshBasicMaterial({
+      color: new THREE.Color(isLight ? '#fb923c' : '#FF7138'),
+      transparent: true,
+      opacity: isLight ? 0.16 : 0.28,
+      blending: isLight ? THREE.NormalBlending : THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    })
+  }, [isLight])
+
+  const horizonMat = useMemo(() => {
+    return new THREE.MeshBasicMaterial({
+      color: new THREE.Color(isLight ? '#cbd5e1' : '#475569'),
+      transparent: true,
+      opacity: isLight ? 0.35 : 0.5,
+      blending: isLight ? THREE.NormalBlending : THREE.AdditiveBlending,
+    })
+  }, [isLight])
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime()
+    if (orbRef.current) {
+      orbRef.current.rotation.y = t * 0.08
+      orbRef.current.position.y = Math.sin(t * 0.6) * 0.14
+    }
+    if (coronaRef.current) {
+      coronaRef.current.rotation.z = -t * 0.04
+    }
+  })
 
   return (
     <group position={[0, 0, -170]}>
-      <mesh geometry={archGeo} material={archMat} />
-      {/* 4 Converging perspective light beams toward the horizon */}
-      <mesh
-        position={[-5, -4, -10]}
-        rotation={[Math.PI / 4, 0, -Math.PI / 6]}
-        geometry={beamGeo}
-        material={beamMat}
+      {/* Soft localized point light casting ember radiance from the orb */}
+      <pointLight
+        color={isLight ? '#ea580c' : '#FF7138'}
+        intensity={isLight ? 1.4 : 2.6}
+        distance={28}
+        decay={2}
+        position={[0, 0, 2]}
       />
+
+      {/* Dimensional Illuminated Ember Core */}
+      <mesh ref={orbRef} geometry={orbGeo} material={orbMat} />
+
+      {/* Atmospheric Corona Ring */}
+      <mesh ref={coronaRef} geometry={coronaGeo} material={coronaMat} position={[0, 0, -0.2]} />
+
+      {/* Precision Horizon Line */}
       <mesh
-        position={[5, -4, -10]}
-        rotation={[Math.PI / 4, 0, Math.PI / 6]}
-        geometry={beamGeo}
-        material={beamMat}
-      />
-      <mesh
-        position={[-5, 4, -10]}
-        rotation={[-Math.PI / 4, 0, -Math.PI / 6]}
-        geometry={beamGeo}
-        material={beamMat}
-      />
-      <mesh
-        position={[5, 4, -10]}
-        rotation={[-Math.PI / 4, 0, Math.PI / 6]}
-        geometry={beamGeo}
-        material={beamMat}
+        geometry={horizonGeo}
+        material={horizonMat}
+        position={[0, -2.4, -0.1]}
+        rotation={[0, 0, Math.PI / 2]}
       />
     </group>
   )
@@ -821,17 +845,38 @@ function ParticleSlipstream({ scrollProgress, theme, isMobile }) {
   const particleData = isMobile ? MOBILE_PARTICLES : DESKTOP_PARTICLES
   const particleCount = isMobile ? 240 : 680
 
+  // Procedural circular alpha sprite to guarantee soft round ember particles (no square sprites)
+  const circleTexture = useMemo(() => {
+    if (typeof document === 'undefined') return null
+    const canvas = document.createElement('canvas')
+    canvas.width = 64
+    canvas.height = 64
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32)
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)')
+    gradient.addColorStop(0.35, 'rgba(255, 255, 255, 0.85)')
+    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.25)')
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, 64, 64)
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.needsUpdate = true
+    return texture
+  }, [])
+
   const pointsMaterial = useMemo(() => {
     return new THREE.PointsMaterial({
       color: new THREE.Color(theme === 'light' ? '#94a3b8' : '#e2e8f0'),
       size: theme === 'light' ? 0.18 : 0.24,
+      map: circleTexture || undefined,
       transparent: true,
       opacity: theme === 'light' ? 0.45 : 0.75,
       blending: theme === 'light' ? THREE.NormalBlending : THREE.AdditiveBlending,
       sizeAttenuation: true,
       depthWrite: false,
     })
-  }, [theme])
+  }, [theme, circleTexture])
 
   const linesMaterial = useMemo(() => {
     return new THREE.LineBasicMaterial({
@@ -875,8 +920,9 @@ function ParticleSlipstream({ scrollProgress, theme, isMobile }) {
       linesGeometry.dispose()
       pointsMaterial.dispose()
       linesMaterial.dispose()
+      circleTexture?.dispose()
     }
-  }, [pointsGeometry, linesGeometry, pointsMaterial, linesMaterial])
+  }, [pointsGeometry, linesGeometry, pointsMaterial, linesMaterial, circleTexture])
 
   useFrame((_, delta) => {
     if (!pointsRef.current || !linesRef.current) return
@@ -890,26 +936,32 @@ function ParticleSlipstream({ scrollProgress, theme, isMobile }) {
     const vel = velocityRef.current
     const speed = Math.abs(vel)
 
+    // Fade particles during the finale scene (Realm 6) to keep the horizon clean & serene
+    const finaleFade = THREE.MathUtils.clamp((currentProgress - 0.86) / 0.10, 0, 1)
+
     // Calculate dynamic streak stretch along the Z axis (backward from flight direction)
     // Forward flight (vel > 0 in progress -> camera moves -Z): particles streak behind towards +Z
     const targetStreakZ = THREE.MathUtils.clamp(vel * 3.8, -2.4, 2.4)
     currentStreakZRef.current = THREE.MathUtils.damp(currentStreakZRef.current, targetStreakZ, 8.5, dt)
     const streakZ = currentStreakZRef.current
 
-    // Fade streaks in during movement; hide completely when resting
+    // Fade streaks in during movement; hide completely when resting or during finale
     const streakStrength = Math.min(speed * 2.8, 1)
     if (linesRef.current.material) {
+      const maxStreakOpacity = theme === 'light' ? 0.38 : 0.62
       linesRef.current.material.opacity = THREE.MathUtils.lerp(
         0,
-        theme === 'light' ? 0.38 : 0.62,
+        maxStreakOpacity * (1 - finaleFade),
         streakStrength
       )
     }
 
-    // Subtle particle size expansion during fast travel
+    // Subtle particle size expansion during fast travel and gentle fade during finale
     if (pointsRef.current.material) {
       const baseSize = theme === 'light' ? 0.18 : 0.24
+      const baseOpacity = theme === 'light' ? 0.45 : 0.75
       pointsRef.current.material.size = baseSize + THREE.MathUtils.clamp(speed * 0.08, 0, 0.10)
+      pointsRef.current.material.opacity = baseOpacity * (1 - finaleFade * 0.95)
     }
 
     const posAttr = pointsRef.current.geometry.attributes.position
