@@ -51,7 +51,7 @@ class SceneBoundary extends Component {
 export default function HeroPhone({
   reducedMotion,
   scrollProgress,
-  screenImageSrc = '/images/rafi-portrait.jpg',
+  screenImageSrc = '/images/hero-1.png',
   pageReady = true,
   theme = 'dark',
 }) {

@@ -6,6 +6,7 @@ import {
 } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  AlertCircle,
   ArrowUp,
   ArrowUpRight,
   Check,
@@ -90,12 +91,12 @@ const PROFILE_CONFIG = {
   title: 'Flutter App Developer',
   secondaryFocus: 'C++ & Data Structures and Algorithms (DSA)',
   location: 'Bangladesh',
-  portraitSrc: '/images/hero-1.png',
-  heroPhoneScreenSrc: '/images/rafi-portrait.jpg',
+  portraitSrc: '/images/rafi-portrait.jpg',
+  heroPhoneScreenSrc: '/images/hero-1.png',
   email: 'mrhrafi99@gmail.com',
   resumeUrl: null,
-  githubUrl: 'https://github.com/mrhrafi',
-  linkedinUrl: 'https://bd.linkedin.com/in/mrhrafi',
+  githubUrl: 'https://github.com/mrhrafi3',
+  linkedinUrl: 'https://www.linkedin.com/in/mrhrafi',
 }
 
 
@@ -792,29 +793,65 @@ function App() {
   const [ready, setReady] = useState(false)
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedScreenIndex, setSelectedScreenIndex] = useState(0)
-  const [copiedEmail, setCopiedEmail] = useState(false)
+  const [copyStatus, setCopyStatus] = useState('idle') // 'idle' | 'copied' | 'error'
+  const copyResetTimerRef = useRef(null)
 
   const handleCopyEmail = useCallback(async (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(PROFILE_CONFIG.email)
-      } else {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+
+    if (copyResetTimerRef.current) {
+      clearTimeout(copyResetTimerRef.current)
+      copyResetTimerRef.current = null
+    }
+
+    const emailToCopy = PROFILE_CONFIG.email
+    let success = false
+
+    // Method 1: Modern async Clipboard API (when supported and in secure context)
+    if (navigator?.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(emailToCopy)
+        success = true
+      } catch (err) {
+        console.warn('Async clipboard writeText rejected, attempting fallback:', err)
+      }
+    }
+
+    // Method 2: Robust textarea execCommand fallback
+    if (!success && typeof document !== 'undefined') {
+      try {
         const textArea = document.createElement('textarea')
-        textArea.value = PROFILE_CONFIG.email
+        textArea.value = emailToCopy
+        textArea.setAttribute('readonly', '')
         textArea.style.position = 'fixed'
+        textArea.style.top = '-9999px'
+        textArea.style.left = '-9999px'
         textArea.style.opacity = '0'
         document.body.appendChild(textArea)
         textArea.focus()
         textArea.select()
-        document.execCommand('copy')
+        textArea.setSelectionRange(0, emailToCopy.length)
+        success = document.execCommand('copy')
         document.body.removeChild(textArea)
+      } catch (fallbackErr) {
+        console.warn('Fallback document.execCommand copy failed:', fallbackErr)
+        success = false
       }
-      setCopiedEmail(true)
-      setTimeout(() => setCopiedEmail(false), 2000)
-    } catch (err) {
-      console.warn('Clipboard copy failed:', err)
+    }
+
+    if (success) {
+      setCopyStatus('copied')
+      copyResetTimerRef.current = setTimeout(() => {
+        setCopyStatus('idle')
+      }, 2000)
+    } else {
+      setCopyStatus('error')
+      copyResetTimerRef.current = setTimeout(() => {
+        setCopyStatus('idle')
+      }, 2500)
     }
   }, [])
 
@@ -928,7 +965,7 @@ function App() {
   const skillsScale = useTransform(masterProgress, [4 / 6, 5 / 6, 1.0], [0.35, 1.0, 2.2])
   const skillsZ = useTransform(masterProgress, [4 / 6, 5 / 6, 1.0], [-600, 0, 320])
   const skillsOpacity = useTransform(masterProgress, [0.69, 0.78, 0.88, 0.97], [0.0, 1.0, 1.0, 0.0])
-  const skillsPointerEvents = useTransform(masterProgress, (v) => (v >= 0.75 && v < 0.92 ? 'auto' : 'none'))
+  const skillsPointerEvents = useTransform(masterProgress, (v) => (v >= 0.75 && v < 0.88 ? 'auto' : 'none'))
   const skillsHeaderOpacity = useTransform(masterProgress, [0.70, 0.80], [0.0, 1.0])
   const skillsHeaderY = useTransform(masterProgress, [0.70, 0.80], [24, 0])
   const skillsGridOpacity = useTransform(masterProgress, [0.72, 0.82], [0.0, 1.0])
@@ -938,7 +975,7 @@ function App() {
   const contactScale = useTransform(masterProgress, [5 / 6, 1.0], [0.35, 1.0])
   const contactZ = useTransform(masterProgress, [5 / 6, 1.0], [-600, 0])
   const contactOpacity = useTransform(masterProgress, [0.86, 0.97], [0.0, 1.0])
-  const contactPointerEvents = useTransform(masterProgress, (v) => (v >= 0.92 ? 'auto' : 'none'))
+  const contactPointerEvents = useTransform(masterProgress, (v) => (v >= 0.88 ? 'auto' : 'none'))
   const contactHeaderOpacity = useTransform(masterProgress, [0.88, 0.98], [0.0, 1.0])
   const contactHeaderY = useTransform(masterProgress, [0.88, 0.98], [24, 0])
   const contactGridOpacity = useTransform(masterProgress, [0.89, 0.99], [0.0, 1.0])
@@ -974,10 +1011,12 @@ function App() {
   }, [masterProgress, isMotionDisabled])
 
   const isSettlingRef = useRef(false)
+  const targetScrollYRef = useRef(null)
   const lastScrollYRef = useRef(0)
   const lastScrollTimeRef = useRef(0)
   const scrollVelocityRef = useRef(0)
   const settleTimerRef = useRef(null)
+  const settlingSafetyTimerRef = useRef(null)
 
   const goToSceneIndex = useCallback((sceneIndex) => {
     const track = masterTrackRef.current
@@ -989,21 +1028,41 @@ function App() {
     if (trackHeight <= 0) return
 
     const targetPct = SCENE_TARGETS[sceneIndex]?.percent ?? 0
-    const targetY = trackTop + targetPct * trackHeight
+    const targetY = sceneIndex === 0 ? 0 : Math.round(trackTop + targetPct * trackHeight)
+
+    if (settleTimerRef.current) {
+      clearTimeout(settleTimerRef.current)
+      settleTimerRef.current = null
+    }
+    if (settlingSafetyTimerRef.current) {
+      clearTimeout(settlingSafetyTimerRef.current)
+      settlingSafetyTimerRef.current = null
+    }
 
     isSettlingRef.current = true
+    targetScrollYRef.current = targetY
+
     window.scrollTo({
       top: targetY,
       behavior: 'smooth',
     })
 
-    setTimeout(() => {
+    settlingSafetyTimerRef.current = setTimeout(() => {
       isSettlingRef.current = false
-    }, 600)
+      targetScrollYRef.current = null
+    }, 2000)
   }, [])
 
   const scrollToSection = useCallback(
     (sectionId) => {
+      if (sectionId === 'home') {
+        if (isMotionDisabled) {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        } else {
+          goToSceneIndex(0)
+        }
+        return
+      }
       if (isMotionDisabled) {
         const el = document.getElementById(sectionId)
         if (el) el.scrollIntoView({ behavior: 'smooth' })
@@ -1044,7 +1103,17 @@ function App() {
         clearTimeout(settleTimerRef.current)
       }
 
-      if (isSettlingRef.current) return
+      if (isSettlingRef.current) {
+        if (targetScrollYRef.current !== null && Math.abs(currentY - targetScrollYRef.current) <= 15) {
+          isSettlingRef.current = false
+          targetScrollYRef.current = null
+          if (settlingSafetyTimerRef.current) {
+            clearTimeout(settlingSafetyTimerRef.current)
+            settlingSafetyTimerRef.current = null
+          }
+        }
+        return
+      }
 
       settleTimerRef.current = setTimeout(() => {
         if (selectedProject) return
@@ -1082,6 +1151,15 @@ function App() {
 
     const cancelSettle = () => {
       isSettlingRef.current = false
+      targetScrollYRef.current = null
+      if (settleTimerRef.current) {
+        clearTimeout(settleTimerRef.current)
+        settleTimerRef.current = null
+      }
+      if (settlingSafetyTimerRef.current) {
+        clearTimeout(settlingSafetyTimerRef.current)
+        settlingSafetyTimerRef.current = null
+      }
     }
 
     window.addEventListener('scroll', handleUserScroll, { passive: true })
@@ -1093,6 +1171,7 @@ function App() {
       window.removeEventListener('wheel', cancelSettle)
       window.removeEventListener('touchstart', cancelSettle)
       if (settleTimerRef.current) clearTimeout(settleTimerRef.current)
+      if (settlingSafetyTimerRef.current) clearTimeout(settlingSafetyTimerRef.current)
     }
   }, [isMotionDisabled, goToSceneIndex, selectedProject])
 
@@ -1299,7 +1378,7 @@ function App() {
                       <HeroPhone
                         reducedMotion={shouldReduceMotion}
                         scrollProgress={heroPhoneProgress}
-                        screenImageSrc={PROFILE_CONFIG.portraitSrc}
+                        screenImageSrc={PROFILE_CONFIG.heroPhoneScreenSrc}
                         pageReady={ready}
                         theme={theme}
                       />
@@ -1759,14 +1838,37 @@ function App() {
                       <button
                         type="button"
                         onClick={handleCopyEmail}
-                        className={`contact-copy-btn ${copiedEmail ? 'is-copied' : ''}`}
-                        aria-label={copiedEmail ? 'Email address copied to clipboard' : 'Copy email address'}
-                        title={copiedEmail ? 'Copied to clipboard' : 'Copy email to clipboard'}
+                        className={`contact-copy-btn ${
+                          copyStatus === 'copied'
+                            ? 'is-copied'
+                            : copyStatus === 'error'
+                            ? 'is-error'
+                            : ''
+                        }`}
+                        aria-label={
+                          copyStatus === 'copied'
+                            ? 'Email address copied to clipboard'
+                            : copyStatus === 'error'
+                            ? 'Failed to copy email address'
+                            : 'Copy email address'
+                        }
+                        title={
+                          copyStatus === 'copied'
+                            ? 'Copied to clipboard'
+                            : copyStatus === 'error'
+                            ? 'Copy failed — select email manually'
+                            : 'Copy email to clipboard'
+                        }
                       >
-                        {copiedEmail ? (
+                        {copyStatus === 'copied' ? (
                           <>
                             <Check size={14} className="contact-copy-check" aria-hidden="true" />
                             <span>Copied!</span>
+                          </>
+                        ) : copyStatus === 'error' ? (
+                          <>
+                            <AlertCircle size={14} className="contact-copy-error" aria-hidden="true" />
+                            <span>Copy failed</span>
                           </>
                         ) : (
                           <>

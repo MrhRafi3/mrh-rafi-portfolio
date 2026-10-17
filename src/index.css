@@ -4325,6 +4325,19 @@ svg {
   margin-top: 0;
   padding: clamp(28px, 4vw, 44px);
   border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(20, 23, 30, 0.90) 0%, rgba(13, 15, 20, 0.86) 100%);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='light'] .about-narrative-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.93) 0%, rgba(246, 248, 250, 0.88) 100%);
+  border-color: rgba(0, 0, 0, 0.09);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 42px -10px rgba(9, 10, 13, 0.08), 0 2px 8px rgba(9, 10, 13, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .about-narrative-copy p {
@@ -4332,6 +4345,14 @@ svg {
   color: var(--text-secondary);
   font-size: 15.5px;
   line-height: 1.9;
+}
+
+[data-theme='dark'] .about-narrative-copy p {
+  color: rgba(245, 245, 245, 0.85);
+}
+
+[data-theme='light'] .about-narrative-copy p {
+  color: rgba(9, 10, 13, 0.82);
 }
 
 .about-narrative-copy p:last-child {
@@ -4352,6 +4373,17 @@ svg {
 .quick-fact-item {
   padding: 16px;
   border-radius: 16px;
+  background: rgba(22, 26, 35, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='light'] .quick-fact-item {
+  background: rgba(245, 247, 250, 0.85);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .quick-fact-label {
@@ -4378,6 +4410,19 @@ svg {
 .about-pillar-card {
   padding: 26px 24px;
   border-radius: 22px;
+  background: linear-gradient(145deg, rgba(20, 23, 30, 0.90) 0%, rgba(13, 15, 20, 0.86) 100%);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='light'] .about-pillar-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.93) 0%, rgba(246, 248, 250, 0.88) 100%);
+  border-color: rgba(0, 0, 0, 0.09);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 42px -10px rgba(9, 10, 13, 0.08), 0 2px 8px rgba(9, 10, 13, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .about-pillar-card:hover {
@@ -4414,6 +4459,14 @@ svg {
   line-height: 1.75;
 }
 
+[data-theme='dark'] .about-pillar-card p {
+  color: rgba(245, 245, 245, 0.82);
+}
+
+[data-theme='light'] .about-pillar-card p {
+  color: rgba(9, 10, 13, 0.80);
+}
+
 /* Skills Section */
 .skills-category-grid {
   display: grid;
@@ -4429,6 +4482,19 @@ svg {
   flex-direction: column;
   padding: 28px 24px;
   border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(20, 23, 30, 0.90) 0%, rgba(13, 15, 20, 0.86) 100%);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='light'] .skill-category-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.93) 0%, rgba(246, 248, 250, 0.88) 100%);
+  border-color: rgba(0, 0, 0, 0.09);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 42px -10px rgba(9, 10, 13, 0.08), 0 2px 8px rgba(9, 10, 13, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .skill-category-card:hover {
@@ -4492,6 +4558,14 @@ svg {
   line-height: 1.7;
 }
 
+[data-theme='dark'] .skill-category-desc {
+  color: rgba(245, 245, 245, 0.82);
+}
+
+[data-theme='light'] .skill-category-desc {
+  color: rgba(9, 10, 13, 0.80);
+}
+
 .skill-items-list {
   display: flex;
   flex-direction: column;
@@ -4504,10 +4578,22 @@ svg {
   overflow: hidden;
   padding: 14px 15px;
   border-radius: 16px;
+  background: rgba(20, 23, 31, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition:
     transform var(--motion-fast) var(--ease-standard),
     border-color var(--motion-normal) var(--ease-standard),
-    box-shadow var(--motion-normal) var(--ease-standard);
+    box-shadow var(--motion-normal) var(--ease-standard),
+    background-color var(--motion-normal) var(--ease-standard);
+}
+
+[data-theme='light'] .skill-item-row {
+  background: rgba(245, 247, 250, 0.85);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .skill-item-row:hover {
@@ -4554,9 +4640,17 @@ svg {
 
 .skill-item-row p {
   margin: 0;
-  color: var(--muted);
+  color: var(--text-secondary);
   font-size: 12px;
   line-height: 1.6;
+}
+
+[data-theme='dark'] .skill-item-row p {
+  color: rgba(245, 245, 245, 0.78);
+}
+
+[data-theme='light'] .skill-item-row p {
+  color: rgba(9, 10, 13, 0.76);
 }
 
 .skill-category-footer {

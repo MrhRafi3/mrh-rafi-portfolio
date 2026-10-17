@@ -7,7 +7,7 @@ import * as THREE from 'three'
  * Default screenshot displayed on the Hero 3D iPhone screen.
  * You can change this path anytime (or pass `screenImageSrc` from `App.jsx`).
  */
-export const DEFAULT_HERO_SCREEN_IMAGE = '/images/rafi-portrait.jpg'
+export const DEFAULT_HERO_SCREEN_IMAGE = '/images/hero-1.png'
 
 const SCREEN_BRIGHTNESS = 1
 const MAX_DPR =
@@ -57,9 +57,9 @@ function loadImageCached(src) {
   return promise
 }
 
-// Preload the profile picture immediately when the module is imported.
+// Preload the screen image immediately when the module is imported.
 if (typeof window !== 'undefined') {
-  loadImageCached('/images/rafi-portrait.jpg').catch(() => {})
+  loadImageCached('/images/hero-1.png').catch(() => {})
 }
 
 /**
@@ -76,49 +76,22 @@ function roundedRect(ctx, x, y, w, h, r) {
 }
 
 /**
- * Draws an image onto the canvas for the 3D OLED screen.
- * - For portrait profile photos (wider aspect ratio than the 19.5:9 screen, like `rafi-portrait.jpg`),
- *   scales vertically to fit naturally with comfortable breathing room below the Dynamic Island,
- *   centering the face and shoulders horizontally without any distortion or stretching.
- * - Samples the studio backdrop color to extend the top seamlessly behind the Dynamic Island.
- * - For native 19.5:9 screenshots, uses standard aspect-ratio cover math.
+ * Draws an image onto the canvas for the 3D OLED screen using clean, un-distorted cover scaling.
  */
 function drawImageCover(ctx, img, targetW, targetH) {
   const imgW = img.naturalWidth || img.width || targetW
   const imgH = img.naturalHeight || img.height || targetH
-  const imgAspect = imgW / imgH
-  const screenAspect = targetW / targetH
 
   ctx.save()
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
-  if (imgAspect > screenAspect) {
-    // 1. Fill background with matching studio backdrop color
-    try {
-      ctx.drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1)
-      const p = ctx.getImageData(0, 0, 1, 1).data
-      ctx.fillStyle = `rgb(${p[0]}, ${p[1]}, ${p[2]})`
-    } catch {
-      ctx.fillStyle = '#bcc3d5'
-    }
-    ctx.fillRect(0, 0, targetW, targetH)
-
-    // 2. Draw profile picture with natural vertical framing below the Dynamic Island
-    const s = targetH / imgH
-    const dw = imgW * s
-    const dh = imgH * s
-    const dx = (targetW - dw) * 0.5
-    const topOffset = 80
-    ctx.drawImage(img, dx, topOffset, dw, dh)
-  } else {
-    const scale = Math.max(targetW / imgW, targetH / imgH)
-    const drawW = imgW * scale
-    const drawH = imgH * scale
-    const offsetX = (targetW - drawW) * 0.5
-    const offsetY = (targetH - drawH) * 0.5
-    ctx.drawImage(img, offsetX, offsetY, drawW, drawH)
-  }
+  const scale = Math.max(targetW / imgW, targetH / imgH)
+  const drawW = imgW * scale
+  const drawH = imgH * scale
+  const offsetX = (targetW - drawW) * 0.5
+  const offsetY = (targetH - drawH) * 0.5
+  ctx.drawImage(img, offsetX, offsetY, drawW, drawH)
 
   // Subtle Dynamic Island pill aligned with the GLB's top cutout for realism
   const islandW = targetW * 0.25
@@ -861,8 +834,6 @@ export default function IPhone3D({
           <Environment preset="studio" />
         </Suspense>
       </Canvas>
-
-      <div className="rotation-hint">↔ &nbsp; DRAG TO ROTATE 360°</div>
     </div>
   )
 }

@@ -9,7 +9,7 @@ import { useState } from 'react'
  * @returns {JSX.Element} The rendered phone fallback component.
  */
 export default function PhoneFallback({
-  screenImageSrc = '/images/rafi-portrait.jpg',
+  screenImageSrc = '/images/hero-1.png',
 }) {
   const [failedSrc, setFailedSrc] = useState(null)
   const showScreenshot = Boolean(screenImageSrc) && failedSrc !== screenImageSrc
